@@ -1,0 +1,291 @@
+/* ===== 桂林旅行攻略 · 紫色主题 ===== */
+
+:root {
+  --theme-color: #4B3FE3;
+  --purple-light: #6F6FFF;
+  --purple-lighter: #A9AEFF;
+  --purple-bg: #F8F7FF;
+  --purple-border: #E0DEFF;
+  --text-main: #333;
+  --text-muted: #666;
+}
+
+/* ===== 基础排版 ===== */
+body {
+  font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", "SF Pro Text", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--text-main);
+}
+
+.markdown-section {
+  max-width: 900px;
+  padding: 32px 28px 64px;
+}
+
+/* ===== 标题样式 ===== */
+.markdown-section h1 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--theme-color);
+  border-bottom: 3px solid var(--purple-border);
+  padding-bottom: 12px;
+  margin-top: 0;
+}
+
+.markdown-section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--theme-color);
+  margin-top: 2.5em;
+  padding-left: 12px;
+  border-left: 4px solid var(--theme-color);
+}
+
+.markdown-section h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #3C2ECA;
+  margin-top: 2em;
+}
+
+.markdown-section h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* ===== 表格样式 ===== */
+.markdown-section table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-spacing: 0;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(75, 63, 227, 0.08);
+}
+
+.markdown-section table th {
+  background: var(--theme-color);
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 16px;
+  text-align: left;
+  border: none;
+  white-space: nowrap;
+}
+
+.markdown-section table td {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--purple-border);
+  vertical-align: top;
+}
+
+.markdown-section table tr:nth-child(even) td {
+  background: var(--purple-bg);
+}
+
+.markdown-section table tr:hover td {
+  background: #EFEEFF;
+}
+
+.markdown-section table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ===== 引用块（提示/警告） ===== */
+.markdown-section blockquote {
+  border-left: 4px solid var(--theme-color);
+  background: var(--purple-bg);
+  padding: 12px 16px;
+  margin: 1em 0;
+  border-radius: 0 8px 8px 0;
+  color: var(--text-main);
+}
+
+.markdown-section blockquote p {
+  margin: 0.3em 0;
+}
+
+/* ===== 警告标记样式 ===== */
+.markdown-section blockquote strong {
+  color: var(--theme-color);
+}
+
+/* ===== 链接 ===== */
+.markdown-section a {
+  color: var(--theme-color);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--purple-lighter);
+  transition: all 0.2s;
+}
+
+.markdown-section a:hover {
+  color: var(--purple-light);
+  border-bottom: 1px solid var(--purple-light);
+}
+
+/* ===== 代码 ===== */
+.markdown-section code {
+  background: var(--purple-bg);
+  color: var(--theme-color);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+}
+
+.markdown-section pre {
+  background: #1a1a2e;
+  border-radius: 8px;
+}
+
+.markdown-section pre code {
+  background: transparent;
+  color: #e0e0e0;
+}
+
+/* ===== 列表 ===== */
+.markdown-section ul,
+.markdown-section ol {
+  padding-left: 1.5em;
+}
+
+.markdown-section li {
+  margin: 0.3em 0;
+}
+
+/* ===== 复选框列表 ===== */
+.markdown-section input[type="checkbox"] {
+  margin-right: 6px;
+  accent-color: var(--theme-color);
+}
+
+/* ===== 水平线 ===== */
+.markdown-section hr {
+  border: none;
+  border-top: 2px solid var(--purple-border);
+  margin: 2em 0;
+}
+
+/* ===== 侧边栏 ===== */
+.sidebar {
+  background: var(--purple-bg);
+  border-right: 1px solid var(--purple-border);
+}
+
+.sidebar-nav a {
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.sidebar-nav a:hover {
+  color: var(--theme-color);
+}
+
+.sidebar-nav .active > a {
+  color: var(--theme-color);
+  font-weight: 600;
+}
+
+/* ===== 封面页 ===== */
+.cover.show {
+  background: linear-gradient(135deg, #4B3FE3 0%, #6F6FFF 50%, #A9AEFF 100%) !important;
+}
+
+.cover.show h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.cover.show blockquote {
+  background: rgba(255,255,255,0.15);
+  border-left: 3px solid rgba(255,255,255,0.5);
+  border-radius: 4px;
+  color: rgba(255,255,255,0.95);
+}
+
+.cover.show a {
+  background: rgba(255,255,255,0.9);
+  color: var(--theme-color);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 24px;
+  padding: 8px 24px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.cover.show a:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ===== 搜索框 ===== */
+.search {
+  border-bottom: 1px solid var(--purple-border) !important;
+}
+
+.search input {
+  background: var(--purple-bg) !important;
+}
+
+.search .matching-post {
+  border-bottom: 1px solid var(--purple-border) !important;
+}
+
+/* ===== 移动端适配 ===== */
+@media (max-width: 768px) {
+  .markdown-section {
+    padding: 20px 16px 48px;
+  }
+
+  .markdown-section h1 {
+    font-size: 1.5rem;
+  }
+
+  .markdown-section h2 {
+    font-size: 1.25rem;
+  }
+
+  .markdown-section table {
+    font-size: 13px;
+  }
+
+  .markdown-section table th,
+  .markdown-section table td {
+    padding: 6px 10px;
+  }
+
+  .cover.show h1 {
+    font-size: 2rem;
+  }
+}
+
+/* ===== 滚动条美化 ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--purple-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--purple-lighter);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--purple-light);
+}
+
+/* ===== 文字选中 ===== */
+::selection {
+  background: var(--purple-lighter);
+  color: #fff;
+}

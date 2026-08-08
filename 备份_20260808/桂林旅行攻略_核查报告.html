@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>桂林旅行攻略核查报告</title>
+<style>
+:root {
+  --purple-900: #1a0b2e;
+  --purple-800: #2d1b4e;
+  --purple-700: #4a2c6d;
+  --purple-600: #6b3fa0;
+  --purple-500: #8b5cf6;
+  --purple-400: #a78bfa;
+  --purple-300: #c4b5fd;
+  --purple-100: #ede9fe;
+  --purple-50: #f5f3ff;
+  --red-500: #ef4444;
+  --red-50: #fef2f2;
+  --orange-500: #f97316;
+  --orange-50: #fff7ed;
+  --yellow-500: #eab308;
+  --yellow-50: #fefce8;
+  --green-500: #22c55e;
+  --green-50: #f0fdf4;
+  --gray-900: #111827;
+  --gray-700: #374151;
+  --gray-500: #6b7280;
+  --gray-300: #d1d5db;
+  --gray-100: #f3f4f6;
+  --gray-50: #f9fafb;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-900);
+  line-height: 1.7;
+  font-size: 15px;
+}
+.container { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+
+/* Header */
+.hero {
+  background: linear-gradient(135deg, var(--purple-800) 0%, var(--purple-600) 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 40px 36px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  top: -50%; right: -20%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(167,139,250,0.2) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; position: relative; }
+.hero .subtitle { font-size: 14px; opacity: 0.85; position: relative; }
+.hero .meta {
+  display: flex; gap: 20px; margin-top: 16px; flex-wrap: wrap;
+  position: relative;
+}
+.hero .meta-item {
+  background: rgba(255,255,255,0.15);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+/* Summary Cards */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+@media (max-width: 600px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+.summary-card {
+  border-radius: 14px;
+  padding: 20px 16px;
+  text-align: center;
+}
+.summary-card .num { font-size: 32px; font-weight: 800; line-height: 1.2; }
+.summary-card .label { font-size: 12px; margin-top: 4px; }
+.sc-red { background: var(--red-50); color: var(--red-500); }
+.sc-orange { background: var(--orange-50); color: var(--orange-500); }
+.sc-yellow { background: var(--yellow-50); color: var(--yellow-500); }
+.sc-green { background: var(--green-50); color: var(--green-500); }
+
+/* Section */
+.section { margin-bottom: 36px; }
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--purple-800);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--purple-100);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title .icon { font-size: 22px; }
+
+/* Issue Card */
+.issue {
+  background: white;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 14px;
+  border-left: 4px solid var(--gray-300);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.issue.critical { border-left-color: var(--red-500); }
+.issue.major { border-left-color: var(--orange-500); }
+.issue.minor { border-left-color: var(--yellow-500); }
+.issue.correct { border-left-color: var(--green-500); }
+
+.issue-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.issue-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.badge-critical { background: var(--red-50); color: var(--red-500); }
+.badge-major { background: var(--orange-50); color: var(--orange-500); }
+.badge-minor { background: var(--yellow-50); color: var(--yellow-500); }
+.badge-correct { background: var(--green-50); color: var(--green-500); }
+.badge-missing { background: var(--purple-50); color: var(--purple-600); }
+
+.issue-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-900);
+  flex: 1;
+}
+.issue-body { font-size: 14px; color: var(--gray-700); margin-top: 6px; }
+.issue-body p { margin-bottom: 6px; }
+.issue-body p:last-child { margin-bottom: 0; }
+
+/* Comparison Table */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.compare-table th {
+  background: var(--purple-50);
+  color: var(--purple-700);
+  font-weight: 600;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 13px;
+}
+.compare-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table .wrong { color: var(--red-500); font-weight: 600; }
+.compare-table .right { color: var(--green-500); font-weight: 600; }
+.compare-table .highlight { background: var(--red-50); }
+
+/* Budget Box */
+.budget-box {
+  background: var(--purple-50);
+  border-radius: 14px;
+  padding: 24px;
+  margin: 12px 0;
+}
+.budget-box h4 { color: var(--purple-700); margin-bottom: 12px; font-size: 15px; }
+.budget-total {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.budget-total-item {
+  background: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+.budget-total-item .val { font-size: 22px; font-weight: 800; }
+.budget-total-item .lbl { font-size: 12px; color: var(--gray-500); }
+.budget-total-item .val.red { color: var(--red-500); }
+.budget-total-item .val.green { color: var(--green-500); }
+
+/* Action List */
+.action-list {
+  background: white;
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 14px;
+}
+.action-item:last-child { border-bottom: none; }
+.action-num {
+  background: var(--purple-600);
+  color: white;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.action-item.urgent .action-num { background: var(--red-500); }
+
+/* Footer */
+.footer {
+  text-align: center;
+  color: var(--gray-500);
+  font-size: 13px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--gray-200);
+}
+
+/* Callout */
+.callout {
+  background: var(--red-50);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 10px 0;
+  font-size: 13px;
+  color: #991b1b;
+  border-left: 3px solid var(--red-500);
+}
+.callout-purple {
+  background: var(--purple-50);
+  border-left-color: var(--purple-500);
+  color: var(--purple-700);
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Hero -->
+<div class="hero">
+  <h1>桂林旅行攻略核查报告</h1>
+  <div class="subtitle">基于 2025-2026 年最新公开信息逐项核查 · 涵盖票价、交通、航班、天气、预算计算等</div>
+  <div class="meta">
+    <span class="meta-item">核查日期：2026年8月6日</span>
+    <span class="meta-item">原攻略版本：V4.4</span>
+    <span class="meta-item">核查范围：8大类 · 40+项</span>
+  </div>
+</div>
+
+<!-- Summary -->
+<div class="summary-grid">
+  <div class="summary-card sc-red">
+    <div class="num">5</div>
+    <div class="label">严重问题</div>
+  </div>
+  <div class="summary-card sc-orange">
+    <div class="num">10</div>
+    <div class="label">中等问题</div>
+  </div>
+  <div class="summary-card sc-yellow">
+    <div class="num">8</div>
+    <div class="label">轻微/待确认</div>
+  </div>
+  <div class="summary-card sc-green">
+    <div class="num">15+</div>
+    <div class="label">核实正确</div>
+  </div>
+</div>
+
+<!-- ============ 严重问题 ============ -->
+<div class="section">
+  <div class="section-title">
+    <span class="icon">🔴</span> 严重问题（可能直接影响行程）
+  </div>
+
+  <!-- Issue 1 -->
+  <div class="issue critical">
+    <div class="issue-header">
+      <span class="issue-badge badge-critical">严重</span>
+      <span class="issue-title">1. 航班 Y87505 疑似已不再执飞「浦东→桂林」航线</span>
+    </div>
+    <div class="issue-body">
+      <p>攻略中阿照去程航班标注为<strong>「金鹏航空 Y87505，浦东 10:00→桂林两江 ~12:35」</strong>，并标记为"已付 596 元"。</p>
+      <p>经核查，Y87505 航班号确实存在，但<strong>当前执飞的是上海浦东→海口/琼海航线</strong>，并非桂林。较早的订票源显示该航班曾飞"浦东→桂林"，但该航线疑似已停飞或调整。</p>
+      <div class="callout">
+        <strong>行动建议：</strong>这是本次核查发现的最严重问题。请立即登录购票平台或航司APP核实订单状态，确认航班是否真实存在、是否已被取消或改签。如果航班有变，需尽快重新购票——9月初正值暑期尾声，临时购票可能涨价。
+      </div>
+    </div>
+  </div>
+
+  <!-- Issue 2 -->
+  <div class="issue critical">
+    <div class="issue-header">
+      <span class="issue-badge badge-critical">严重</span>
+      <span class="issue-title">2. 桂林→哈尔滨航班为"经停"非"直飞"</span>
+    </div>
+    <div class="issue-body">
+      <p>攻略称妈妈返程乘坐"桂林航空直飞哈尔滨"。经核查，桂林→哈尔滨<strong>目前没有不经停的真直飞航班</strong>，现有航班均为经停：</p>
+      <table class="compare-table">
+        <tr><th>航班</th><th>时间</th><th>经停</th><th>总时长</th></tr>
+        <tr><td>桂林航空 GT1087</td><td>13:10→18:45</td><td>济宁</td><td>约5h35m</td></tr>
+        <tr><td>厦航/南航/川航</td><td>14:05→19:55</td><td>太原</td><td>约5h50m</td></tr>
+      </table>
+      <p>攻略中"13:10→~18:45（约5.5小时）"的时间与 GT1087 经停航班<strong>吻合</strong>，但"直飞"的表述<strong>不准确</strong>，应改为"经停航班"。虽然经停不换机，但会增加约1小时行程时间，妈妈需提前知悉。</p>
+    </div>
+  </div>
+
+  <!-- Issue 3 -->
+  <div class="issue critical">
+    <div class="issue-header">
+      <span class="issue-badge badge-critical">严重</span>
+      <span class="issue-title">3. 预算门票小计计算错误，少算 296 元</span>
+    </div>
+    <div class="issue-body">
+      <p>攻略"门票/活动"部分列出了8项，每项金额加总后实际为 <strong>1816 元</strong>，但标注的小计为 <strong>1520 元</strong>，少算了 296 元：</p>
+      <table class="compare-table">
+        <tr><th>项目</th><th>金额</th></tr>
+        <tr><td>漓江游船</td><td>430</td></tr>
+        <tr><td>遇龙河竹筏</td><td>320</td></tr>
+        <tr><td>银子岩</td><td>130</td></tr>
+        <tr><td>相公山（可选）</td><td>120</td></tr>
+        <tr><td>世外桃源</td><td>120</td></tr>
+        <tr><td>如意峰索道</td><td>416</td></tr>
+        <tr><td>十里画廊电动车</td><td>80</td></tr>
+        <tr><td>靖江王府（可选）</td><td>200</td></tr>
+        <tr class="highlight"><td><strong>实际合计</strong></td><td class="wrong"><strong>1816</strong></td></tr>
+        <tr class="highlight"><td><strong>攻略标注</strong></td><td class="wrong"><strong>1520（错误）</strong></td></tr>
+      </table>
+      <p>此错误导致<strong>总预算也被低估</strong>：按原始价格计算，实际总预算应约 9416 元（攻略写 9125 元），差额约 291 元。详见后文"修正后预算"部分。</p>
+    </div>
+  </div>
+
+  <!-- Issue 4 -->
+  <div class="issue critical">
+    <div class="issue-header">
+      <span class="issue-badge badge-critical">严重</span>
+      <span class="issue-title">4. 遇龙河竹筏票价已过时，实际降价 65 元</span>
+    </div>
+    <div class="issue-body">
+      <table class="compare-table">
+        <tr><th>项目</th><th>攻略数据</th><th>实际数据</th></tr>
+        <tr><td>金龙桥→旧县段票价</td><td class="wrong">320元/筏（2人）</td><td class="right">约255元/筏（2人）</td></tr>
+      </table>
+      <p>多个2025-2026年票务平台显示现价为 255 元/筏，320 元应为调价前旧价。这反而对预算有利（省65元），但攻略中价格信息需更新。</p>
+      <p><strong>退改政策补充：</strong>遇龙河竹筏随时可全额退款（无手续费），但不支持改期。攻略中"退改"信息缺失，建议补充。</p>
+    </div>
+  </div>
+
+  <!-- Issue 5 -->
+  <div class="issue critical">
+    <div class="issue-header">
+      <span class="issue-badge badge-critical">严重</span>
+      <span class="issue-title">5. 遇龙河竹筏年龄限制写错，实际更严格</span>
+    </div>
+    <div class="issue-body">
+      <table class="compare-table">
+        <tr><th>项目</th><th>攻略数据</th><th>实际数据</th></tr>
+        <tr><td>老人乘坐限制</td><td class="wrong">70岁以上不能乘坐</td><td class="right">65岁（含）以上禁止乘坐</td></tr>
+        <tr><td>儿童限制</td><td>1米以下</td><td class="right">1.1米（不含）以下禁止</td></tr>
+      </table>
+      <p>妈妈近50岁不受影响，但信息本身有误。此外，心脏病/心脑血管患者、孕妇、饮酒者也禁止乘坐——攻略未提及这些限制。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 中等问题 ============ -->
+<div class="section">
+  <div class="section-title">
+    <span class="icon">🟠</span> 中等问题（影响预算准确性或行程便利性）
+  </div>
+
+  <!-- Issue 6 -->
+  <div class="issue major">
+    <div class="issue-header">
+      <span class="issue-badge badge-major">中等</span>
+      <span class="issue-title">6. 机场大巴1号线不直达象鼻山/两江四湖</span>
+    </div>
+    <div class="issue-body">
+      <p>攻略称"机场大巴1号线（20元/人）直达象鼻山/两江四湖附近"。实际情况：</p>
+      <table class="compare-table">
+        <tr><th>线路</th><th>票价</th><th>终点</th><th>是否达景区</th></tr>
+        <tr><td>1号线（民航大厦线）</td><td class="wrong">20元</td><td>民航大厦（近桂林火车站）</td><td class="wrong">❌ 不直达景区</td></tr>
+        <tr><td>景区联程班线</td><td class="right">25元</td><td>南门桥/象鼻山/日月双塔/东西巷</td><td class="right">✅ 直达景区</td></tr>
+      </table>
+      <p>妈妈8月31日独自抵达时，若坐20元线路只能到民航大厦，还需打车或步行到酒店。建议妈妈乘坐<strong>25元景区联程线</strong>，可直达东西巷/象鼻山附近。预算中机场大巴费用应从40元调整为50元。</p>
+    </div>
+  </div>
+
+  <!-- Issue 7 -->
+  <div class="issue major">
+    <div class="issue-header">
+      <span class="issue-badge badge-major">中等</span>
+      <span class="issue-title">7. 飞拉达攀岩价格严重偏低</span>
+    </div>
+    <div class="issue-body">
+      <table class="compare-table">
+        <tr><th>项目</th><th>攻略数据</th><th>实际数据</th></tr>
+        <tr><td>飞拉达价格</td><td class="wrong">150-200元/人</td><td class="right">约245-258元/人</td></tr>
+        <tr><td>两人合计</td><td class="wrong">~400元</td><td class="right">~490-516元</td></tr>
+      </table>
+      <p>途牛门市价258元、大河票务248元起。攻略中150-200元的价格可能参考了早期促销价，已严重过时。若选择飞拉达，预算需增加约90-116元。</p>
+      <p><strong>年龄限制"4-50岁"无法证实</strong>，需直接咨询承办俱乐部确认。攻略中提到的"岩邦户外"俱乐部也未能独立核实其资质，建议通过大众点评/携程等正规平台比对商家。</p>
+    </div>
+  </div>
+
+  <!-- Issue 8 -->
+  <div class="issue major">
+    <div class="issue-header">
+      <span class="issue-badge badge-major">中等</span>
+      <span class="issue-title">8. 多项打车费用有偏差</span>
+    </div>
+    <div class="issue-body">
+      <table class="compare-table">
+        <tr><th>路线</th><th>攻略价格</th><th>实际价格</th><th>偏差</th></tr>
+        <tr><td>市区→磨盘山码头</td><td class="wrong">80-100元</td><td class="right">约40-60元</td><td>偏高30-40元</td></tr>
+        <tr><td>阳朔→世外桃源</td><td class="wrong">30-40元</td><td class="right">约50-80元</td><td>偏低20-40元</td></tr>
+        <tr><td>阳朔→机场大巴</td><td class="wrong">60元/人</td><td class="right">约50元/人</td><td>偏高10元</td></tr>
+      </table>
+      <p>磨盘山码头距市区约25-28公里，打表约40-60元，80-100元偏高。世外桃源距阳朔约15公里，打车约50-80元，30-40元偏低。</p>
+    </div>
+  </div>
+
+  <!-- Issue 9 -->
+  <div class="issue major">
+    <div class="issue-header">
+      <span class="issue-badge badge-major">中等</span>
+      <span class="issue-title">9. "谢三姐啤酒鱼"疑为"谢大姐啤酒鱼"之误</span>
+    </div>
+    <div class="issue-body">
+      <p>多次搜索"谢三姐啤酒鱼"均无结果。阳朔公认的老牌啤酒鱼是<strong>"谢大姐啤酒鱼"</strong>，是本地人从小吃到的老前辈品牌。攻略中很可能将"谢大姐"误写为"谢三姐"。人均60-80元的价格基本合理。</p>
+      <p>建议更正为"谢大姐啤酒鱼"，并在导航时搜索正确店名以免找不到。</p>
+    </div>
+  </div>
+
+  <!-- Issue 10 -->
+  <div class="issue major">
+    <div class="issue-header">
+      <span class="issue-badge badge-major">中等</span>
+      <span class="issue-title">10. 9月天气描述偏乐观，白天温度偏低</span>
+    </div>
+    <div class="issue-body">
+      <table class="compare-table">
+        <tr><th>项目</th><th>攻略数据</th><th>实际数据</th></tr>
+        <tr><td>白天最高温</td><td class="wrong">28-32℃</td><td class="right">32-34℃（常见30-34℃）</td></tr>
+        <tr><td>夜晚温度</td><td>22-24℃</td><td class="right">约24-25℃</td></tr>
+        <tr><td>降雨描述</td><td class="wrong">"偶有雷阵雨，不影响整体出行"</td><td class="right">9月雨日占比仍较高，常有降雨过程</td></tr>
+      </table>
+      <p>桂林9月仍处于后汛期，降雨并不少见，局地可达大雨到暴雨。攻略中"不影响整体出行"的表述偏乐观，建议改为"可能有阵雨或雷阵雨，需关注天气预报和景区停航通知"。</p>
+    </div>
+  </div>
+
+  <!-- Issue 11 -->
+  <div class="issue major">
+    <div class="issue-header">
+      <span class="issue-badge badge-major">中等</span>
+      <span class="issue-title">11. Day 6 存在两套不一致的时间线</span>
+    </div>
+    <div class="issue-body">
+      <p>攻略中 Day 6 出现了两套不同的时间安排，互相矛盾：</p>
+      <table class="compare-table">
+        <tr><th>时间段</th><th>返程时间线（第1.5节）</th><th>详细行程（第二章Day 6）</th></tr>
+        <tr><td>起床退房</td><td>08:30-09:30</td><td class="wrong">08:00-09:00</td></tr>
+        <tr><td>上午活动</td><td>09:30-10:30 靖江王府/东西巷</td><td class="wrong">09:00-10:30 东西巷（无靖江王府）</td></tr>
+      </table>
+      <p>两套时间线在起床时间、活动内容上均不一致。靖江王府在预算中列了200元，但详细行程中并未实际安排游览。建议统一为一套时间线，并明确是否游览靖江王府。</p>
+    </div>
+  </div>
+
+  <!-- Issue 12 -->
+  <div class="issue major">
+    <div class="issue-header">
+      <span class="issue-badge badge-major">中等</span>
+      <span class="issue-title">12. 靖江王府"现场可买"有误，实际需提前预约</span>
+    </div>
+    <div class="issue-body">
+      <p>攻略在预订清单中写靖江王府"现场也可买"，但核查发现该景区<strong>需通过官方公众号提前预约，现场不售当日票</strong>。如果Day 6上午临时去现场买票，可能无法入园。建议提前1天在公众号或携程/美团预约。</p>
+    </div>
+  </div>
+
+  <!-- Issue 13 -->
+  <div class="issue major">
+    <div class="issue-header">
+      <span class="issue-badge badge-major">中等</span>
+      <span class="issue-title">13. 树舍·酒店参考价格偏低</span>
+    </div>
+    <div class="issue-body">
+      <table class="compare-table">
+        <tr><th>项目</th><th>攻略数据</th><th>实际数据</th></tr>
+        <tr><td>树舍·酒店参考价</td><td class="wrong">250-350元/晚</td><td class="right">约300-400元/晚</td></tr>
+      </table>
+      <p>2026年7月实测该酒店价格在300-400元/晚区间。攻略中标注的"3晚约750-1050元"偏低，实际可能需要900-1200元。不过攻略标注的"已付434元（3晚）"如果是实际支付价格，说明可能拿到了优惠价，这不影响已预订的部分。</p>
+    </div>
+  </div>
+
+  <!-- Issue 14 -->
+  <div class="issue major">
+    <div class="issue-header">
+      <span class="issue-badge badge-major">中等</span>
+      <span class="issue-title">14. 行程总览中阿照返程航班时间未更新</span>
+    </div>
+    <div class="issue-body">
+      <p>攻略多处提到"V4.3更新：阿照返程延误至13:30"，但<strong>行程总览表（第一章）中仍写"13:20飞上海"</strong>，未同步更新为13:30。虽不影响实际出行（其他章节已更新），但容易造成混淆。</p>
+    </div>
+  </div>
+
+  <!-- Issue 15 -->
+  <div class="issue major">
+    <div class="issue-header">
+      <span class="issue-badge badge-major">中等</span>
+      <span class="issue-title">15. 预约渠道在不同章节不一致</span>
+    </div>
+    <div class="issue-body">
+      <table class="compare-table">
+        <tr><th>景区</th><th>第四章（预订清单）</th><th>第六章（实用小程序）</th></tr>
+        <tr><td>象鼻山</td><td>公众号「桂林市象山景区管理处」</td><td class="wrong">公众号「桂林文旅」</td></tr>
+        <tr><td>遇龙河竹筏</td><td>小程序「遇龙河漂流」/ 公众号「i游阳朔」</td><td class="wrong">小程序「遇龙河」</td></tr>
+      </table>
+      <p>两个章节对同一景区的预约渠道描述不一致，建议统一。象鼻山可通过景区公众号、携程、美团等多渠道预约；遇龙河建议以官方小程序为准。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 轻微/待确认 ============ -->
+<div class="section">
+  <div class="section-title">
+    <span class="icon">🟡</span> 轻微问题与待确认项
+  </div>
+
+  <div class="issue minor">
+    <div class="issue-header">
+      <span class="issue-badge badge-minor">轻微</span>
+      <span class="issue-title">16. 十里画廊电动车预算与预订清单矛盾</span>
+    </div>
+    <div class="issue-body">
+      <p>预算按 1辆/天 × 2天 = 80元 计算，但预订清单写"30-40×2辆/天"暗示租2辆。如果两人各骑一辆，实际费用为 120-160元（2辆×2天×30-40元）。建议明确是两人共骑一辆还是各骑一辆，并相应调整预算。</p>
+    </div>
+  </div>
+
+  <div class="issue minor">
+    <div class="issue-header">
+      <span class="issue-badge badge-minor">轻微</span>
+      <span class="issue-title">17. 妈妈出发地（山东）与返程目的地（哈尔滨）不一致</span>
+    </div>
+    <div class="issue-body">
+      <p>攻略写妈妈"山东出发"去桂林，但返程飞"哈尔滨"。如果这是有意安排（如妈妈从山东出发、结束后去哈尔滨），建议在攻略中说明原因，避免误解。如果其中一处为笔误，需更正。</p>
+    </div>
+  </div>
+
+  <div class="issue minor">
+    <div class="issue-header">
+      <span class="issue-badge badge-minor">轻微</span>
+      <span class="issue-title">18. 天空花园酒店"无早餐"未证实</span>
+    </div>
+    <div class="issue-body">
+      <p>攻略两次强调该酒店"无早餐"，但搜索未能明确证实。该类型精品酒店早餐政策因房型而异，建议订房时按房型确认，或在备注中要求含早。如果确实无早，东西巷吃米粉的方案是合理的。</p>
+    </div>
+  </div>
+
+  <div class="issue minor">
+    <div class="issue-header">
+      <span class="issue-badge badge-minor">轻微</span>
+      <span class="issue-title">19. 银子岩线上价"55元"偏低</span>
+    </div>
+    <div class="issue-body">
+      <p>攻略写线上价55-60元，实际线上约58-60元起，55元偏低。门市价65元正确。预算按65元/人计算偏保守，实际可省5-7元/人。</p>
+    </div>
+  </div>
+
+  <div class="issue minor">
+    <div class="issue-header">
+      <span class="issue-badge badge-minor">轻微</span>
+      <span class="issue-title">20. 定制商务车70元/人未找到官方佐证</span>
+    </div>
+    <div class="issue-body">
+      <p>阳朔→桂林定制商务车70元/人的信息未能从官方渠道证实。阳朔确有拼车/专车服务，但价格因平台和车型差异较大（50-90元不等）。建议出行前在滴滴/携程核实最新班次和价格。</p>
+    </div>
+  </div>
+
+  <div class="issue minor">
+    <div class="issue-header">
+      <span class="issue-badge badge-minor">轻微</span>
+      <span class="issue-title">21. 遇龙河"每晚20:00放次日票"未能独立证实</span>
+    </div>
+    <div class="issue-body">
+      <p>这是遇龙河官方常见做法，但本次搜索未找到2025-2026年的新鲜来源独立证实。第三方代理（同程等）可在出行当天17:15前购买。建议关注官方小程序当日提示，同时备选第三方平台购票。</p>
+    </div>
+  </div>
+
+  <div class="issue minor">
+    <div class="issue-header">
+      <span class="issue-badge badge-minor">轻微</span>
+      <span class="issue-title">22. 漓江游船退改政策"开航前2小时免费退"未完全证实</span>
+    </div>
+    <div class="issue-body">
+      <p>已知漓江游船须提前1天预订（22:30前可订次日），但"开航前2小时可免费退票"的具体退改细则未能100%核实。建议以下单时官方页面提示的退改规则为准。</p>
+    </div>
+  </div>
+
+  <div class="issue minor">
+    <div class="issue-header">
+      <span class="issue-badge badge-minor">轻微</span>
+      <span class="issue-title">23. Day 5 V4.4更新说明与行程表时间矛盾</span>
+    </div>
+    <div class="issue-body">
+      <p>V4.4更新说明写"Day 5上午退房带行李游如意峰"，但如意峰在行程表中安排在下午14:30-17:00。实际应理解为"上午退房后带行李游玩世外桃源和如意峰"，建议修改措辞避免误解。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 缺漏项 ============ -->
+<div class="section">
+  <div class="section-title">
+    <span class="icon">📋</span> 缺漏项与建议补充
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="issue-badge badge-missing">缺漏</span>
+      <span class="issue-title">24. 妈妈去程航班缺少具体航班号</span>
+    </div>
+    <div class="issue-body">
+      <p>妈妈去程仅写"首都航空或其他，13:45→16:10"，没有具体航班号。建议尽快查询并确认具体航班，以便跟踪航班动态和值机。山东是一个省份，出发城市（济南？青岛？烟台？）也需明确。</p>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="issue-badge badge-missing">缺漏</span>
+      <span class="issue-title">25. 象鼻山分时段预约未说明</span>
+    </div>
+    <div class="issue-body">
+      <p>象鼻山实行分时预约，分三个时段：07:00-12:30、12:30-18:00、18:00-21:00。攻略计划15:00-17:00游览，需预约<strong>第二时段（12:30-18:00）</strong>。一个手机号最多预约3张，提前1天8:00-23:59可订未来7天门票。建议在攻略中补充这一信息。</p>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="issue-badge badge-missing">缺漏</span>
+      <span class="issue-title">26. 旅行保险未提及</span>
+    </div>
+    <div class="issue-body">
+      <p>7天行程包含游船、竹筏漂流、索道、可选攀岩等活动，建议购买旅行意外险。各大保险平台短期旅行险约30-50元/人，覆盖航班延误、意外医疗等。出发前清单中应增加此项。</p>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="issue-badge badge-missing">缺漏</span>
+      <span class="issue-title">27. Day 2游船时行李处理方案未说明</span>
+    </div>
+    <div class="issue-body">
+      <p>Day 2退房后带全部行李去磨盘山码头乘船。漓江三星游船是否有行李存放区域？4小时船程带着背包是否方便？建议提前了解船上设施，或考虑将大件行李寄存在桂林酒店/码头寄存处。</p>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="issue-badge badge-missing">缺漏</span>
+      <span class="issue-title">28. 妈妈 Day 0 独自抵达的备用方案缺失</span>
+    </div>
+    <div class="issue-body">
+      <p>妈妈近50岁、单独抵达桂林，如果航班延误或机场大巴排队，可能影响入住。建议补充备用方案：如大巴排队过长可直接打车（80-100元），并将酒店地址和联系电话提前存入妈妈手机。</p>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="issue-badge badge-missing">缺漏</span>
+      <span class="issue-title">29. 应急联系方式未列出</span>
+    </div>
+    <div class="issue-body">
+      <p>建议补充：桂林旅游投诉电话（12301）、当地报警/急救（110/120）、酒店前台电话、阿照与妈妈的紧急联系人等。特别是妈妈单独活动时（Day 0）需要有应急联系方式。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 修正后预算 ============ -->
+<div class="section">
+  <div class="section-title">
+    <span class="icon">💰</span> 修正后预算估算
+  </div>
+
+  <div class="budget-box">
+    <h4>主要调整项</h4>
+    <table class="compare-table">
+      <tr><th>项目</th><th>原预算</th><th>修正</th><th>差额</th></tr>
+      <tr><td>门票/活动小计</td><td class="wrong">1520</td><td class="right">~1751</td><td class="wrong">+231</td></tr>
+      <tr><td>其中：遇龙河竹筏</td><td class="wrong">320</td><td class="right">255</td><td class="right">-65</td></tr>
+      <tr><td>飞拉达（如参加）</td><td class="wrong">400</td><td class="right">490-516</td><td class="wrong">+90~116</td></tr>
+      <tr><td>机场大巴（去程）</td><td class="wrong">40</td><td class="right">50</td><td class="wrong">+10</td></tr>
+      <tr><td>当地交通（磨盘山）</td><td class="wrong">含500</td><td class="right">~460</td><td class="right">-40</td></tr>
+      <tr><td>当地交通（世外桃源）</td><td class="wrong">含200</td><td class="right">~250</td><td class="wrong">+50</td></tr>
+    </table>
+
+    <h4 style="margin-top:20px;">修正后总计（含可选项，不含飞拉达）</h4>
+    <div class="budget-total">
+      <div class="budget-total-item">
+        <div class="val red">~9356元</div>
+        <div class="lbl">修正后总预算</div>
+      </div>
+      <div class="budget-total-item">
+        <div class="val">9125元</div>
+        <div class="lbl">原攻略总预算</div>
+      </div>
+      <div class="budget-total-item">
+        <div class="val red">+231元</div>
+        <div class="lbl">差额</div>
+      </div>
+    </div>
+
+    <h4 style="margin-top:20px;">修正后总计（含飞拉达）</h4>
+    <div class="budget-total">
+      <div class="budget-total-item">
+        <div class="val red">~9846-9872元</div>
+        <div class="lbl">修正后总预算（含飞拉达）</div>
+      </div>
+      <div class="budget-total-item">
+        <div class="val">9525元</div>
+        <div class="lbl">原攻略（含飞拉达）</div>
+      </div>
+    </div>
+
+    <div class="callout callout-purple" style="margin-top:16px;">
+      <strong>说明：</strong>以上修正基于当前可查的公开信息。门票小计的计算错误（1520→1816，使用原始价格）是最大的问题。即使考虑遇龙河降价（-65元），实际门票小计仍约1751元，远高于攻略标注的1520元。已付2245元（阿照机票1299+住宿946）的部分不受影响，但剩余待付金额需从原估的6856元上调至约7111元。
+    </div>
+  </div>
+</div>
+
+<!-- ============ 核实正确项 ============ -->
+<div class="section">
+  <div class="section-title">
+    <span class="icon">✅</span> 核实无误的项目
+  </div>
+
+  <div class="issue correct">
+    <div class="issue-body">
+      <p>以下信息经核查确认准确，可以放心使用：</p>
+      <table class="compare-table">
+        <tr><th>项目</th><th>攻略数据</th><th>核查结果</th></tr>
+        <tr><td>漓江三星游船票价</td><td>215元/人</td><td class="right">✅ 准确</td></tr>
+        <tr><td>漓江游船出发码头</td><td>磨盘山码头</td><td class="right">✅ 三星船从磨盘山出发</td></tr>
+        <tr><td>象鼻山免费+需预约</td><td>免费，需预约</td><td class="right">✅ 准确</td></tr>
+        <tr><td>银子岩门市价</td><td>65元/人</td><td class="right">✅ 准确</td></tr>
+        <tr><td>世外桃源门票</td><td>60元/人</td><td class="right">✅ 准确</td></tr>
+        <tr><td>如意峰现场价</td><td>220元/人</td><td class="right">✅ 准确</td></tr>
+        <tr><td>如意峰线上价</td><td>208元/人</td><td class="right">✅ 准确</td></tr>
+        <tr><td>靖江王府门票</td><td>100元/人</td><td class="right">✅ 准确</td></tr>
+        <tr><td>相公山门票</td><td>60元/人</td><td class="right">✅ 准确</td></tr>
+        <tr><td>阳朔→桂林大巴</td><td>35元/人，约90分钟</td><td class="right">✅ 准确</td></tr>
+        <tr><td>阳朔租电动车</td><td>40-50元/天</td><td class="right">✅ 准确</td></tr>
+        <tr><td>市区→机场打车</td><td>80-100元，约40分钟</td><td class="right">✅ 准确</td></tr>
+        <tr><td>椿记烧鹅</td><td>中山中路店，人均80元</td><td class="right">✅ 知名餐厅，价格合理</td></tr>
+        <tr><td>阿甘酒家</td><td>阳朔知名餐厅</td><td class="right">✅ 属实</td></tr>
+        <tr><td>2026年日期星期</td><td>8/31周一、9/1周二、9/6周日</td><td class="right">✅ 全部正确</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 行动清单 ============ -->
+<div class="section">
+  <div class="section-title">
+    <span class="icon">🏃</span> 出发前优先行动清单
+  </div>
+
+  <div class="action-list">
+    <div class="action-item urgent">
+      <span class="action-num">1</span>
+      <span><strong>立即核实航班 Y87505 订单状态</strong>——登录购票平台确认该航班是否真实存在、是否已被取消。这是最紧急的事项。</span>
+    </div>
+    <div class="action-item urgent">
+      <span class="action-num">2</span>
+      <span><strong>确认妈妈去程具体航班号和出发城市</strong>——目前仅有模糊的"首都航空或其他 13:45→16:10"，需尽快锁定。</span>
+    </div>
+    <div class="action-item urgent">
+      <span class="action-num">3</span>
+      <span><strong>确认妈妈返程航班为经停（非直飞）</strong>——桂林航空GT1087经停济宁，确认妈妈知悉并接受经停安排。</span>
+    </div>
+    <div class="action-item">
+      <span class="action-num">4</span>
+      <span><strong>重新计算预算</strong>——门票小计从1520修正为~1751，总预算从9125修正为~9356（不含飞拉达）。确认剩余资金充足。</span>
+    </div>
+    <div class="action-item">
+      <span class="action-num">5</span>
+      <span><strong>8月18-25日购买漓江游船票</strong>——微信小程序「桂林漓江商城」，磨盘山→阳朔三星船，9月2日班次。</span>
+    </div>
+    <div class="action-item">
+      <span class="action-num">6</span>
+      <span><strong>8月25-28日抢遇龙河竹筏票</strong>——关注官方小程序，备选第三方平台（同程等），注意现价255元/筏。</span>
+    </div>
+    <div class="action-item">
+      <span class="action-num">7</span>
+      <span><strong>更正餐厅名称</strong>——"谢三姐啤酒鱼"改为"谢大姐啤酒鱼"，确保导航能找到。</span>
+    </div>
+    <div class="action-item">
+      <span class="action-num">8</span>
+      <span><strong>统一Day 6时间线</strong>——合并两套不一致的安排，明确是否游览靖江王府（需提前预约）。</span>
+    </div>
+    <div class="action-item">
+      <span class="action-num">9</span>
+      <span><strong>补充妈妈Day 0备用方案</strong>——机场大巴改坐25元景区联程线直达东西巷；存好酒店地址电话。</span>
+    </div>
+    <div class="action-item">
+      <span class="action-num">10</span>
+      <span><strong>购买旅行意外险</strong>——覆盖游船、竹筏、索道等活动，约30-50元/人。</span>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  本核查报告基于2026年8月6日可获取的公开信息整理 · 仅供行程参考 · 实际出行前请以景区/航司官方最新公告为准
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,2665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>桂林旅行攻略 · 2026年9月</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --p:#4B3FE3;--pl:#6F6FFF;--pll:#A9AEFF;--pb:#F8F7FF;--pbr:#E0DEFF;
+  --t1:#1a1a2e;--t2:#555;--t3:#999;--white:#fff;
+  --radius:12px;--radius-sm:8px;--radius-full:999px;
+  --shadow:0 2px 12px rgba(75,63,227,.08);
+  --shadow-lg:0 4px 20px rgba(75,63,227,.12);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",system-ui,sans-serif;
+  font-size:15px;line-height:1.7;color:var(--t1);background:var(--pb);
+  padding-bottom:calc(64px + var(--safe-bottom));overflow-x:hidden;
+}
+/* ===== Header ===== */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(135deg,var(--p),var(--pl));
+  color:var(--white);padding:14px 16px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 2px 12px rgba(75,63,227,.3);
+}
+.header .logo{font-size:22px}
+.header h1{font-size:17px;font-weight:600;flex:1;letter-spacing:.5px}
+.header .date-badge{
+  background:rgba(255,255,255,.2);padding:4px 10px;border-radius:var(--radius-full);
+  font-size:12px;white-space:nowrap;
+}
+/* ===== Tab Bar ===== */
+.tab-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  height:calc(64px + var(--safe-bottom));padding-bottom:var(--safe-bottom);
+  display:flex;background:var(--white);
+  box-shadow:0 -2px 16px rgba(0,0,0,.06);
+  border-top:1px solid rgba(75,63,227,.08);
+}
+.tab-btn{
+  flex:1;border:none;background:none;color:var(--t3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:11px;gap:2px;cursor:pointer;transition:color .2s;
+}
+.tab-btn svg{width:24px;height:24px;stroke-width:2;fill:none;stroke:currentColor}
+.tab-btn.active{color:var(--p)}
+.tab-btn.active svg{stroke:var(--p);fill:rgba(75,63,227,.06)}
+/* ===== Pages ===== */
+.page{display:none;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* ===== Cards ===== */
+.card{
+  background:var(--white);border-radius:var(--radius);
+  margin:12px 16px;padding:16px;box-shadow:var(--shadow);
+}
+.card-title{
+  font-size:13px;font-weight:600;color:var(--p);
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.card-title .emoji{font-size:16px}
+/* ===== Hero Card ===== */
+.hero-card{
+  margin:16px;padding:20px;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--p),var(--pl));
+  color:var(--white);box-shadow:var(--shadow-lg);
+  position:relative;overflow:hidden;
+}
+.hero-card::after{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:120px;height:120px;border-radius:50%;
+  background:rgba(255,255,255,.08);
+}
+.hero-card::before{
+  content:'';position:absolute;bottom:-40px;left:-20px;
+  width:100px;height:100px;border-radius:50%;
+  background:rgba(255,255,255,.06);
+}
+.hero-card h2{font-size:20px;font-weight:700;margin-bottom:8px;position:relative}
+.hero-card .sub{font-size:13px;opacity:.85;line-height:1.8;position:relative}
+.hero-card .sub strong{font-weight:600}
+/* ===== Stats Grid ===== */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px}
+.stat-card{
+  background:var(--white);border-radius:var(--radius);padding:14px;
+  box-shadow:var(--shadow);text-align:center;
+}
+.stat-card .label{font-size:11px;color:var(--t3);margin-bottom:4px}
+.stat-card .value{font-size:18px;font-weight:700;color:var(--p)}
+.stat-card .unit{font-size:12px;color:var(--t2);font-weight:400}
+.stat-card.paid .value{color:#4CAF50}
+.stat-card.pending .value{color:#FF9800}
+/* ===== Day Selector ===== */
+.day-selector{
+  display:flex;gap:8px;padding:12px 16px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.day-selector::-webkit-scrollbar{display:none}
+.day-chip{
+  flex-shrink:0;padding:10px 16px;border-radius:var(--radius-full);
+  background:var(--white);border:2px solid var(--pbr);
+  font-size:13px;color:var(--t2);cursor:pointer;transition:all .2s;
+  text-align:center;min-width:72px;
+}
+.day-chip .day-num{font-weight:700;font-size:15px;display:block}
+.day-chip .day-date{font-size:11px;color:var(--t3)}
+.day-chip.active{
+  background:var(--p);border-color:var(--p);color:var(--white);
+  box-shadow:0 2px 8px rgba(75,63,227,.3);
+}
+.day-chip.active .day-date{color:rgba(255,255,255,.8)}
+/* ===== Timeline ===== */
+.timeline{padding:0 16px 16px;position:relative}
+.timeline::before{
+  content:'';position:absolute;left:28px;top:10px;bottom:10px;
+  width:3px;background:var(--pbr);border-radius:2px;
+}
+.tl-item{
+  position:relative;padding-left:52px;margin-bottom:12px;
+}
+.tl-dot{
+  position:absolute;left:20px;top:14px;width:20px;height:20px;
+  border-radius:50%;background:var(--white);
+  border:3px solid var(--p);z-index:1;
+}
+.tl-dot.highlight{background:var(--p);border-color:var(--pl)}
+.tl-card{
+  background:var(--white);border-radius:var(--radius);padding:14px;
+  box-shadow:var(--shadow);cursor:pointer;transition:box-shadow .2s;
+}
+.tl-card:active{box-shadow:var(--shadow-lg)}
+.tl-time{
+  font-size:12px;font-weight:600;color:var(--p);
+  margin-bottom:4px;display:flex;align-items:center;gap:4px;
+}
+.tl-time .badge{
+  background:var(--pb);color:var(--p);padding:2px 8px;
+  border-radius:var(--radius-full);font-size:10px;
+}
+.tl-time .badge.free{background:#E8F5E9;color:#4CAF50}
+.tl-time .badge.must{background:#FFF3E0;color:#FF9800}
+.tl-title{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.tl-desc{font-size:13px;color:var(--t2);line-height:1.6}
+.tl-desc strong{color:var(--t1)}
+.tl-cost{
+  display:inline-block;margin-top:6px;font-size:12px;
+  color:var(--p);background:var(--pb);padding:2px 10px;border-radius:var(--radius-full);
+}
+.tl-detail{
+  max-height:0;overflow:hidden;transition:max-height .3s ease;
+  font-size:13px;color:var(--t2);line-height:1.7;
+}
+.tl-item.expanded .tl-detail{max-height:300px;margin-top:8px;padding-top:8px;border-top:1px solid var(--pbr)}
+.tl-detail ul{padding-left:16px;margin:4px 0}
+.tl-detail li{margin:2px 0}
+/* ===== Budget ===== */
+.budget-hero{
+  margin:16px;padding:20px;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--p),var(--pl));
+  color:var(--white);text-align:center;box-shadow:var(--shadow-lg);
+}
+.budget-hero .total{font-size:32px;font-weight:700;letter-spacing:1px}
+.budget-hero .total-label{font-size:13px;opacity:.8;margin-bottom:4px}
+.budget-hero .split{
+  display:flex;justify-content:center;gap:20px;margin-top:12px;font-size:13px;
+}
+.budget-hero .split span{opacity:.9}
+.budget-hero .split strong{font-size:15px}
+.budget-cat{margin:0 16px 10px}
+.budget-cat-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:6px;font-size:13px;
+}
+.budget-cat-name{font-weight:600;color:var(--t1)}
+.budget-cat-name .emoji{margin-right:4px}
+.budget-cat-amount{color:var(--p);font-weight:600}
+.budget-cat-amount .status{font-size:11px;font-weight:400}
+.budget-cat-amount .status.paid{color:#4CAF50}
+.budget-cat-amount .status.pending{color:#FF9800}
+.budget-bar{
+  height:8px;background:var(--pbr);border-radius:4px;overflow:hidden;
+}
+.budget-bar-fill{
+  height:100%;border-radius:4px;width:0;
+  transition:width 1s cubic-bezier(.4,0,.2,1);
+}
+.budget-detail-toggle{
+  text-align:center;padding:12px;font-size:13px;color:var(--p);
+  cursor:pointer;
+}
+.budget-detail{display:none;margin:0 16px 16px}
+.budget-detail.show{display:block;animation:fadeIn .3s}
+.budget-detail table{width:100%;border-collapse:collapse;font-size:13px}
+.budget-detail th{
+  background:var(--pb);color:var(--p);padding:8px;text-align:left;
+  font-weight:600;border-bottom:2px solid var(--pbr);
+}
+.budget-detail td{padding:8px;border-bottom:1px solid var(--pbr);color:var(--t2)}
+.budget-detail td:first-child{color:var(--t1)}
+.budget-detail .paid-tag{color:#4CAF50;font-size:11px}
+/* ===== Checklist ===== */
+.checklist-section{margin:0 16px 16px}
+.checklist-progress{
+  background:var(--white);border-radius:var(--radius);padding:14px;
+  margin-bottom:12px;box-shadow:var(--shadow);
+}
+.checklist-progress-bar{
+  height:8px;background:var(--pbr);border-radius:4px;margin-top:8px;overflow:hidden;
+}
+.checklist-progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--p),var(--pl));
+  border-radius:4px;transition:width .4s ease;
+}
+.checklist-progress-text{
+  display:flex;justify-content:space-between;font-size:13px;
+}
+.checklist-progress-text .count{color:var(--p);font-weight:600}
+.check-item{
+  background:var(--white);border-radius:var(--radius-sm);
+  padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);
+  display:flex;align-items:flex-start;gap:12px;cursor:pointer;
+  transition:opacity .2s;
+}
+.check-item.checked{opacity:.5}
+.check-item.checked .check-label{text-decoration:line-through;color:var(--t3)}
+.check-box{
+  width:22px;height:22px;border-radius:6px;border:2px solid var(--pbr);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;margin-top:1px;
+}
+.check-item.checked .check-box{background:var(--p);border-color:var(--p)}
+.check-box svg{width:14px;height:14px;stroke:var(--white);stroke-width:3;fill:none;opacity:0;transition:opacity .2s}
+.check-item.checked .check-box svg{opacity:1}
+.check-label{font-size:14px;color:var(--t1);flex:1;line-height:1.5}
+.check-label .tag{
+  display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;
+  margin-left:6px;vertical-align:middle;
+}
+.check-label .tag.must{background:#FFF3E0;color:#E65100}
+.check-label .tag.optional{background:var(--pb);color:var(--p)}
+.check-label .meta{font-size:12px;color:var(--t3);display:block;margin-top:2px}
+/* ===== Hotel ===== */
+.hotel-card{
+  margin:0 16px 12px;background:var(--white);border-radius:var(--radius);
+  overflow:hidden;box-shadow:var(--shadow);
+}
+.hotel-banner{
+  background:linear-gradient(135deg,var(--p),var(--pl));color:var(--white);
+  padding:14px 16px;display:flex;align-items:center;gap:10px;
+}
+.hotel-banner .icon{font-size:24px}
+.hotel-banner .name{font-size:15px;font-weight:600}
+.hotel-banner .nights{font-size:12px;opacity:.8;margin-left:auto}
+.hotel-body{padding:14px 16px}
+.hotel-info{font-size:13px;color:var(--t2);line-height:1.8}
+.hotel-info strong{color:var(--t1)}
+.hotel-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.hotel-tag{
+  font-size:11px;padding:3px 10px;border-radius:var(--radius-full);
+  background:var(--pb);color:var(--p);
+}
+.hotel-price{
+  margin-top:10px;padding-top:10px;border-top:1px solid var(--pbr);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.hotel-price .amount{font-size:16px;font-weight:700;color:var(--p)}
+.hotel-price .status{font-size:12px;color:#4CAF50;font-weight:600}
+/* ===== Emergency ===== */
+.emergency-card{
+  background:#FFF5F5;border:1px solid #FFCDD2;border-radius:var(--radius);
+  margin:0 16px 12px;padding:14px;
+}
+.emergency-card .title{font-size:13px;font-weight:600;color:#C62828;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.emergency-item{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid rgba(255,205,210,.5)}
+.emergency-item:last-child{border-bottom:none}
+.emergency-item .name{color:var(--t2)}
+.emergency-item .phone{color:#C62828;font-weight:600;font-family:monospace}
+/* ===== Tips ===== */
+.tip-card{
+  margin:0 16px 12px;background:var(--white);border-radius:var(--radius);
+  padding:14px;box-shadow:var(--shadow);
+}
+.tip-card .tip-icon{font-size:20px;margin-bottom:6px}
+.tip-card h3{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:6px}
+.tip-card p{font-size:13px;color:var(--t2);line-height:1.7}
+.tip-card ul{padding-left:16px;font-size:13px;color:var(--t2);line-height:1.8}
+/* ===== Section Header ===== */
+.section-header{
+  padding:16px 16px 8px;font-size:15px;font-weight:700;color:var(--t1);
+  display:flex;align-items:center;gap:6px;
+}
+.section-header .emoji{font-size:18px}
+/* ===== Mini Timeline (Home) ===== */
+.mini-tl{padding:0 16px}
+.mini-tl-item{
+  display:flex;gap:12px;padding:8px 0;align-items:center;
+}
+.mini-tl-dot{
+  width:10px;height:10px;border-radius:50%;background:var(--p);
+  flex-shrink:0;border:2px solid var(--white);box-shadow:0 0 0 2px var(--pbr);
+}
+.mini-tl-content{flex:1;font-size:13px}
+.mini-tl-content .day{font-weight:600;color:var(--t1)}
+.mini-tl-content .theme{color:var(--t2);font-size:12px}
+.mini-tl-arrow{color:var(--t3);font-size:14px}
+/* ===== Weather Card ===== */
+.weather-card{
+  display:flex;gap:12px;margin:0 16px 12px;
+}
+.weather-item{
+  flex:1;background:var(--white);border-radius:var(--radius);padding:12px;
+  text-align:center;box-shadow:var(--shadow);
+}
+.weather-item .w-icon{font-size:28px;margin-bottom:4px}
+.weather-item .w-label{font-size:11px;color:var(--t3)}
+.weather-item .w-value{font-size:14px;font-weight:600;color:var(--t1);margin-top:2px}
+/* ===== Countdown ===== */
+.countdown{
+  text-align:center;padding:16px;margin:0 16px 12px;
+  background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);
+}
+.countdown .label{font-size:12px;color:var(--t3);margin-bottom:4px}
+.countdown .days{font-size:36px;font-weight:700;color:var(--p);line-height:1}
+.countdown .days-label{font-size:13px;color:var(--t2);margin-top:4px}
+/* ===== Misc ===== */
+.note-box{
+  margin:0 16px 12px;padding:12px 14px;background:var(--pb);
+  border-left:4px solid var(--p);border-radius:0 var(--radius) var(--radius) 0;
+  font-size:13px;color:var(--t2);line-height:1.7;
+}
+.note-box strong{color:var(--p)}
+.divider{height:1px;background:var(--pbr);margin:16px}
+/* ===== View Toggle (Budget) ===== */
+.view-toggle{
+  display:flex;margin:0 16px 12px;background:var(--pbr);border-radius:var(--radius-full);padding:3px;
+}
+.view-toggle-btn{
+  flex:1;border:none;background:none;padding:8px;border-radius:var(--radius-full);
+  font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .2s;
+}
+.view-toggle-btn.active{background:var(--white);color:var(--p);box-shadow:0 1px 4px rgba(75,63,227,.1)}
+.budget-view{display:none}
+.budget-view.active{display:block;animation:fadeIn .3s}
+/* ===== Expense Tracker ===== */
+.exp-summary{
+  margin:0 16px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;
+}
+.exp-summary-card{
+  background:var(--white);border-radius:var(--radius);padding:12px 8px;
+  text-align:center;box-shadow:var(--shadow);
+}
+.exp-summary-card .label{font-size:10px;color:var(--t3);margin-bottom:2px}
+.exp-summary-card .value{font-size:16px;font-weight:700}
+.exp-summary-card.total .value{color:var(--p)}
+.exp-summary-card.paid .value{color:#4CAF50}
+.exp-summary-card.pending .value{color:#FF9800}
+.exp-cat-group{margin:0 16px 12px}
+.exp-cat-header{
+  display:flex;align-items:center;gap:6px;padding:8px 0;
+  font-size:13px;font-weight:600;color:var(--t1);
+}
+.exp-cat-header .emoji{font-size:16px}
+.exp-cat-header .subtotal{margin-left:auto;font-size:12px;color:var(--t3)}
+.exp-cat-header .subtotal strong{color:var(--p)}
+.exp-item{
+  background:var(--white);border-radius:var(--radius-sm);padding:10px 12px;
+  margin-bottom:6px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;
+  transition:opacity .2s;
+}
+.exp-item.paid{opacity:.6}
+.exp-item.paid .exp-name{text-decoration:line-through;color:var(--t3)}
+.exp-name{flex:1;font-size:13px;color:var(--t1);line-height:1.4}
+.exp-name .meta{font-size:11px;color:var(--t3);display:block;margin-top:1px}
+.exp-amount{
+  width:80px;padding:5px 8px;border:1.5px solid var(--pbr);border-radius:6px;
+  font-size:13px;color:var(--t1);text-align:right;outline:none;background:var(--pb);
+  font-family:inherit;
+}
+.exp-amount:focus{border-color:var(--p);background:var(--white)}
+.exp-toggle{
+  flex-shrink:0;padding:4px 10px;border-radius:var(--radius-full);
+  font-size:11px;font-weight:600;border:1.5px solid var(--pbr);background:var(--white);
+  color:var(--t3);cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.exp-toggle.paid{background:#4CAF50;border-color:#4CAF50;color:var(--white)}
+.exp-toggle.unpaid{background:var(--pb);border-color:var(--pbr);color:#FF9800}
+.exp-delete{
+  flex-shrink:0;width:24px;height:24px;border:none;background:none;
+  color:var(--t3);font-size:16px;cursor:pointer;border-radius:50%;line-height:1;
+  display:none;
+}
+.exp-item.custom .exp-delete{display:block}
+.exp-delete:active{background:#ffe0e0;color:#f44336}
+/* ===== Add Expense Button ===== */
+.add-expense-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin:12px 16px;padding:12px;border:2px dashed var(--pbr);
+  border-radius:var(--radius);background:var(--white);color:var(--p);
+  font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;
+}
+.add-expense-btn:active{border-color:var(--p);background:var(--pb)}
+/* ===== Modal ===== */
+.modal-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;
+  background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center;
+}
+.modal-overlay.show{display:flex;animation:fadeIn .2s}
+.modal{
+  background:var(--white);border-radius:var(--radius) var(--radius) 0 0;
+  width:100%;max-width:500px;padding:20px 20px calc(20px + var(--safe-bottom));
+  animation:slideUp .3s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h3{font-size:16px;font-weight:600;color:var(--t1);margin-bottom:16px;text-align:center}
+.modal-field{margin-bottom:12px}
+.modal-field label{display:block;font-size:12px;color:var(--t3);margin-bottom:4px}
+.modal-field input,.modal-field select{
+  width:100%;padding:10px 12px;border:1.5px solid var(--pbr);border-radius:8px;
+  font-size:14px;color:var(--t1);outline:none;background:var(--pb);font-family:inherit;
+}
+.modal-field input:focus,.modal-field select:focus{border-color:var(--p);background:var(--white)}
+.modal-btns{display:flex;gap:10px;margin-top:16px}
+.modal-btn{
+  flex:1;padding:12px;border:none;border-radius:8px;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+}
+.modal-btn.cancel{background:var(--pbr);color:var(--t2)}
+.modal-btn.confirm{background:var(--p);color:var(--white)}
+/* ===== Reset Button ===== */
+.reset-btn{
+  display:block;margin:8px auto 16px;padding:6px 16px;border:1px solid var(--pbr);
+  border-radius:var(--radius-full);background:var(--white);color:var(--t3);
+  font-size:12px;cursor:pointer;
+}
+/* ===== Toast ===== */
+.toast{
+  position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;transform:translateX(-50%);
+  z-index:400;background:rgba(26,26,46,.92);color:var(--white);padding:10px 20px;
+  border-radius:var(--radius-full);font-size:13px;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;white-space:nowrap;max-width:90vw;
+  box-shadow:0 4px 16px rgba(0,0,0,.2);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+/* ===== Checklist Add/Delete ===== */
+.check-item .check-delete{
+  flex-shrink:0;width:22px;height:22px;border:none;background:none;
+  color:var(--t3);font-size:16px;cursor:pointer;border-radius:50%;
+  display:block;line-height:1;opacity:.4;transition:opacity .2s;
+}
+.check-item:active .check-delete{opacity:1}
+.check-item .check-delete:active{color:#f44336;opacity:1}
+.checklist-add-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin:8px 0 0;padding:10px;border:2px dashed var(--pbr);
+  border-radius:var(--radius-sm);background:var(--white);color:var(--p);
+  font-size:13px;cursor:pointer;transition:all .2s;width:100%;
+}
+.checklist-add-btn:active{border-color:var(--p);background:var(--pb)}
+/* ===== Booking Deadline Alert ===== */
+.deadline-alert{
+  margin:0 16px 12px;padding:12px 14px;border-radius:var(--radius);
+  background:var(--white);box-shadow:var(--shadow);
+}
+.deadline-alert .dl-title{
+  font-size:13px;font-weight:600;color:var(--t1);margin-bottom:6px;
+  display:flex;align-items:center;gap:4px;
+}
+.deadline-item{
+  display:flex;align-items:center;gap:8px;padding:6px 0;
+  border-bottom:1px solid var(--pbr);font-size:13px;
+}
+.deadline-item:last-child{border-bottom:none}
+.deadline-item .dl-name{flex:1;color:var(--t2)}
+.deadline-item .dl-urgent{
+  font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--radius-full);
+  white-space:nowrap;
+}
+.dl-urgent.red{background:#FFEBEE;color:#C62828}
+.dl-urgent.orange{background:#FFF3E0;color:#E65100}
+.dl-urgent.green{background:#E8F5E9;color:#2E7D32}
+.dl-urgent.done{background:var(--pb);color:var(--t3)}
+/* ===== Category Batch Paid ===== */
+.exp-cat-header{cursor:pointer;user-select:none}
+.exp-cat-header:active{opacity:.7}
+.exp-cat-header .batch-hint{font-size:10px;color:var(--t3);margin-left:4px}
+/* ===== Data Export/Import ===== */
+.data-btns{display:flex;gap:8px;margin:0 16px 12px}
+.data-btn{
+  flex:1;padding:10px;border:1px solid var(--pbr);border-radius:var(--radius);
+  background:var(--white);color:var(--p);font-size:12px;cursor:pointer;
+  text-align:center;font-family:inherit;
+}
+.data-btn:active{background:var(--pb)}
+/* ===== Dark Mode ===== */
+:root[data-theme="dark"]{
+  --p:#7B6FFF;--pl:#9B8FFF;--pll:#C4C2FF;--pb:#1a1a2e;--pbr:#2d2d44;
+  --t1:#e0e0e0;--t2:#aaa;--t3:#777;--white:#252538;
+  --shadow:0 2px 12px rgba(0,0,0,.3);--shadow-lg:0 4px 20px rgba(0,0,0,.4);
+}
+:root[data-theme="dark"] body{background:#121220}
+:root[data-theme="dark"] .header{background:linear-gradient(135deg,#3a2d8f,#5B4FE3)}
+:root[data-theme="dark"] .budget-hero{background:linear-gradient(135deg,#3a2d8f,#5B4FE3)}
+:root[data-theme="dark"] .hero-card{background:linear-gradient(135deg,#3a2d8f,#5B4FE3)}
+:root[data-theme="dark"] .hotel-banner{background:linear-gradient(135deg,#3a2d8f,#5B4FE3)}
+:root[data-theme="dark"] .note-box{background:#252538;border-left-color:var(--p)}
+:root[data-theme="dark"] .exp-amount{background:#1a1a2e;border-color:#2d2d44;color:var(--t1)}
+:root[data-theme="dark"] .modal-field input,:root[data-theme="dark"] .modal-field select{background:#1a1a2e;border-color:#2d2d44;color:var(--t1)}
+:root[data-theme="dark"] .view-toggle{background:#252538}
+:root[data-theme="dark"] .view-toggle-btn.active{background:#252538;color:var(--pl)}
+:root[data-theme="dark"] .timeline::before{background:#2d2d44}
+:root[data-theme="dark"] .tl-dot{border-color:var(--pl);background:#252538}
+/* Theme toggle button */
+.theme-toggle{
+  background:rgba(255,255,255,.2);border:none;color:var(--white);
+  width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+/* ===== Search ===== */
+.search-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;
+  background:rgba(0,0,0,.3);display:none;
+}
+.search-overlay.show{display:block}
+.search-panel{
+  position:fixed;top:0;left:0;right:0;z-index:301;background:var(--white);
+  padding:14px 16px calc(16px + var(--safe-bottom));box-shadow:0 4px 20px rgba(0,0,0,.15);
+  max-height:70vh;overflow-y:auto;
+}
+.search-panel input{
+  width:100%;padding:10px 14px;border:1.5px solid var(--pbr);border-radius:var(--radius-full);
+  font-size:14px;outline:none;background:var(--pb);color:var(--t1);font-family:inherit;
+}
+.search-panel input:focus{border-color:var(--p)}
+.search-results{margin-top:12px}
+.search-result-item{
+  padding:12px;border-bottom:1px solid var(--pbr);cursor:pointer;
+}
+.search-result-item:active{background:var(--pb)}
+.search-result-item .sr-cat{font-size:11px;color:var(--p);margin-bottom:2px}
+.search-result-item .sr-title{font-size:14px;color:var(--t1);font-weight:500}
+.search-result-item .sr-desc{font-size:12px;color:var(--t2);margin-top:2px}
+.search-no-result{text-align:center;padding:24px;color:var(--t3);font-size:13px}
+/* ===== Day Expense Summary ===== */
+.day-expense-summary{
+  margin:8px 16px 12px;padding:10px 14px;background:var(--pb);
+  border-radius:var(--radius);font-size:13px;color:var(--t2);
+  display:flex;align-items:center;gap:8px;
+}
+.day-expense-summary strong{color:var(--p);font-size:15px}
+/* ===== Swipe hint ===== */
+.swipe-hint{
+  text-align:center;font-size:11px;color:var(--t3);padding:4px 0 8px;
+}
+.empty-space{height:20px}
+/* ===== Map Page ===== */
+#map-container{
+  margin:0;height:calc(100vh - 180px);border-radius:0;
+  z-index:1;
+}
+.map-legend{
+  margin:0 16px 12px;padding:12px 14px;background:var(--white);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+}
+.map-legend .ml-title{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:8px}
+.map-legend-item{
+  display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;color:var(--t2);
+}
+.map-legend-dot{
+  width:12px;height:12px;border-radius:50%;flex-shrink:0;border:2px solid var(--white);
+  box-shadow:0 0 0 1px rgba(0,0,0,.1);
+}
+.map-category-filter{
+  display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px;
+}
+.map-filter-chip{
+  padding:6px 12px;border-radius:var(--radius-full);font-size:12px;
+  border:1.5px solid var(--pbr);background:var(--white);color:var(--t2);
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.map-filter-chip.active{
+  background:var(--p);border-color:var(--p);color:var(--white);
+}
+.map-filter-chip:active{opacity:.7}
+:root[data-theme="dark"] #map-container{background:#1a1a2e}
+:root[data-theme="dark"] .leaflet-tile{filter:invert(.9) hue-rotate(180deg) brightness(.9) contrast(.9)}
+:root[data-theme="dark"] .leaflet-popup-content-wrapper{
+  background:#252538;color:var(--t1);border:1px solid #2d2d44;
+}
+:root[data-theme="dark"] .leaflet-popup-tip{background:#252538}
+:root[data-theme="dark"] .leaflet-bar a{background:#252538;color:var(--t1);border-color:#2d2d44}
+:root[data-theme="dark"] .leaflet-bar a:hover{background:#1a1a2e}
+/* ===== Weather Forecast ===== */
+.weather-forecast{
+  margin:0 16px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.weather-forecast::-webkit-scrollbar{display:none}
+.weather-forecast-row{
+  display:flex;gap:8px;padding-bottom:4px;
+}
+.weather-day{
+  flex-shrink:0;width:72px;background:var(--white);border-radius:var(--radius);
+  padding:10px 6px;text-align:center;box-shadow:var(--shadow);
+}
+.weather-day .wd-date{font-size:11px;color:var(--t3);margin-bottom:2px}
+.weather-day .wd-icon{font-size:24px;line-height:1.2}
+.weather-day .wd-temp{font-size:13px;font-weight:600;color:var(--t1)}
+.weather-day .wd-temp .low{color:var(--t3);font-weight:400}
+.weather-day .wd-rain{font-size:10px;color:#42A5F5;margin-top:2px}
+.weather-loading{text-align:center;padding:20px;color:var(--t3);font-size:13px}
+/* ===== PDF Export Button ===== */
+.export-pdf-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin:0 16px 12px;padding:10px;border:1.5px solid var(--pbr);
+  border-radius:var(--radius);background:var(--white);color:var(--p);
+  font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit;
+}
+.export-pdf-btn:active{background:var(--pb);border-color:var(--p)}
+/* ===== Map Day Selector ===== */
+.map-day-selector{
+  display:flex;gap:6px;padding:10px 16px 6px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.map-day-selector::-webkit-scrollbar{display:none}
+.map-day-chip{
+  flex-shrink:0;padding:6px 12px;border-radius:var(--radius-full);
+  background:var(--white);border:1.5px solid var(--pbr);
+  font-size:12px;color:var(--t2);cursor:pointer;transition:all .2s;
+  white-space:nowrap;font-weight:500;
+}
+.map-day-chip.active{
+  background:var(--p);border-color:var(--p);color:var(--white);
+  box-shadow:0 2px 6px rgba(75,63,227,.3);
+}
+.map-day-chip:active{opacity:.7}
+.map-day-info{
+  margin:0 16px 8px;padding:10px 14px;background:var(--white);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  border-left:4px solid var(--p);
+}
+.map-day-info .mdi-title{font-size:13px;font-weight:600;color:var(--p);margin-bottom:4px}
+.map-day-info .mdi-route{font-size:12px;color:var(--t2);line-height:1.6}
+.map-day-info .mdi-route .step{
+  display:inline-block;padding:1px 6px;background:var(--pb);color:var(--p);
+  border-radius:4px;margin:0 2px;font-size:11px;
+}
+/* Numbered marker style */
+.numbered-marker{
+  background:var(--p);color:#fff;border-radius:50%;width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  font-weight:700;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+:root[data-theme="dark"] .numbered-marker{background:var(--pl);border-color:#252538}
+/* Category colored marker */
+.cat-marker{
+  width:32px;height:32px;border-radius:50% 50% 50% 0;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);
+  transform:rotate(-45deg);line-height:1;
+}
+.cat-marker > *{transform:rotate(45deg)}
+.cat-marker-wrapper{background:transparent;border:none}
+:root[data-theme="dark"] .cat-marker{border-color:#252538}
+/* ===== Statistics Dashboard ===== */
+.stats-card{
+  margin:0 16px 12px;padding:16px;background:var(--white);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+}
+.stats-card-title{
+  font-size:14px;font-weight:600;color:var(--p);margin-bottom:14px;
+  display:flex;align-items:center;gap:6px;
+}
+.stats-donut-wrap{
+  position:relative;width:160px;height:160px;margin:0 auto 14px;
+}
+.stats-donut{
+  width:160px;height:160px;border-radius:50%;
+  background:conic-gradient(var(--pbr) 0% 100%);
+  transition:background 1s ease;
+}
+.stats-donut::after{
+  content:'';position:absolute;top:25%;left:25%;width:50%;height:50%;
+  border-radius:50%;background:var(--white);
+}
+:root[data-theme="dark"] .stats-donut::after{background:var(--white)}
+.stats-donut-center{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;z-index:1;
+}
+.stats-donut-center .amount{font-size:20px;font-weight:700;color:var(--p)}
+.stats-donut-center .label{font-size:10px;color:var(--t3)}
+.stats-donut-legend{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+}
+.stats-legend-item{
+  display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);
+}
+.stats-legend-dot{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
+}
+.stats-progress-ring-wrap{
+  position:relative;width:120px;height:120px;margin:0 auto 14px;
+}
+.stats-progress-text{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;
+}
+.stats-progress-text .pct{font-size:22px;font-weight:700;color:var(--p)}
+.stats-progress-text .lbl{font-size:10px;color:var(--t3)}
+.stats-progress-detail{
+  display:flex;justify-content:space-around;font-size:12px;
+}
+.stats-progress-detail .item{text-align:center}
+.stats-progress-detail .item .val{font-size:15px;font-weight:700}
+.stats-progress-detail .item.paid .val{color:#4CAF50}
+.stats-progress-detail .item.pending .val{color:#FF9800}
+.stats-progress-detail .item .lbl{font-size:10px;color:var(--t3)}
+.stats-cat-bars{display:flex;flex-direction:column;gap:12px}
+.stats-cat-bar-row{display:flex;align-items:center;gap:8px}
+.stats-cat-bar-label{
+  width:70px;font-size:12px;color:var(--t2);flex-shrink:0;
+  display:flex;align-items:center;gap:4px;
+}
+.stats-cat-bar-track{
+  flex:1;height:24px;background:var(--pbr);border-radius:6px;
+  overflow:hidden;display:flex;position:relative;
+}
+.stats-cat-bar-paid{
+  height:100%;background:#4CAF50;transition:width .8s ease;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:#fff;font-weight:600;min-width:0;
+}
+.stats-cat-bar-pending{
+  height:100%;background:var(--p);opacity:.5;transition:width .8s ease;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:#fff;font-weight:600;min-width:0;
+}
+.stats-cat-bar-amount{
+  width:80px;font-size:11px;color:var(--t2);text-align:right;flex-shrink:0;
+}
+.stats-top-list{display:flex;flex-direction:column;gap:8px}
+.stats-top-item{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;
+  background:var(--pb);border-radius:8px;
+}
+.stats-top-rank{
+  width:24px;height:24px;border-radius:50%;background:var(--p);color:#fff;
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.stats-top-rank.r1{background:#FFD700;color:#8B6914}
+.stats-top-rank.r2{background:#C0C0C0;color:#555}
+.stats-top-rank.r3{background:#CD7F32}
+.stats-top-name{flex:1;font-size:13px;color:var(--t1)}
+.stats-top-amount{font-size:13px;font-weight:700;color:var(--p)}
+.stats-top-status{font-size:10px;padding:2px 6px;border-radius:4px}
+.stats-top-status.paid{background:#E8F5E9;color:#4CAF50}
+.stats-top-status.pending{background:#FFF3E0;color:#FF9800}
+/* ===== Notification Toggle ===== */
+.notif-toggle-btn{
+  padding:8px 18px;border-radius:var(--radius-full);border:1.5px solid var(--pbr);
+  background:var(--white);color:var(--p);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .2s;font-family:inherit;white-space:nowrap;
+}
+.notif-toggle-btn.active{background:var(--p);border-color:var(--p);color:var(--white)}
+.notif-toggle-btn:active{opacity:.7}
+/* ===== Offline Map Download ===== */
+.offline-map-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin:0 16px 8px;padding:10px;border:1.5px solid var(--pbr);
+  border-radius:var(--radius);background:var(--white);color:var(--p);
+  font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit;
+}
+.offline-map-btn:active{background:var(--pb);border-color:var(--p)}
+.offline-map-btn:disabled{opacity:.6;cursor:default}
+.offline-map-progress{
+  margin:0 16px 8px;padding:10px 14px;background:var(--white);
+  border-radius:var(--radius);box-shadow:var(--shadow);font-size:13px;
+}
+.offline-map-progress-bar{
+  height:6px;background:var(--pbr);border-radius:3px;margin-top:6px;overflow:hidden;
+}
+.offline-map-progress-fill{
+  height:100%;background:var(--p);border-radius:3px;transition:width .3s ease;width:0;
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<header class="header">
+  <span class="logo">🌿</span>
+  <h1>桂林旅行攻略</h1>
+  <button class="theme-toggle" id="theme-toggle">🌙</button>
+  <button class="theme-toggle" id="search-btn" style="margin-left:6px">🔍</button>
+  <span class="date-badge">9月1日-6日</span>
+</header>
+
+<!-- ===== Page: 首页 ===== -->
+<div class="page active" id="page-home">
+  <div class="hero-card">
+    <h2>桂林 7天6晚之旅</h2>
+    <div class="sub">
+      <strong>出行人员：</strong>阿照（25岁·上海出发）+ 妈妈（近50岁·临沂出发）<br>
+      <strong>行程时间：</strong>8月31日 - 9月6日（共7天）<br>
+      <strong>行程特色：</strong>分批抵达 + 阳朔深度游 + 轻松舒适
+    </div>
+  </div>
+
+  <div class="countdown" id="countdown">
+    <div class="label">距离出发还有</div>
+    <div class="days" id="countdown-days">--</div>
+    <div class="days-label">天</div>
+  </div>
+
+  <div class="deadline-alert" id="deadline-alert">
+    <div class="dl-title">⏰ 预订截止提醒</div>
+    <div id="deadline-list"></div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">总预算（两人）</div>
+      <div class="value"><span id="stat-total">9456</span><span class="unit"> 元</span></div>
+    </div>
+    <div class="stat-card paid">
+      <div class="label">已支付</div>
+      <div class="value"><span id="stat-paid">2245</span><span class="unit"> 元</span></div>
+    </div>
+    <div class="stat-card pending">
+      <div class="label">待支付</div>
+      <div class="value"><span id="stat-pending">7211</span><span class="unit"> 元</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">行程天数</div>
+      <div class="value">7<span class="unit"> 天6晚</span></div>
+    </div>
+  </div>
+
+  <div class="section-header"><span class="emoji">📋</span>行程总览</div>
+  <div class="card" style="margin-top:0">
+    <div class="mini-tl">
+      <div class="mini-tl-item"><div class="mini-tl-dot"></div><div class="mini-tl-content"><span class="day">Day 0 · 8/31（周一）</span><br><span class="theme">妈妈下午抵达桂林，入住东西巷附近</span></div></div>
+      <div class="mini-tl-item"><div class="mini-tl-dot"></div><div class="mini-tl-content"><span class="day">Day 1 · 9/1（周二）</span><br><span class="theme">阿照飞抵，两人汇合，象鼻山+东西巷</span></div></div>
+      <div class="mini-tl-item"><div class="mini-tl-dot"></div><div class="mini-tl-content"><span class="day">Day 2 · 9/2（周三）</span><br><span class="theme">漓江游船→阳朔，逛西街</span></div></div>
+      <div class="mini-tl-item"><div class="mini-tl-dot"></div><div class="mini-tl-content"><span class="day">Day 3 · 9/3（周四）</span><br><span class="theme">遇龙河竹筏 + 十里画廊骑行</span></div></div>
+      <div class="mini-tl-item"><div class="mini-tl-dot"></div><div class="mini-tl-content"><span class="day">Day 4 · 9/4（周五）</span><br><span class="theme">银子岩 + 兴坪古镇（+可选飞拉达）</span></div></div>
+      <div class="mini-tl-item"><div class="mini-tl-dot"></div><div class="mini-tl-content"><span class="day">Day 5 · 9/5（周六）</span><br><span class="theme">世外桃源 + 如意峰索道→返回桂林</span></div></div>
+      <div class="mini-tl-item"><div class="mini-tl-dot"></div><div class="mini-tl-content"><span class="day">Day 6 · 9/6（周日）</span><br><span class="theme">东西巷收尾 + 下午各自返程</span></div></div>
+    </div>
+  </div>
+
+  <div class="section-header"><span class="emoji">🌤️</span>行程天气</div>
+  <div class="weather-forecast" id="weather-forecast">
+    <div class="weather-loading">正在获取天气预报...</div>
+  </div>
+  <div class="note-box">
+    <strong>穿搭建议：</strong>夏装为主，带薄外套（溶洞/船上用）。防晒霜+遮阳帽+太阳镜必备。9月仍处后汛期，关注天气预报和景区停航通知。
+  </div>
+
+  <button class="export-pdf-btn" id="export-pdf-btn">📄 导出行程PDF</button>
+</div>
+
+<!-- ===== Page: 行程 ===== -->
+<div class="page" id="page-itinerary">
+  <div class="section-header"><span class="emoji">🗓️</span>选择日期</div>
+  <div class="day-selector" id="day-selector">
+    <div class="day-chip active" data-day="0"><span class="day-num">Day 0</span><span class="day-date">8/31 周一</span></div>
+    <div class="day-chip" data-day="1"><span class="day-num">Day 1</span><span class="day-date">9/1 周二</span></div>
+    <div class="day-chip" data-day="2"><span class="day-num">Day 2</span><span class="day-date">9/2 周三</span></div>
+    <div class="day-chip" data-day="3"><span class="day-num">Day 3</span><span class="day-date">9/3 周四</span></div>
+    <div class="day-chip" data-day="4"><span class="day-num">Day 4</span><span class="day-date">9/4 周五</span></div>
+    <div class="day-chip" data-day="5"><span class="day-num">Day 5</span><span class="day-date">9/5 周六</span></div>
+    <div class="day-chip" data-day="6"><span class="day-num">Day 6</span><span class="day-date">9/6 周日</span></div>
+  </div>
+  <div class="swipe-hint">← 左右滑动切换日程 →</div>
+  <div id="timeline-container"></div>
+</div>
+
+<!-- ===== Page: 预算 ===== -->
+<div class="page" id="page-budget">
+  <div class="view-toggle">
+    <button class="view-toggle-btn active" data-view="overview">预算概览</button>
+    <button class="view-toggle-btn" data-view="tracker">费用记账</button>
+    <button class="view-toggle-btn" data-view="stats">统计仪表盘</button>
+  </div>
+
+  <!-- 预算概览 View -->
+  <div class="budget-view active" id="view-overview">
+    <div class="budget-hero">
+      <div class="total-label">总预算（两人合计）</div>
+      <div class="total" id="overview-total">¥9,456</div>
+      <div class="split">
+        <span>已付 <strong id="overview-paid">¥2,245</strong></span>
+        <span>待付 <strong id="overview-pending">¥7,211</strong></span>
+      </div>
+    </div>
+
+    <div class="section-header"><span class="emoji">💰</span>预算分布</div>
+    <div id="budget-bars-container"></div>
+
+    <div class="note-box">
+      <strong>飞拉达备选：</strong>如参加飞拉达攀岩，额外预算约 ¥500（约250元/人×2）
+    </div>
+    <div class="empty-space"></div>
+  </div>
+
+  <!-- 费用记账 View -->
+  <div class="budget-view" id="view-tracker">
+    <div class="exp-summary">
+      <div class="exp-summary-card total">
+        <div class="label">总费用</div>
+        <div class="value" id="exp-total">¥0</div>
+      </div>
+      <div class="exp-summary-card paid">
+        <div class="label">已付</div>
+        <div class="value" id="exp-paid">¥0</div>
+      </div>
+      <div class="exp-summary-card pending">
+        <div class="label">待付</div>
+        <div class="value" id="exp-pending">¥0</div>
+      </div>
+    </div>
+
+    <div id="expense-list-container"></div>
+
+    <button class="add-expense-btn" id="add-expense-btn">➕ 添加自定义费用</button>
+    <div class="data-btns">
+      <button class="data-btn" id="export-btn">📤 导出数据</button>
+      <button class="data-btn" id="import-btn">📥 导入数据</button>
+    </div>
+    <input type="file" id="import-file" accept=".json" style="display:none">
+    <button class="reset-btn" id="reset-expense-btn">↻ 恢复默认预算</button>
+    <div class="note-box" style="margin-top:8px">
+      <strong>使用说明：</strong>点击金额可直接修改实际花费，点击「待付/已付」按钮切换支付状态。所有修改自动保存在手机本地，下次打开仍然保留。
+    </div>
+    <div class="empty-space"></div>
+  </div>
+
+  <!-- 统计仪表盘 View -->
+  <div class="budget-view" id="view-stats">
+    <div class="stats-card">
+      <div class="stats-card-title">📊 分类支出占比</div>
+      <div class="stats-donut-wrap">
+        <div class="stats-donut" id="stats-donut"></div>
+        <div class="stats-donut-center" id="stats-donut-center"></div>
+      </div>
+      <div class="stats-donut-legend" id="stats-donut-legend"></div>
+    </div>
+    <div class="stats-card">
+      <div class="stats-card-title">💳 支付进度</div>
+      <div class="stats-progress-ring-wrap">
+        <svg class="stats-progress-ring" width="120" height="120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--pbr)" stroke-width="10"/>
+          <circle id="stats-progress-circle" cx="60" cy="60" r="52" fill="none" stroke="var(--p)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s ease"/>
+        </svg>
+        <div class="stats-progress-text" id="stats-progress-text"></div>
+      </div>
+      <div class="stats-progress-detail" id="stats-progress-detail"></div>
+    </div>
+    <div class="stats-card">
+      <div class="stats-card-title">📈 分类对比（已付 vs 待付）</div>
+      <div class="stats-cat-bars" id="stats-cat-bars"></div>
+    </div>
+    <div class="stats-card">
+      <div class="stats-card-title">🏆 支出TOP5</div>
+      <div class="stats-top-list" id="stats-top-list"></div>
+    </div>
+    <div class="empty-space"></div>
+  </div>
+</div>
+
+<!-- ===== Add Expense Modal ===== -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3>添加费用</h3>
+    <div class="modal-field">
+      <label>费用名称</label>
+      <input type="text" id="modal-name" placeholder="如：阳朔晚餐">
+    </div>
+    <div class="modal-field">
+      <label>金额（元）</label>
+      <input type="number" id="modal-amount" placeholder="如：120" min="0" step="0.01">
+    </div>
+    <div class="modal-field">
+      <label>分类</label>
+      <select id="modal-category">
+        <option value="flight">✈️ 大交通</option>
+        <option value="hotel">🏨 住宿</option>
+        <option value="ticket">🎫 门票活动</option>
+        <option value="food">🍜 餐饮</option>
+        <option value="transport">🚕 当地交通</option>
+        <option value="other">🎁 其他</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>支付状态</label>
+      <select id="modal-paid">
+        <option value="false">待付</option>
+        <option value="true">已付</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" id="modal-cancel">取消</button>
+      <button class="modal-btn confirm" id="modal-confirm">添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Page: 清单 ===== -->
+<div class="page" id="page-checklist">
+  <div class="section-header"><span class="emoji">🎫</span>预订清单</div>
+  <div class="checklist-section">
+    <div class="checklist-progress" id="booking-progress">
+      <div class="checklist-progress-text">
+        <span>预订进度</span>
+        <span class="count"><span class="done">0</span> / <span class="total">0</span></span>
+      </div>
+      <div class="checklist-progress-bar"><div class="checklist-progress-fill" style="width:0%"></div></div>
+    </div>
+    <div id="booking-list"></div>
+    <button class="checklist-add-btn" data-cat="booking">➕ 添加预订项</button>
+  </div>
+
+  <div class="section-header"><span class="emoji">🎒</span>出发清单</div>
+  <div class="checklist-section">
+    <div class="checklist-progress" id="packing-progress">
+      <div class="checklist-progress-text">
+        <span>打包进度</span>
+        <span class="count"><span class="done">0</span> / <span class="total">0</span></span>
+      </div>
+      <div class="checklist-progress-bar"><div class="checklist-progress-fill" style="width:0%"></div></div>
+    </div>
+    <div id="packing-list"></div>
+    <button class="checklist-add-btn" data-cat="packing">➕ 添加物品</button>
+  </div>
+  <button class="reset-btn" id="reset-checklist-btn">↻ 恢复默认清单</button>
+  <div class="empty-space"></div>
+</div>
+
+<!-- ===== Page: 更多 ===== -->
+<div class="page" id="page-more">
+  <div class="section-header"><span class="emoji">🏨</span>已确认住宿</div>
+
+  <div class="hotel-card">
+    <div class="hotel-banner">
+      <span class="icon">🏙️</span>
+      <div><div class="name">天空花园酒店</div><div style="font-size:11px;opacity:.8">桂林两江四湖象鼻山景区店</div></div>
+      <span class="nights">3晚</span>
+    </div>
+    <div class="hotel-body">
+      <div class="hotel-info">
+        <strong>地址：</strong>秀峰区解放东路31号<br>
+        <strong>位置：</strong>紧邻东西巷，步行140米<br>
+        <strong>入住日期：</strong>8/31、9/1、9/5<br>
+        <strong>特色：</strong>2021年开业 · 庭院设计 · 天空之境 · 顶楼花园 · 日系侘寂风<br>
+        <strong>评分：</strong>携程4.8分 / 1500+评价
+      </div>
+      <div class="hotel-tags">
+        <span class="hotel-tag">出门即东西巷</span>
+        <span class="hotel-tag">逛街觅食方便</span>
+        <span class="hotel-tag">30间房</span>
+      </div>
+      <div class="hotel-price">
+        <span class="amount">¥512（3晚）</span>
+        <span class="status">✅ 已付</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hotel-card">
+    <div class="hotel-banner">
+      <span class="icon">🌿</span>
+      <div><div class="name">树舍·酒店</div><div style="font-size:11px;opacity:.8">阳朔西街步行可达</div></div>
+      <span class="nights">3晚</span>
+    </div>
+    <div class="hotel-body">
+      <div class="hotel-info">
+        <strong>位置：</strong>西街步行可达，闹中取静<br>
+        <strong>入住日期：</strong>9/2、9/3、9/4<br>
+        <strong>特色：</strong>性价比之王 · 老板超贴心（主动升房、送水果、借电动车）· 现代简约 · 干净清爽<br>
+        <strong>适合：</strong>带妈妈住完全没问题
+      </div>
+      <div class="hotel-tags">
+        <span class="hotel-tag">闹中取静</span>
+        <span class="hotel-tag">可借电动车</span>
+        <span class="hotel-tag">老板服务好</span>
+      </div>
+      <div class="hotel-price">
+        <span class="amount">¥434（3晚）</span>
+        <span class="status">✅ 已付</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>住宿提醒：</strong>天空花园酒店早餐政策因房型而异，建议确认是否含早；如无早，步行2分钟到东西巷吃桂林米粉（崇善米粉等）。桂林潮湿，低楼层可能有霉味，建议3楼以上。
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-header"><span class="emoji">🔔</span>通知提醒</div>
+  <div class="card" style="margin-top:0">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:14px;font-weight:600;color:var(--t1)">预订截止提醒</div>
+        <div style="font-size:12px;color:var(--t3);margin-top:2px">在截止日期前3天/1天/当天推送通知</div>
+      </div>
+      <button class="notif-toggle-btn" id="notif-toggle-btn">开启提醒</button>
+    </div>
+    <div id="notif-status" style="font-size:12px;color:var(--t3);margin-top:8px;display:none"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-header"><span class="emoji">🚨</span>应急联系</div>
+  <div class="emergency-card">
+    <div class="title">📞 紧急电话</div>
+    <div class="emergency-item"><span class="name">旅游投诉热线</span><span class="phone">12301</span></div>
+    <div class="emergency-item"><span class="name">报警</span><span class="phone">110</span></div>
+    <div class="emergency-item"><span class="name">急救</span><span class="phone">120</span></div>
+    <div class="emergency-item"><span class="name">桂林两江机场</span><span class="phone">0773-2845359</span></div>
+  </div>
+  <div class="note-box">
+    <strong>特别提醒：</strong>妈妈 Day 0 独自抵达桂林，请提前将酒店地址、联系电话、机场大巴线路截图存入妈妈手机。如遇航班延误或大巴排队过长，可直接打车（约80-100元）到酒店。
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-header"><span class="emoji">💡</span>实用提示</div>
+
+  <div class="tip-card">
+    <div class="tip-icon">👴</div>
+    <h3>带长辈注意事项</h3>
+    <ul>
+      <li>节奏放慢：每天中午必须午休1小时</li>
+      <li>备好常用药：肠胃药、晕车药、创可贴</li>
+      <li>饮食注意：提前说少盐少辣，啤酒鱼选刺少的剑骨鱼</li>
+      <li>随时补水：带保温杯，9月桂林仍热</li>
+      <li>如意峰玻璃栈道：恐高慢慢走，扶栏杆即可</li>
+    </ul>
+  </div>
+
+  <div class="tip-card">
+    <div class="tip-icon">🧗</div>
+    <h3>飞拉达注意事项（如参加）</h3>
+    <ul>
+      <li>穿着：防滑运动鞋+长裤+贴身衣服，禁拖鞋裙子</li>
+      <li>安全：全程双锁钢缆保护，教练全程陪同</li>
+      <li>选初级线/C线（丛林穿越），避免高难度</li>
+      <li>玩完胳膊会酸，次日不安排重体力活动</li>
+    </ul>
+  </div>
+
+  <div class="tip-card">
+    <div class="tip-icon">📱</div>
+    <h3>实用小程序</h3>
+    <ul>
+      <li>漓江船票：「漓江售票处」公众号 / 「桂林漓江商城」小程序</li>
+      <li>遇龙河竹筏：「遇龙河漂流」小程序 / 「i游阳朔」公众号</li>
+      <li>象鼻山预约：「桂林市象山景区管理处」公众号</li>
+      <li>如意峰索道：「阳朔如意峰索道景区」公众号</li>
+      <li>机场大巴：「桂林机场」微信小程序</li>
+    </ul>
+  </div>
+
+  <div class="tip-card">
+    <div class="tip-icon">⚠️</div>
+    <h3>遇龙河竹筏限制</h3>
+    <p>1.1米以下儿童、<strong>65岁（含）以上老人</strong>、孕妇、心脏病/心脑血管患者、饮酒者不能乘坐。妈妈近50岁可以乘坐。如遇暴雨/水位超标会临时停航，出发前一天关注公众号通知。</p>
+  </div>
+
+  <div class="tip-card">
+    <div class="tip-icon">💰</div>
+    <h3>省钱提示</h3>
+    <ul>
+      <li>银子岩线上比现场便宜5-7元/人</li>
+      <li>如意峰线上208元，现场220元</li>
+      <li>十里画廊电动车可在酒店直接租，免押金</li>
+      <li>携程/美团有时有满减券或联票优惠，多平台比价</li>
+    </ul>
+  </div>
+
+  <div class="empty-space"></div>
+  <div style="text-align:center;padding:16px;font-size:12px;color:var(--t3)">
+    桂林旅行攻略 V6.0 · 2026年8月8日更新<br>祝阿照和妈妈桂林之行愉快！🌿
+  </div>
+</div>
+
+<!-- ===== Page: 地图 ===== -->
+<div class="page" id="page-map">
+  <div class="map-day-selector" id="map-day-selector">
+    <div class="map-day-chip active" data-day="all">📋 全部</div>
+    <div class="map-day-chip" data-day="0">D0·8/31</div>
+    <div class="map-day-chip" data-day="1">D1·9/1</div>
+    <div class="map-day-chip" data-day="2">D2·9/2</div>
+    <div class="map-day-chip" data-day="3">D3·9/3</div>
+    <div class="map-day-chip" data-day="4">D4·9/4</div>
+    <div class="map-day-chip" data-day="5">D5·9/5</div>
+    <div class="map-day-chip" data-day="6">D6·9/6</div>
+  </div>
+  <div class="map-category-filter" id="map-filter">
+    <div class="map-filter-chip active" data-cat="all">全部类型</div>
+    <div class="map-filter-chip" data-cat="hotel">🏨 住宿</div>
+    <div class="map-filter-chip" data-cat="scenic">🏞️ 景点</div>
+    <div class="map-filter-chip" data-cat="transport">🚗 交通</div>
+    <div class="map-filter-chip" data-cat="food">🍜 餐饮</div>
+  </div>
+  <div id="map-container"></div>
+  <div class="map-day-info" id="map-day-info" style="display:none"></div>
+  <div class="map-legend">
+    <div class="ml-title">📍 地图标注说明</div>
+    <div class="map-legend-item"><div class="map-legend-dot" style="background:#4B3FE3"></div>住宿</div>
+    <div class="map-legend-item"><div class="map-legend-dot" style="background:#4CAF50"></div>景点</div>
+    <div class="map-legend-item"><div class="map-legend-dot" style="background:#FF9800"></div>交通</div>
+    <div class="map-legend-item"><div class="map-legend-dot" style="background:#E91E63"></div>餐饮</div>
+    <div class="map-legend-item" style="margin-top:6px;font-size:11px;color:var(--t3)">选择天数后显示当日路线和序号</div>
+  </div>
+  <button class="offline-map-btn" id="offline-map-btn">📥 下载离线地图</button>
+  <div class="offline-map-progress" id="offline-map-progress" style="display:none"></div>
+  <div class="note-box" style="margin-top:8px">
+    <strong>离线地图：</strong>点击上方按钮预下载桂林/阳朔区域地图瓦片（10-13级缩放），下载后无网络也可查看地图。建议出发前在WiFi下下载。
+  </div>
+</div>
+
+<!-- ===== Tab Bar ===== -->
+<nav class="tab-bar">
+  <button class="tab-btn active" data-page="home">
+    <svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9M5 10v10h14V10"/></svg>
+    <span>首页</span>
+  </button>
+  <button class="tab-btn" data-page="itinerary">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>行程</span>
+  </button>
+  <button class="tab-btn" data-page="budget">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6"/></svg>
+    <span>预算</span>
+  </button>
+  <button class="tab-btn" data-page="checklist">
+    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    <span>清单</span>
+  </button>
+  <button class="tab-btn" data-page="map">
+    <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    <span>地图</span>
+  </button>
+  <button class="tab-btn" data-page="more">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+    <span>更多</span>
+  </button>
+</nav>
+
+<!-- ===== Toast ===== -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== Search Panel ===== -->
+<div class="search-overlay" id="search-overlay">
+  <div class="search-panel" id="search-panel">
+    <input type="text" id="search-input" placeholder="搜索景点、餐厅、费用..." autocomplete="off">
+    <div class="search-results" id="search-results"></div>
+  </div>
+</div>
+
+<script>
+// ===== Utility Functions =====
+function escapeHtml(str){
+  if(str==null)return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function validateExpenses(data){
+  if(!Array.isArray(data))return false;
+  return data.every(e=>typeof e==='object'&&e!==null&&typeof e.id==='string'&&typeof e.name==='string'&&typeof e.amount==='number'&&!isNaN(e.amount)&&typeof e.paid==='boolean'&&typeof e.cat==='string'&&typeof e.custom==='boolean');
+}
+function validateChecklist(data){
+  if(typeof data!=='object'||data===null)return false;
+  if(!Array.isArray(data.booking)||!Array.isArray(data.packing))return false;
+  const validateItem=i=>typeof i==='object'&&i!==null&&typeof i.id==='string'&&typeof i.text==='string'&&typeof i.checked==='boolean';
+  return data.booking.every(validateItem)&&data.packing.every(validateItem);
+}
+
+// ===== Tab Switching =====
+const tabBtns=document.querySelectorAll('.tab-btn');
+const pages=document.querySelectorAll('.page');
+tabBtns.forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const page=btn.dataset.page;
+    tabBtns.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    pages.forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+page).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(page==='budget'){
+      renderBudgetBars();
+      renderExpenseList();
+      renderStats();
+    }
+    if(page==='map'&&!mapInitialized){
+      initMap();
+    }
+    if(page==='map'&&mapInitialized){
+      setTimeout(()=>map.invalidateSize(),100);
+    }
+  });
+});
+
+// ===== Day Selector + Timeline Data =====
+const dayData={
+  0:{title:'Day 0 · 8月31日（周一）',theme:'妈妈先行抵达',items:[
+    {time:'13:45-16:10',title:'临沂→桂林航班',desc:'妈妈独自从临沂飞桂林',cost:'约600-700元',detail:'<ul><li>参考航班：首都航空或其他</li><li>飞行时长约2小时25分钟</li></ul>'},
+    {time:'16:30-17:30',title:'机场大巴到市区',desc:'乘<strong>景区联程线</strong>（25元/人），直达东西巷/象鼻山附近',cost:'25元/人',badge:'机场大巴',detail:'<ul><li>如大巴排队过长可直接打车，约80-100元</li></ul>'},
+    {time:'17:30-18:00',title:'入住酒店',desc:'<strong>天空花园酒店</strong>（两江四湖象鼻山景区店），放行李休整',badge:'住宿'},
+    {time:'18:00-19:30',title:'逛东西巷 + 晚饭',desc:'桂林米粉、崇善米粉',badge:'觅食'},
+    {time:'19:30-20:30',title:'散步两江四湖',desc:'日月双塔夜景，免费',badge:'夜景',badgeType:'free'},
+    {time:'20:30',title:'回酒店休息',desc:'第一天早点休息'}
+  ]},
+  1:{title:'Day 1 · 9月1日（周二）',theme:'两人汇合，桂林市区',items:[
+    {time:'07:00',title:'阿照出发去浦东机场',desc:'地铁2号线龙阳路→浦东机场，约50分钟',detail:'<ul><li>10:00航班时间宽裕，无需磁悬浮首班</li></ul>'},
+    {time:'10:00-12:35',title:'阿照飞抵桂林',desc:'金鹏航空Y87505，浦东T2→两江T2',cost:'596元（已付）',badge:'已确认',detail:'<ul><li>经用户核实，Y87505航班9月1日正常执飞</li></ul>'},
+    {time:'12:35-13:15',title:'到酒店汇合',desc:'机场大巴/打车到酒店，与妈妈汇合'},
+    {time:'14:00-15:00',title:'午餐：椿记烧鹅',desc:'中山中路店，人均80元',cost:'约160元',badge:'觅食'},
+    {time:'15:00-17:00',title:'🐘 象鼻山景区',desc:'免费，需提前1天预约',badge:'需预约',badgeType:'must',cost:'免费',detail:'<ul><li>预约12:30-18:00时段</li><li>公众号「桂林市象山景区管理处」</li><li>不预约进不去！</li></ul>'},
+    {time:'17:00-18:00',title:'回酒店休息',desc:'休整一下'},
+    {time:'18:00-20:00',title:'正阳路步行街',desc:'逛街+晚餐',badge:'觅食'},
+    {time:'20:00',title:'回酒店',desc:'早点休息，明天要早起'}
+  ]},
+  2:{title:'Day 2 · 9月2日（周三）',theme:'漓江游船→阳朔',items:[
+    {time:'07:30',title:'酒店退房',desc:'行李全部带走，船上放座位旁，注意防水',badge:'退房'},
+    {time:'08:00-08:40',title:'打车到磨盘山码头',desc:'距市区约25-28公里，40分钟',cost:'约40-60元'},
+    {time:'09:00-09:30',title:'登船',desc:'漓江三星游船',badge:'必预订',badgeType:'must'},
+    {time:'09:30-13:30',title:'🚢 漓江游船',desc:'4小时游船，船上可买餐（30-60元）',cost:'215元/人（共430元）',badge:'必预订',badgeType:'must',detail:'<ul><li>渠道：小程序「桂林漓江商城」</li><li>至少提前7天预订</li><li>选9:00-9:30班次，上午光线好</li><li>现场窗口不售票，只办理取票</li></ul>'},
+    {time:'13:30-14:00',title:'抵达阳朔码头',desc:'步行10分钟到西街'},
+    {time:'14:00-15:00',title:'入住阳朔酒店',desc:'<strong>树舍·酒店</strong>，放行李、休整',badge:'住宿'},
+    {time:'15:00-17:00',title:'午休',desc:'很重要！养足精神',badge:'休息'},
+    {time:'17:00-18:30',title:'逛西街',desc:'感受阳朔氛围',badge:'逛街'},
+    {time:'18:30-19:30',title:'晚餐：谢大姐啤酒鱼',desc:'人均60-80元',cost:'约120-160元',badge:'觅食'},
+    {time:'19:30',title:'回酒店',desc:''}
+  ]},
+  3:{title:'Day 3 · 9月3日（周四）',theme:'遇龙河竹筏 + 十里画廊',items:[
+    {time:'08:00-08:30',title:'打车到金龙桥码头',desc:'从酒店出发',cost:'约20-30元'},
+    {time:'08:30-10:00',title:'🎋 遇龙河竹筏漂流',desc:'金龙桥→旧县段，255元/筏/2人',cost:'255元/筏',badge:'必抢',badgeType:'must',detail:'<ul><li>小程序「遇龙河漂流」</li><li>提前5-7天关注放票通知</li><li>65岁以上禁乘（妈妈近50岁可以）</li><li>随时可全额退款，不支持改期</li><li>遇暴雨/水位超标会临时停航</li></ul>'},
+    {time:'10:00-11:00',title:'旧县村逛逛',desc:'古村落，拍照',badge:'拍照'},
+    {time:'11:00-12:00',title:'午餐：河边农家乐',desc:'竹筒饭、土鸡、漓江虾',cost:'约100-150元',badge:'觅食'},
+    {time:'12:00-14:00',title:'回酒店午休',desc:'避开中午高温',badge:'休息'},
+    {time:'14:00-17:00',title:'🛵 十里画廊骑行',desc:'租电动车，40元/天',cost:'40元/天',detail:'<ul><li>两人共骑一辆</li><li>沿途风景极美</li></ul>'},
+    {time:'17:00-18:30',title:'工农桥看日落',desc:'遇龙河最美观景点',badge:'日落'},
+    {time:'18:30-20:00',title:'晚餐 + 休息',desc:'',badge:'觅食'}
+  ]},
+  4:{title:'Day 4 · 9月4日（周五）',theme:'银子岩 + 兴坪古镇 + 可选飞拉达',items:[
+    {time:'08:00-08:30',title:'出发去银子岩',desc:'打车/大巴，约30分钟',cost:'约30-50元'},
+    {time:'08:30-10:30',title:'🏔️ 银子岩',desc:'门票65元，游览1.5-2小时',cost:'65元/人（共130元）',detail:'<ul><li>洞内恒温18℃，带薄外套</li><li>线上购票58-60元更便宜</li></ul>'},
+    {time:'10:30',title:'方案选择',desc:'<strong>方案A：</strong>不玩飞拉达 / <strong>方案B：</strong>玩飞拉达',badge:'选择'},
+    {time:'方案A',title:'方案A行程',desc:'10:30返回阳朔→午餐午休→13:30出发兴坪→14:30兴坪古镇→16:30相公山（可选60元）→18:00返回',detail:'<ul><li>兴坪古镇免费，20元背景打卡</li><li>相公山门票60元/人，爬15-20分钟</li></ul>'},
+    {time:'方案B',title:'方案B行程（含飞拉达）',desc:'10:30前往飞拉达营地→11:00-13:00飞拉达体验→午餐→14:00兴坪古镇→16:00返回',cost:'飞拉达约245-258元/人',badge:'备选',badgeType:'must',detail:'<ul><li>飞拉达需提前3-5天预订</li><li>选初级线/C线</li><li>妈妈不建议参加</li><li>阿照有轻微恐高，量力而行</li></ul>'},
+    {time:'19:00-20:30',title:'晚餐：阿甘酒家',desc:'桂林本地菜',cost:'约120-160元',badge:'觅食'}
+  ]},
+  5:{title:'Day 5 · 9月5日（周六）',theme:'世外桃源 + 如意峰→返回桂林',items:[
+    {time:'08:00-08:30',title:'出发去世外桃源',desc:'打车约30分钟',cost:'约50-80元'},
+    {time:'08:30-11:00',title:'🌸 世外桃源景区',desc:'门票60元/人，全程坐船游览',cost:'60元/人（共120元）',detail:'<ul><li>游览时长约2-2.5小时</li><li>携程/美团提前1-3天购票</li></ul>'},
+    {time:'11:00-12:00',title:'午餐：景区附近农家乐',desc:'',cost:'约100元',badge:'觅食'},
+    {time:'12:00-14:00',title:'午休',desc:'回酒店或找阴凉处',badge:'休息'},
+    {time:'14:00-14:30',title:'出发去如意峰',desc:'打车约20分钟',cost:'约20-40元'},
+    {time:'14:30-17:00',title:'🚡 如意峰索道景区',desc:'含索道+云顶+索桥+玻璃栈道',cost:'208元/人（共416元）',detail:'<ul><li>线上208元，比现场220元省12元</li><li>阴雨天玻璃栈道可能关闭</li><li>恐高慎入，栈道138米可快速通过</li></ul>'},
+    {time:'17:00-17:30',title:'退房取行李',desc:'上午退房后带行李游玩，如意峰结束后直接去车站',badge:'退房'},
+    {time:'18:00-19:30',title:'返回桂林市区',desc:'大巴约90分钟或打车约80分钟',cost:'大巴35元/人或打车分摊100-125元',detail:'<ul><li>推荐：打车到阳朔汽车总站，坐17:00或17:20大巴到桂林火车南站（35元/人）</li><li>也可直接打车回桂林，两人分摊约100-125元/人</li></ul>'},
+    {time:'19:30-20:00',title:'入住桂林酒店',desc:'<strong>天空花园酒店</strong>（同前，回同一家）',badge:'住宿'},
+    {time:'20:00-21:00',title:'晚餐：桂林市区',desc:'最后一顿桂林美食',cost:'约120元',badge:'觅食'}
+  ]},
+  6:{title:'Day 6 · 9月6日（周日）',theme:'上午收尾 + 下午各自返程',items:[
+    {time:'08:00-08:30',title:'起床吃早餐',desc:'东西巷米粉（崇善米粉等）',badge:'觅食'},
+    {time:'08:30-09:00',title:'退房，行李寄存前台',desc:'',badge:'退房'},
+    {time:'09:00-10:30',title:'东西巷收尾',desc:'逛东西巷、买伴手礼',badge:'购物',detail:'<ul><li>如已预约靖江王府可游览（需提前1天预约）</li><li>⚠️现场不售当日票</li></ul>'},
+    {time:'10:30-11:00',title:'回酒店取行李',desc:''},
+    {time:'11:00-11:40',title:'打车前往两江机场',desc:'约40分钟',cost:'80-100元'},
+    {time:'11:40-12:30',title:'办理值机、安检',desc:'两人同航楼',badge:'值机'},
+    {time:'12:30-13:00',title:'候机 + 告别午餐',desc:'机场简餐，一起吃顿简餐告别',badge:'觅食'},
+    {time:'13:10',title:'妈妈登机→哈尔滨',desc:'桂林航空GT1087，经停济宁，约5.5小时',cost:'约1000-1200元',badge:'返程',badgeType:'must',detail:'<ul><li>经停济宁，非直飞</li><li>总时长约5.5小时</li></ul>'},
+    {time:'13:30',title:'阿照登机→上海',desc:'约2.5小时',cost:'约500-600元',badge:'返程',badgeType:'must'}
+  ]}
+};
+
+function renderTimeline(day){
+  const data=dayData[day];
+  const container=document.getElementById('timeline-container');
+  let html='<div class="section-header"><span class="emoji">📍</span>'+data.title+'<br><span style="font-size:13px;font-weight:400;color:var(--t2)">'+data.theme+'</span></div>';
+  html+='<div class="timeline">';
+  data.items.forEach((item,i)=>{
+    let badges='';
+    if(item.badge){
+      const cls=item.badgeType==='free'?' free':(item.badgeType==='must'?' must':'');
+      badges='<span class="badge'+cls+'">'+item.badge+'</span>';
+    }
+    html+='<div class="tl-item" data-idx="'+i+'">';
+    html+='<div class="tl-dot'+(i===0?' highlight':'')+'"></div>';
+    html+='<div class="tl-card">';
+    html+='<div class="tl-time">'+item.time+badges+'</div>';
+    html+='<div class="tl-title">'+item.title+'</div>';
+    html+='<div class="tl-desc">'+item.desc+'</div>';
+    if(item.cost) html+='<span class="tl-cost">'+item.cost+'</span>';
+    if(item.detail) html+='<div class="tl-detail">'+item.detail+'</div>';
+    html+='</div></div>';
+  });
+  html+='</div>';
+  // Add hotel info at bottom
+  if(day===0||day===1||day===5){
+    html+='<div class="note-box"><strong>住宿：</strong>天空花园酒店（桂林两江四湖象鼻山景区店）</div>';
+  }else if(day===2||day===3||day===4){
+    html+='<div class="note-box"><strong>住宿：</strong>树舍·酒店（阳朔西街步行可达）</div>';
+  }
+  html+='<div class="empty-space"></div>';
+  container.innerHTML=html;
+  // Bind expand/collapse
+  container.querySelectorAll('.tl-item').forEach(item=>{
+    const card=item.querySelector('.tl-card');
+    const detail=item.querySelector('.tl-detail');
+    if(detail){
+      card.addEventListener('click',()=>{
+        item.classList.toggle('expanded');
+      });
+    }
+  });
+}
+
+// Day selector
+document.querySelectorAll('.day-chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    document.querySelectorAll('.day-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    renderTimeline(parseInt(chip.dataset.day));
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+// Initial render
+renderTimeline(0);
+
+// ===== Expense Data Management =====
+const STORAGE_KEY='guilin_expenses_v1';
+const catConfig={
+  flight:{name:'大交通',emoji:'✈️',color:'#4B3FE3'},
+  hotel:{name:'住宿',emoji:'🏨',color:'#4CAF50'},
+  ticket:{name:'门票活动',emoji:'🎫',color:'#FF9800'},
+  food:{name:'餐饮',emoji:'🍜',color:'#FF9800'},
+  transport:{name:'当地交通',emoji:'🚕',color:'#FF9800'},
+  other:{name:'其他',emoji:'🎁',color:'#FF9800'}
+};
+const defaultExpenses=[
+  {id:'flight_az_go',name:'阿照去程（上海→桂林）Y87505',amount:596,paid:true,cat:'flight',custom:false},
+  {id:'flight_az_back',name:'阿照返程（桂林→上海）',amount:703,paid:true,cat:'flight',custom:false},
+  {id:'flight_mom_go',name:'妈妈去程（临沂→桂林）',amount:700,paid:false,cat:'flight',custom:false},
+  {id:'flight_mom_back',name:'妈妈返程（桂林→哈尔滨）GT1087',amount:1100,paid:false,cat:'flight',custom:false},
+  {id:'airport_bus',name:'机场大巴（25元×2人）',amount:50,paid:false,cat:'flight',custom:false},
+  {id:'hotel_gl',name:'桂林天空花园酒店（3晚）',amount:512,paid:true,cat:'hotel',custom:false},
+  {id:'hotel_ys',name:'阳朔树舍·酒店（3晚）',amount:434,paid:true,cat:'hotel',custom:false},
+  {id:'lijiang',name:'漓江三星游船（215×2）',amount:430,paid:false,cat:'ticket',custom:false},
+  {id:'yulonghe',name:'遇龙河竹筏（255/筏）',amount:255,paid:false,cat:'ticket',custom:false},
+  {id:'yinziyan',name:'银子岩（65×2）',amount:130,paid:false,cat:'ticket',custom:false},
+  {id:'shiwai',name:'世外桃源（60×2）',amount:120,paid:false,cat:'ticket',custom:false},
+  {id:'ruyifeng',name:'如意峰索道（208×2）',amount:416,paid:false,cat:'ticket',custom:false},
+  {id:'dianche',name:'十里画廊电动车（40×2天）',amount:80,paid:false,cat:'ticket',custom:false},
+  {id:'xianggongshan',name:'相公山（60×2，可选）',amount:120,paid:false,cat:'ticket',custom:false},
+  {id:'jingjiang',name:'靖江王府（100×2，可选）',amount:200,paid:false,cat:'ticket',custom:false},
+  {id:'food',name:'餐饮（6天×350/天）',amount:2100,paid:false,cat:'food',custom:false},
+  {id:'taxi1',name:'打车/网约车（市区+码头+机场）',amount:460,paid:false,cat:'transport',custom:false},
+  {id:'taxi2',name:'阳朔往返景区打车',amount:250,paid:false,cat:'transport',custom:false},
+  {id:'bus_gl',name:'阳朔→桂林大巴',amount:120,paid:false,cat:'transport',custom:false},
+  {id:'taxi_airport',name:'市区→机场打车',amount:100,paid:false,cat:'transport',custom:false},
+  {id:'souvenir',name:'伴手礼/水果/应急',amount:500,paid:false,cat:'other',custom:false},
+  {id:'insurance',name:'旅行意外险（40×2）',amount:80,paid:false,cat:'other',custom:false}
+];
+
+function loadExpenses(){
+  try{
+    const data=localStorage.getItem(STORAGE_KEY);
+    if(data) return JSON.parse(data);
+  }catch(e){}
+  return JSON.parse(JSON.stringify(defaultExpenses));
+}
+function saveExpenses(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(expenses))}
+  catch(e){showToast('⚠️ 存储空间不足，数据未保存')}
+}
+let expenses=loadExpenses();
+
+function calcTotals(){
+  let total=0,paid=0,pending=0;
+  expenses.forEach(e=>{
+    const amt=parseFloat(e.amount)||0;
+    total+=amt;
+    if(e.paid) paid+=amt; else pending+=amt;
+  });
+  return{total,paid,pending};
+}
+function fmt(n){return '¥'+Math.round(n).toLocaleString()}
+
+function updateAllStats(){
+  const{total,paid,pending}=calcTotals();
+  // Home page
+  const st=document.getElementById('stat-total'),sp=document.getElementById('stat-paid'),spe=document.getElementById('stat-pending');
+  if(st) st.textContent=Math.round(total).toLocaleString();
+  if(sp) sp.textContent=Math.round(paid).toLocaleString();
+  if(spe) spe.textContent=Math.round(pending).toLocaleString();
+  // Budget overview
+  const ot=document.getElementById('overview-total'),op=document.getElementById('overview-paid'),ope=document.getElementById('overview-pending');
+  if(ot) ot.textContent=fmt(total);
+  if(op) op.textContent=fmt(paid);
+  if(ope) ope.textContent=fmt(pending);
+  // Expense tracker summary
+  const et=document.getElementById('exp-total'),ep=document.getElementById('exp-paid'),epe=document.getElementById('exp-pending');
+  if(et) et.textContent=fmt(total);
+  if(ep) ep.textContent=fmt(paid);
+  if(epe) epe.textContent=fmt(pending);
+}
+
+// ===== Render Budget Bars (Overview) =====
+function renderBudgetBars(){
+  const container=document.getElementById('budget-bars-container');
+  if(!container) return;
+  const catTotals={};
+  const catPaid={};
+  Object.keys(catConfig).forEach(c=>{catTotals[c]=0;catPaid[c]=0});
+  expenses.forEach(e=>{
+    const amt=parseFloat(e.amount)||0;
+    catTotals[e.cat]=(catTotals[e.cat]||0)+amt;
+    if(e.paid) catPaid[e.cat]=(catPaid[e.cat]||0)+amt;
+  });
+  const grandTotal=Object.values(catTotals).reduce((a,b)=>a+b,0)||1;
+  let html='';
+  Object.keys(catConfig).forEach(c=>{
+    const cfg=catConfig[c];
+    const total=catTotals[c];
+    const paid=catPaid[c];
+    const pct=(total/grandTotal*100).toFixed(1);
+    const allPaid=paid>=total&&total>0;
+    const nonePaid=paid===0;
+    const status= allPaid?'<span class="status paid">已付</span>':(nonePaid?'<span class="status pending">待付</span>':'<span class="status pending">部分付¥'+Math.round(paid).toLocaleString()+'</span>');
+    html+='<div class="budget-cat">'+
+      '<div class="budget-cat-header">'+
+        '<span class="budget-cat-name"><span class="emoji">'+cfg.emoji+'</span>'+cfg.name+'</span>'+
+        '<span class="budget-cat-amount">'+fmt(total)+' '+status+'</span>'+
+      '</div>'+
+      '<div class="budget-bar"><div class="budget-bar-fill" style="width:'+pct+'%;background:'+(allPaid?'#4CAF50':cfg.color)+'"></div></div>'+
+    '</div>';
+  });
+  container.innerHTML=html;
+}
+
+// ===== Render Expense List (Tracker) =====
+function renderExpenseList(){
+  const container=document.getElementById('expense-list-container');
+  if(!container) return;
+  const cats=Object.keys(catConfig);
+  let html='';
+  cats.forEach(c=>{
+    const items=expenses.filter(e=>e.cat===c);
+    if(items.length===0) return;
+    const cfg=catConfig[c];
+    let subTotal=0,subPaid=0;
+    items.forEach(e=>{subTotal+=parseFloat(e.amount)||0; if(e.paid) subPaid+=parseFloat(e.amount)||0});
+    html+='<div class="exp-cat-group">';
+    html+='<div class="exp-cat-header"><span class="emoji">'+cfg.emoji+'</span>'+cfg.name+'<span class="subtotal">¥'+Math.round(subPaid).toLocaleString()+' / '+Math.round(subTotal).toLocaleString()+'</span></div>';
+    items.forEach(e=>{
+      html+='<div class="exp-item'+(e.paid?' paid':'')+(e.custom?' custom':'')+'" data-id="'+escapeHtml(e.id)+'">'+
+        '<div class="exp-name">'+escapeHtml(e.name)+(e.custom?'<span class="meta">自定义</span>':'')+'</div>'+
+        '<input class="exp-amount" type="number" value="'+e.amount+'" min="0" step="0.01" data-id="'+escapeHtml(e.id)+'">'+
+        '<button class="exp-toggle '+(e.paid?'paid':'unpaid')+'" data-id="'+escapeHtml(e.id)+'">'+(e.paid?'已付':'待付')+'</button>'+
+        '<button class="exp-delete" data-id="'+escapeHtml(e.id)+'">×</button>'+
+      '</div>';
+    });
+    html+='</div>';
+  });
+  container.innerHTML=html;
+  // Bind events
+  container.querySelectorAll('.exp-amount').forEach(input=>{
+    input.addEventListener('change',function(){
+      const id=this.dataset.id;
+      const exp=expenses.find(e=>e.id===id);
+      if(exp){exp.amount=parseFloat(this.value)||0; saveExpenses(); updateAllStats(); renderBudgetBars(); showToast('金额已更新'); rebuildSearchIndex();}
+    });
+  });
+  container.querySelectorAll('.exp-toggle').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      const id=this.dataset.id;
+      const exp=expenses.find(e=>e.id===id);
+      if(exp){
+        exp.paid=!exp.paid;
+        saveExpenses();
+        updateAllStats();
+        renderExpenseList();
+        renderBudgetBars();
+        showToast(exp.paid?'✓ 已标记已付':'已标记待付');
+      }
+    });
+  });
+  container.querySelectorAll('.exp-delete').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      const id=this.dataset.id;
+      expenses=expenses.filter(e=>e.id!==id);
+      saveExpenses();
+      updateAllStats();
+      renderExpenseList();
+      renderBudgetBars();
+      rebuildSearchIndex();
+    });
+  });
+}
+
+// ===== View Toggle =====
+document.querySelectorAll('.view-toggle-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.view-toggle-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    const view=this.dataset.view;
+    document.querySelectorAll('.budget-view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+view).classList.add('active');
+    if(view==='overview') renderBudgetBars();
+    if(view==='tracker') renderExpenseList();
+    if(view==='stats') renderStats();
+    updateAllStats();
+  });
+});
+
+// ===== Add Expense Modal =====
+const modal=document.getElementById('modal-overlay');
+document.getElementById('add-expense-btn').addEventListener('click',()=>{
+  document.getElementById('modal-name').value='';
+  document.getElementById('modal-amount').value='';
+  document.getElementById('modal-category').value='food';
+  document.getElementById('modal-paid').value='false';
+  modal.classList.add('show');
+});
+document.getElementById('modal-cancel').addEventListener('click',()=>modal.classList.remove('show'));
+modal.addEventListener('click',e=>{if(e.target===modal) modal.classList.remove('show')});
+document.getElementById('modal-confirm').addEventListener('click',()=>{
+  const name=document.getElementById('modal-name').value.trim();
+  const amount=parseFloat(document.getElementById('modal-amount').value)||0;
+  const cat=document.getElementById('modal-category').value;
+  const paid=document.getElementById('modal-paid').value==='true';
+  if(!name){alert('请输入费用名称');return}
+  const id='custom_'+Date.now();
+  expenses.push({id,name,amount,paid,cat,custom:true});
+  saveExpenses();
+  updateAllStats();
+  renderExpenseList();
+  renderBudgetBars();
+  rebuildSearchIndex();
+  modal.classList.remove('show');
+  showToast('已添加费用');
+});
+
+// ===== Reset =====
+document.getElementById('reset-expense-btn').addEventListener('click',()=>{
+  if(confirm('确定恢复默认预算？所有自定义费用和修改将被清除。')){
+    expenses=JSON.parse(JSON.stringify(defaultExpenses));
+    saveExpenses();
+    updateAllStats();
+    renderExpenseList();
+    renderBudgetBars();
+    rebuildSearchIndex();
+    showToast('已恢复默认预算');
+  }
+});
+
+// ===== Init =====
+updateAllStats();
+
+// ===== Toast =====
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+// ===== Checklist Data Management =====
+const CHECK_KEY='guilin_checklist_v1';
+const defaultChecklist={
+  booking:[
+    {id:'b1',text:'🚢 漓江三星游船（9/2）',tag:'必须提前7天',tagType:'must',meta:'小程序「桂林漓江商城」· 215元/人 · 8月25日前购买',deadline:'2026-08-25',checked:false,custom:false},
+    {id:'b2',text:'🎋 遇龙河竹筏（9/3）',tag:'最难抢',tagType:'must',meta:'小程序「遇龙河漂流」· 255元/筏 · 提前5-7天关注放票',deadline:'2026-08-27',checked:false,custom:false},
+    {id:'b3',text:'🐘 象鼻山预约（9/1）',tag:'需预约',tagType:'must',meta:'公众号「桂林市象山景区管理处」· 免费 · 预约12:30-18:00时段',deadline:'2026-08-31',checked:false,custom:false},
+    {id:'b4',text:'🏔️ 银子岩（9/4）',meta:'携程/美团 · 线上58-60元/人 · 提前1-3天',deadline:'2026-09-01',checked:false,custom:false},
+    {id:'b5',text:'🌸 世外桃源（9/5）',meta:'携程/美团 · 60元/人 · 提前1-3天',deadline:'2026-09-02',checked:false,custom:false},
+    {id:'b6',text:'🚡 如意峰索道（9/5）',meta:'携程/美团 · 线上208元/人（比现场省12元）· 提前1-3天',deadline:'2026-09-02',checked:false,custom:false},
+    {id:'b7',text:'🏛️ 靖江王府（9/6）',tag:'可选',tagType:'optional',meta:'携程/美团 · 100元/人 · ⚠️现场不售当日票，需提前1天预约',deadline:'2026-09-05',checked:false,custom:false},
+    {id:'b8',text:'🧗 飞拉达攀岩（9/4）',tag:'备选',tagType:'optional',meta:'携程/美团搜"阳朔飞拉达" · 约245-258元/人 · 提前3-5天',deadline:'2026-08-30',checked:false,custom:false},
+    {id:'b9',text:'🛵 十里画廊电动车',meta:'到了阳朔再租 · 40元/天 · 酒店/路边租车店',checked:false,custom:false},
+    {id:'b10',text:'📄 旅行意外险',meta:'约40元/人 · 覆盖航班延误、意外医疗等',deadline:'2026-08-30',checked:false,custom:false}
+  ],
+  packing:[
+    {id:'p1',text:'身份证',checked:false,custom:false},
+    {id:'p2',text:'手机 + 充电宝',checked:false,custom:false},
+    {id:'p3',text:'少量现金',checked:false,custom:false},
+    {id:'p4',text:'短袖T恤 5件',checked:false,custom:false},
+    {id:'p5',text:'薄长裤 2条 + 薄外套 1件',checked:false,custom:false},
+    {id:'p6',text:'运动鞋 + 凉拖鞋',checked:false,custom:false},
+    {id:'p7',text:'遮阳帽 + 太阳镜',checked:false,custom:false},
+    {id:'p8',text:'防晒霜 SPF50+',checked:false,custom:false},
+    {id:'p9',text:'驱蚊液',checked:false,custom:false},
+    {id:'p10',text:'雨伞',checked:false,custom:false},
+    {id:'p11',text:'常用药 + 肠胃药 + 晕车药 + 创可贴',checked:false,custom:false},
+    {id:'p12',text:'20元纸币（漓江拍照用）',checked:false,custom:false},
+    {id:'p13',text:'防水袋（竹筏用）',checked:false,custom:false},
+    {id:'p14',text:'保温杯',checked:false,custom:false},
+    {id:'p15',text:'肌酸补充剂',checked:false,custom:false}
+  ]
+};
+function loadChecklist(){
+  try{const d=localStorage.getItem(CHECK_KEY);if(d)return JSON.parse(d)}catch(e){}
+  return JSON.parse(JSON.stringify(defaultChecklist));
+}
+function saveChecklist(){try{localStorage.setItem(CHECK_KEY,JSON.stringify(checklistData))}catch(e){showToast('⚠️ 存储空间不足，数据未保存')}}
+let checklistData=loadChecklist();
+
+function renderChecklist(cat){
+  const items=checklistData[cat];
+  const container=document.getElementById(cat+'-list');
+  let html='';
+  items.forEach(item=>{
+    let tagHtml='';
+    if(item.tag){const tc=item.tagType==='must'?' must':' optional';tagHtml='<span class="tag'+tc+'">'+item.tag+'</span>'}
+    let metaHtml=item.meta?'<span class="meta">'+escapeHtml(item.meta)+'</span>':'';
+    let delHtml='<button class="check-delete" data-id="'+escapeHtml(item.id)+'" data-cat="'+escapeHtml(cat)+'">×</button>';
+    html+='<div class="check-item'+(item.checked?' checked':'')+'" data-id="'+escapeHtml(item.id)+'" data-cat="'+escapeHtml(cat)+'">'+
+      '<div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>'+
+      '<div class="check-label">'+escapeHtml(item.text)+tagHtml+metaHtml+'</div>'+delHtml+'</div>';
+  });
+  container.innerHTML=html;
+  // Bind click events
+  container.querySelectorAll('.check-item').forEach(el=>{
+    el.addEventListener('click',e=>{
+      if(e.target.classList.contains('check-delete'))return;
+      const id=el.dataset.id;const cat=el.dataset.cat;
+      const item=checklistData[cat].find(i=>i.id===id);
+      if(item){item.checked=!item.checked;saveChecklist();el.classList.toggle('checked');updateProgress(cat);
+        showToast(item.checked?'✓ 已完成':'已取消勾选')}
+    });
+  });
+  container.querySelectorAll('.check-delete').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const id=btn.dataset.id;const cat=btn.dataset.cat;
+      checklistData[cat]=checklistData[cat].filter(i=>i.id!==id);
+      saveChecklist();renderChecklist(cat);updateProgress(cat);showToast('已删除');
+      rebuildSearchIndex();
+    });
+  });
+  updateProgress(cat);
+}
+function updateProgress(cat){
+  const items=checklistData[cat];
+  const done=items.filter(i=>i.checked).length;
+  const total=items.length;
+  const progress=document.getElementById(cat+'-progress');
+  if(!progress)return;
+  progress.querySelector('.done').textContent=done;
+  progress.querySelector('.total').textContent=total;
+  progress.querySelector('.checklist-progress-fill').style.width=(total>0?done/total*100:0)+'%';
+}
+// Add checklist item
+document.querySelectorAll('.checklist-add-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const cat=btn.dataset.cat;
+    const text=prompt('输入'+(cat==='booking'?'预订项':'物品')+'名称：');
+    if(text&&text.trim()){
+      const id=cat+'_custom_'+Date.now();
+      checklistData[cat].push({id,text:text.trim(),checked:false,custom:true});
+      saveChecklist();renderChecklist(cat);showToast('已添加');
+      rebuildSearchIndex();
+    }
+  });
+});
+// Init checklist
+renderChecklist('booking');
+renderChecklist('packing');
+
+// Reset checklist to defaults
+document.getElementById('reset-checklist-btn').addEventListener('click',()=>{
+  if(confirm('确定恢复默认清单？所有自定义项和修改将被清除。')){
+    checklistData=JSON.parse(JSON.stringify(defaultChecklist));
+    saveChecklist();renderChecklist('booking');renderChecklist('packing');renderDeadlines();
+    rebuildSearchIndex();
+    showToast('已恢复默认清单');
+  }
+});
+
+// ===== Booking Deadline Alerts =====
+function renderDeadlines(){
+  const container=document.getElementById('deadline-list');
+  if(!container)return;
+  const today=new Date();
+  const items=checklistData.booking.filter(i=>i.deadline).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
+  let html='';
+  items.forEach(item=>{
+    const dl=new Date(item.deadline);
+    const days=Math.ceil((dl-today)/(1000*60*60*24));
+    let cls='green',txt='';
+    if(item.checked){cls='done';txt='已完成'}
+    else if(days<0){cls='red';txt='已过期!'}
+    else if(days===0){cls='red';txt='今天截止!'}
+    else if(days<=3){cls='red';txt='仅剩'+days+'天!'}
+    else if(days<=7){cls='orange';txt='还有'+days+'天'}
+    else{cls='green';txt='还有'+days+'天'}
+    html+='<div class="deadline-item"><span class="dl-name">'+escapeHtml(item.text)+'</span><span class="dl-urgent '+cls+'">'+txt+'</span></div>';
+  });
+  container.innerHTML=html;
+}
+renderDeadlines();
+// Auto-refresh deadlines every 5 minutes
+setInterval(renderDeadlines,5*60*1000);
+
+// ===== Countdown =====
+function updateCountdown(){
+  const target=new Date('2026-08-31T00:00:00');
+  const now=new Date();
+  const diff=Math.ceil((target-now)/(1000*60*60*24));
+  const el=document.getElementById('countdown-days');
+  if(el) el.textContent=diff>0?diff:0;
+}
+updateCountdown();
+// Auto-refresh countdown every 10 minutes
+setInterval(updateCountdown,10*60*1000);
+
+// ===== Theme Toggle =====
+const themeBtn=document.getElementById('theme-toggle');
+const savedTheme=localStorage.getItem('guilin_theme')||'light';
+if(savedTheme==='dark'){document.documentElement.setAttribute('data-theme','dark');themeBtn.textContent='☀️'}
+themeBtn.addEventListener('click',()=>{
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  if(isDark){document.documentElement.removeAttribute('data-theme');themeBtn.textContent='🌙';localStorage.setItem('guilin_theme','light')}
+  else{document.documentElement.setAttribute('data-theme','dark');themeBtn.textContent='☀️';localStorage.setItem('guilin_theme','dark')}
+});
+
+// ===== Search =====
+const searchOverlay=document.getElementById('search-overlay');
+const searchInput=document.getElementById('search-input');
+const searchResults=document.getElementById('search-results');
+const searchData=[];
+function rebuildSearchIndex(){
+  searchData.length=0;
+  Object.keys(dayData).forEach(d=>{
+    const day=dayData[d];
+    day.items.forEach(item=>{
+      searchData.push({cat:'Day '+d+' · '+day.theme,title:item.title,desc:item.desc.replace(/<[^>]+>/g,''),day:parseInt(d)});
+    });
+  });
+  expenses.forEach(e=>{
+    searchData.push({cat:'费用 · '+catConfig[e.cat].name,title:e.name,desc:'¥'+e.amount+(e.paid?' (已付)':' (待付)'),expense:e.id});
+  });
+  checklistData.booking.forEach(i=>searchData.push({cat:'预订清单',title:i.text,desc:i.meta||''}));
+  checklistData.packing.forEach(i=>searchData.push({cat:'出发清单',title:i.text,desc:''}));
+  searchData.push({cat:'住宿',title:'天空花园酒店',desc:'桂林两江四湖象鼻山景区店 · 3晚 · 已付¥512'});
+  searchData.push({cat:'住宿',title:'树舍·酒店',desc:'阳朔西街步行可达 · 3晚 · 已付¥434'});
+}
+rebuildSearchIndex();
+
+document.getElementById('search-btn').addEventListener('click',()=>{
+  searchOverlay.classList.add('show');
+  searchInput.value='';searchResults.innerHTML='';
+  searchInput.focus();
+});
+searchOverlay.addEventListener('click',e=>{if(e.target===searchOverlay)searchOverlay.classList.remove('show')});
+searchInput.addEventListener('input',function(){
+  const q=this.value.trim().toLowerCase();
+  if(!q){searchResults.innerHTML='';return}
+  const matches=searchData.filter(s=>s.title.toLowerCase().includes(q)||s.desc.toLowerCase().includes(q)).slice(0,20);
+  if(matches.length===0){searchResults.innerHTML='<div class="search-no-result">未找到相关内容</div>';return}
+  searchResults.innerHTML=matches.map(m=>'<div class="search-result-item" data-day="'+(m.day!==undefined?m.day:'')+'" data-expense="'+escapeHtml(m.expense||'')+'"><div class="sr-cat">'+escapeHtml(m.cat)+'</div><div class="sr-title">'+escapeHtml(m.title)+'</div><div class="sr-desc">'+escapeHtml(m.desc)+'</div></div>').join('');
+  searchResults.querySelectorAll('.search-result-item').forEach(el=>{
+    el.addEventListener('click',()=>{
+      searchOverlay.classList.remove('show');
+      const day=el.dataset.day;
+      const expense=el.dataset.expense;
+      if(day!==''){
+        document.querySelector('.tab-btn[data-page="itinerary"]').click();
+        document.querySelectorAll('.day-chip').forEach(c=>c.classList.remove('active'));
+        const chip=document.querySelector('.day-chip[data-day="'+day+'"]');
+        if(chip){chip.classList.add('active');renderTimeline(parseInt(day))}
+      }else if(expense){
+        document.querySelector('.tab-btn[data-page="budget"]').click();
+        document.querySelector('.view-toggle-btn[data-view="tracker"]').click();
+      }
+    });
+  });
+});
+
+// ===== Data Export/Import =====
+document.getElementById('export-btn').addEventListener('click',()=>{
+  const data={expenses,checklist:checklistData,exportDate:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='桂林旅行数据_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(url);
+  showToast('数据已导出');
+});
+document.getElementById('import-btn').addEventListener('click',()=>document.getElementById('import-file').click());
+document.getElementById('import-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(data.expenses){
+        if(!validateExpenses(data.expenses)){showToast('导入失败：费用数据格式错误');return}
+        expenses=data.expenses;saveExpenses();updateAllStats();renderExpenseList();renderBudgetBars()
+      }
+      if(data.checklist){
+        if(!validateChecklist(data.checklist)){showToast('导入失败：清单数据格式错误');return}
+        checklistData=data.checklist;saveChecklist();renderChecklist('booking');renderChecklist('packing');renderDeadlines()
+      }
+      rebuildSearchIndex();
+      showToast('数据已导入');
+    }catch(err){showToast('导入失败：格式错误')}
+  };
+  reader.readAsText(file);
+  this.value='';
+});
+
+// ===== Batch Mark All Paid (long-press category header) =====
+document.addEventListener('click',function(e){
+  const header=e.target.closest('.exp-cat-header');
+  if(!header)return;
+  const group=header.closest('.exp-cat-group');
+  if(!group)return;
+  const items=group.querySelectorAll('.exp-item');
+  const allPaid=Array.from(items).every(i=>i.classList.contains('paid'));
+  if(allPaid){
+    // Unmark all
+    items.forEach(el=>{
+      const exp=expenses.find(x=>x.id===el.dataset.id);
+      if(exp)exp.paid=false;
+    });
+    showToast('已全部标记为待付');
+  }else{
+    // Mark all paid
+    items.forEach(el=>{
+      const exp=expenses.find(x=>x.id===el.dataset.id);
+      if(exp)exp.paid=true;
+    });
+    showToast('已全部标记为已付');
+  }
+  saveExpenses();updateAllStats();renderExpenseList();renderBudgetBars();
+  rebuildSearchIndex();
+});
+
+// ===== Toast on expense toggle =====
+// Toast is handled inline in renderExpenseList via the toggle and change logic
+
+// ===== Swipe Gestures for Day Navigation =====
+let touchStartX=0,touchEndX=0;
+const itineraryPage=document.getElementById('page-itinerary');
+itineraryPage.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].screenX});
+itineraryPage.addEventListener('touchend',e=>{
+  touchEndX=e.changedTouches[0].screenX;
+  const diff=touchStartX-touchEndX;
+  if(Math.abs(diff)<60)return; // too small
+  const activeChip=document.querySelector('.day-chip.active');
+  if(!activeChip)return;
+  const currentDay=parseInt(activeChip.dataset.day);
+  let newDay;
+  if(diff>0&&currentDay<6){newDay=currentDay+1}// swipe left = next
+  else if(diff<0&&currentDay>0){newDay=currentDay-1}// swipe right = prev
+  else return;
+  document.querySelectorAll('.day-chip').forEach(c=>c.classList.remove('active'));
+  document.querySelector('.day-chip[data-day="'+newDay+'"]').classList.add('active');
+  renderTimeline(newDay);
+  showToast('Day '+newDay);
+});
+
+// ===== PWA: Inline Manifest + Service Worker =====
+// Inline manifest via blob
+const manifest={
+  name:'桂林旅行攻略',short_name:'桂林攻略',
+  start_url:'.',display:'standalone',
+  background_color:'#F8F7FF',theme_color:'#4B3FE3',
+  icons:[]
+};
+const manifestBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+const manifestLink=document.createElement('link');
+manifestLink.rel='manifest';
+manifestLink.href=URL.createObjectURL(manifestBlob);
+document.head.appendChild(manifestLink);
+
+// Register inline service worker for offline use
+if('serviceWorker'in navigator){
+  const swCode=`
+    const CACHE_STATIC='guilin-static-v2';
+    const CACHE_API='guilin-api-v1';
+    const API_URLS=['api.open-meteo.com','autonavi.com'];
+    self.addEventListener('install',e=>{self.skipWaiting()});
+    self.addEventListener('activate',e=>{
+      e.waitUntil(
+        caches.keys().then(keys=>Promise.all(
+          keys.filter(k=>k!==CACHE_STATIC&&k!==CACHE_API).map(k=>caches.delete(k))
+        )).then(()=>self.clients.claim())
+      );
+    });
+    self.addEventListener('fetch',e=>{
+      const url=new URL(e.request.url);
+      const isAPI=API_URLS.some(a=>url.hostname.includes(a));
+      if(isAPI){
+        // Network-first for API calls, fallback to cache
+        e.respondWith(
+          fetch(e.request).then(resp=>{
+            if(resp.ok&&e.request.method==='GET'){
+              const clone=resp.clone();
+              caches.open(CACHE_API).then(c=>c.put(e.request,clone));
+            }
+            return resp;
+          }).catch(()=>caches.match(e.request))
+        );
+      }else if(e.request.method==='GET'){
+        // Cache-first for static assets (CDN libs, tiles)
+        e.respondWith(
+          caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{
+            if(resp.ok){
+              const clone=resp.clone();
+              caches.open(CACHE_STATIC).then(c=>c.put(e.request,clone));
+            }
+            return resp;
+          }).catch(()=>caches.match(e.request)))
+        );
+      }
+    });
+  `;
+  const swBlob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(swBlob);
+  // Note: SW from blob URL has limited scope, but works for basic caching
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
+
+// ===== Prevent double-tap zoom on iOS =====
+let lastTouch=0;
+document.addEventListener('touchend',e=>{
+  const tag=e.target.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||e.target.isContentEditable)return;
+  const now=Date.now();
+  if(now-lastTouch<=300) e.preventDefault();
+  lastTouch=now;
+},{passive:false});
+
+// ===== Interactive Map (Leaflet) =====
+let map=null,mapInitialized=false;
+const mapMarkers=[];
+const poiData=[
+  {name:'桂林两江国际机场',cat:'transport',lat:25.2183,lng:110.0394,desc:'到达/出发机场',day:'Day 0/1/6',icon:'✈️'},
+  {name:'天空花园酒店',cat:'hotel',lat:25.2736,lng:110.2980,desc:'桂林住宿 · 3晚 · 已付¥512',day:'Day 0/1/5',icon:'🏨'},
+  {name:'东西巷',cat:'scenic',lat:25.2740,lng:110.2975,desc:'桂林历史文化街区 · 免费逛街觅食',day:'Day 0/1/6',icon:'🏪'},
+  {name:'象鼻山景区',cat:'scenic',lat:25.2620,lng:110.2990,desc:'免费 · 需提前1天预约 · 桂林城徽',day:'Day 1',icon:'🐘'},
+  {name:'两江四湖',cat:'scenic',lat:25.2700,lng:110.2900,desc:'日月双塔夜景 · 免费',day:'Day 0',icon:'🌃'},
+  {name:'磨盘山码头',cat:'transport',lat:25.3550,lng:110.3080,desc:'漓江游船出发点 · 距市区约25km',day:'Day 2',icon:'🚢'},
+  {name:'阳朔码头',cat:'transport',lat:24.7730,lng:110.4880,desc:'漓江游船到达 · 步行10分钟到西街',day:'Day 2',icon:'🚢'},
+  {name:'树舍·酒店',cat:'hotel',lat:24.7720,lng:110.4880,desc:'阳朔住宿 · 3晚 · 已付¥434 · 西街步行可达',day:'Day 2/3/4',icon:'🏨'},
+  {name:'阳朔西街',cat:'scenic',lat:24.7725,lng:110.4885,desc:'阳朔最热闹的步行街 · 逛街觅食',day:'Day 2',icon:'🏮'},
+  {name:'遇龙河金龙桥码头',cat:'scenic',lat:24.8220,lng:110.4120,desc:'竹筏漂流出发 · 255元/筏 · 需提前预订',day:'Day 3',icon:'🎋'},
+  {name:'十里画廊',cat:'scenic',lat:24.7600,lng:110.4200,desc:'骑行路线 · 租电动车40元/天',day:'Day 3',icon:'🛵'},
+  {name:'工农桥',cat:'scenic',lat:24.7480,lng:110.4300,desc:'遇龙河最美日落观景点',day:'Day 3',icon:'🌅'},
+  {name:'银子岩',cat:'scenic',lat:24.6600,lng:110.3950,desc:'溶洞景区 · 门票65元 · 洞内恒温18℃',day:'Day 4',icon:'🏔️'},
+  {name:'兴坪古镇',cat:'scenic',lat:24.9470,lng:110.5530,desc:'20元背景打卡 · 免费',day:'Day 4',icon:'🏘️'},
+  {name:'世外桃源',cat:'scenic',lat:24.8800,lng:110.3500,desc:'坐船游览 · 门票60元/人',day:'Day 5',icon:'🌸'},
+  {name:'如意峰索道',cat:'scenic',lat:24.8100,lng:110.4700,desc:'索道+玻璃栈道 · 208元/人',day:'Day 5',icon:'🚡'},
+  {name:'椿记烧鹅',cat:'food',lat:25.2650,lng:110.2950,desc:'桂林名店 · 人均80元 · 中山中路店',day:'Day 1',icon:'🍽️'},
+  {name:'谢大姐啤酒鱼',cat:'food',lat:24.7730,lng:110.4900,desc:'阳朔必吃 · 人均60-80元',day:'Day 2',icon:'🐟'},
+  {name:'阿甘酒家',cat:'food',lat:24.7720,lng:110.4870,desc:'桂林本地菜 · 人均60-80元',day:'Day 4',icon:'🍲'}
+];
+const catColors={hotel:'#4B3FE3',scenic:'#4CAF50',transport:'#FF9800',food:'#E91E63'};
+const catIcons={hotel:'🏨',scenic:'🏞️',transport:'🚗',food:'🍜'};
+
+function parseDays(dayStr){return dayStr.replace('Day ','').split('/').map(d=>parseInt(d))}
+const dayRoutes={
+  0:['桂林两江国际机场','天空花园酒店','东西巷','两江四湖'],
+  1:['桂林两江国际机场','天空花园酒店','椿记烧鹅','象鼻山景区','东西巷'],
+  2:['天空花园酒店','磨盘山码头','阳朔码头','树舍·酒店','阳朔西街','谢大姐啤酒鱼'],
+  3:['树舍·酒店','遇龙河金龙桥码头','十里画廊','工农桥'],
+  4:['树舍·酒店','银子岩','兴坪古镇','阿甘酒家'],
+  5:['树舍·酒店','世外桃源','如意峰索道','天空花园酒店'],
+  6:['天空花园酒店','东西巷','桂林两江国际机场']
+};
+const dayThemes={0:'妈妈先行抵达',1:'两人汇合，桂林市区',2:'漓江游船→阳朔',3:'遇龙河竹筏+十里画廊',4:'银子岩+兴坪古镇',5:'世外桃源+如意峰→返回桂林',6:'东西巷收尾+各自返程'};
+let currentDayFilter='all',currentCatFilter='all',routeLayer=null;
+const defaultIcon=L.icon({
+  iconUrl:'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconRetinaUrl:'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  shadowUrl:'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize:[25,41],iconAnchor:[12,41],popupAnchor:[1,-34],shadowSize:[41,41]
+});
+function createCatIcon(cat){
+  const color=catColors[cat]||'#4B3FE3';
+  const emoji=catIcons[cat]||'📍';
+  return L.divIcon({
+    className:'cat-marker-wrapper',
+    html:'<div class="cat-marker" style="background:'+color+'"><span style="display:inline-block;transform:rotate(45deg)">'+emoji+'</span></div>',
+    iconSize:[32,32],iconAnchor:[16,32],popupAnchor:[0,-30]
+  });
+}
+L.Marker.prototype.options.icon=defaultIcon;
+
+function initMap(){
+  if(mapInitialized)return;
+  map=L.map('map-container',{zoomControl:true,scrollWheelZoom:false}).setView([24.95,110.35],10);
+  L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{
+    maxZoom:18,minZoom:5,subdomains:['1','2','3','4'],attribution:'© 高德地图'
+  }).addTo(map);
+  routeLayer=L.layerGroup().addTo(map);
+  const poiByName={};
+  poiData.forEach(p=>{poiByName[p.name]=p});
+  // Add markers
+  poiData.forEach(poi=>{
+    const marker=L.marker([poi.lat,poi.lng],{icon:createCatIcon(poi.cat)}).addTo(map);
+    marker.bindPopup(
+      '<div style="min-width:180px">'+
+      '<div style="font-size:15px;font-weight:600;margin-bottom:4px">'+poi.icon+' '+poi.name+'</div>'+
+      '<div style="font-size:12px;color:#666;margin-bottom:4px">'+poi.desc+'</div>'+
+      '<div style="font-size:11px;color:#999">📅 '+poi.day+'</div>'+
+      '<div style="font-size:11px;margin-top:4px">📍 '+poi.lat.toFixed(4)+', '+poi.lng.toFixed(4)+'</div>'+
+      '</div>'
+    );
+    marker._poiData=poi;
+    mapMarkers.push(marker);
+  });
+  mapInitialized=true;
+
+  function applyFilters(){
+    const day=currentDayFilter,cat=currentCatFilter;
+    const visibleMarkers=[];
+    mapMarkers.forEach(m=>{
+      const poi=m._poiData;
+      const days=parseDays(poi.day);
+      const dayMatch=day==='all'||days.includes(parseInt(day));
+      const catMatch=cat==='all'||poi.cat===cat;
+      if(dayMatch&&catMatch){
+        if(!map.hasLayer(m))m.addTo(map);
+        visibleMarkers.push(m);
+        if(day!=='all'){
+          const order=dayRoutes[parseInt(day)].indexOf(poi.name);
+          if(order>=0){
+            m.setIcon(L.divIcon({
+              className:'numbered-marker-wrapper',
+              html:'<div class="numbered-marker" style="background:'+(catColors[poi.cat]||'#4B3FE3')+'">'+(order+1)+'</div>',
+              iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-14]
+            }));
+          }else{
+            m.setIcon(createCatIcon(poi.cat));
+          }
+        }else{
+          m.setIcon(createCatIcon(poi.cat));
+        }
+      }else{
+        if(map.hasLayer(m))map.removeLayer(m);
+      }
+    });
+    routeLayer.clearLayers();
+    const infoBar=document.getElementById('map-day-info');
+    if(day!=='all'){
+      const dayNum=parseInt(day);
+      const route=dayRoutes[dayNum];
+      const routePoints=[],routeLabels=[];
+      route.forEach(name=>{
+        const p=poiByName[name];
+        if(p){routePoints.push([p.lat,p.lng]);routeLabels.push(p.icon+' '+name)}
+      });
+      if(routePoints.length>1){
+        L.polyline(routePoints,{color:'#4B3FE3',weight:3,opacity:.5,dashArray:'8,6'}).addTo(routeLayer);
+      }
+      if(visibleMarkers.length>0){
+        const group=L.featureGroup(visibleMarkers);
+        map.fitBounds(group.getBounds().pad(0.25),{maxZoom:14,animate:true});
+      }
+      infoBar.style.display='block';
+      infoBar.innerHTML='<div class="mdi-title">📅 Day '+dayNum+' · '+dayThemes[dayNum]+'</div>'+
+        '<div class="mdi-route">'+routeLabels.map((l,i)=>'<span class="step">'+(i+1)+'. '+l+'</span>').join(' → ')+'</div>';
+    }else{
+      infoBar.style.display='none';
+      if(visibleMarkers.length>0){
+        const group=L.featureGroup(visibleMarkers);
+        map.fitBounds(group.getBounds().pad(0.1),{maxZoom:12,animate:true});
+      }
+    }
+  }
+  // Day selector events
+  document.querySelectorAll('.map-day-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      document.querySelectorAll('.map-day-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      currentDayFilter=chip.dataset.day;
+      applyFilters();
+    });
+  });
+  // Category filter events
+  document.querySelectorAll('.map-filter-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      document.querySelectorAll('.map-filter-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      currentCatFilter=chip.dataset.cat;
+      applyFilters();
+    });
+  });
+  setTimeout(()=>map.invalidateSize(),200);
+}
+
+// ===== Weather Forecast (Open-Meteo API) =====
+function weatherCodeToIcon(code){
+  if(code===0)return '☀️';
+  if(code<=2)return '🌤️';
+  if(code<=3)return '☁️';
+  if(code<=48)return '🌫️';
+  if(code<=57)return '🌧️';
+  if(code<=67)return '🌧️';
+  if(code<=77)return '🌨️';
+  if(code<=82)return '🌧️';
+  if(code<=86)return '🌨️';
+  if(code>=95)return '⛈️';
+  return '🌡️';
+}
+function weatherCodeToText(code){
+  if(code===0)return '晴';
+  if(code<=2)return '多云';
+  if(code===3)return '阴';
+  if(code<=48)return '雾';
+  if(code<=57)return '小雨';
+  if(code<=67)return '中雨';
+  if(code<=77)return '雪';
+  if(code<=82)return '阵雨';
+  if(code<=86)return '阵雪';
+  if(code>=95)return '雷暴';
+  return '未知';
+}
+function fetchWeather(){
+  const container=document.getElementById('weather-forecast');
+  if(!container)return;
+  const lat=25.25,lng=110.29;
+  const tripStart=new Date('2026-08-31'),tripEnd=new Date('2026-09-06');
+  const today=new Date();
+  const maxForecast=new Date(today.getTime()+15*24*60*60*1000); // Open-Meteo supports ~16 days
+  const daysInRange=tripStart<=maxForecast;
+  let startDate,endDate,label;
+  if(daysInRange){
+    startDate='2026-08-31';endDate='2026-09-06';label='trip';
+  }else{
+    // Trip too far ahead, show next 7 days as reference
+    const s=new Date(today.getTime()+24*60*60*1000);
+    const e=new Date(today.getTime()+7*24*60*60*1000);
+    startDate=s.toISOString().slice(0,10);
+    endDate=e.toISOString().slice(0,10);
+    label='preview';
+  }
+  const url='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lng+
+    '&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum'+
+    '&timezone=Asia%2FShanghai&start_date='+startDate+'&end_date='+endDate;
+  fetch(url).then(r=>r.json()).then(data=>{
+    if(!data.daily||!data.daily.time){
+      container.innerHTML='<div class="weather-loading">天气预报暂不可用，9月桂林通常32-34°C，阵雨较多</div>';
+      return;
+    }
+    if(label==='preview'){
+      container.insertAdjacentHTML('beforebegin','<div class="note-box" style="margin:0 16px 8px"><strong>近期天气参考：</strong>行程日期（8/31-9/6）距现在较远，以下为近期天气预报供参考。出发前请再次查看。</div>');
+    }
+    let html='<div class="weather-forecast-row">';
+    data.daily.time.forEach((date,i)=>{
+      const d=new Date(date);
+      const dayLabel=(d.getMonth()+1)+'/'+d.getDate();
+      const icon=weatherCodeToIcon(data.daily.weathercode[i]);
+      const text=weatherCodeToText(data.daily.weathercode[i]);
+      const maxT=Math.round(data.daily.temperature_2m_max[i]);
+      const minT=Math.round(data.daily.temperature_2m_min[i]);
+      const rain=data.daily.precipitation_sum[i];
+      const rainHtml=rain>0?'<div class="wd-rain">💧'+rain.toFixed(1)+'mm</div>':'';
+      html+='<div class="weather-day">'+
+        '<div class="wd-date">'+dayLabel+'</div>'+
+        '<div class="wd-icon">'+icon+'</div>'+
+        '<div class="wd-temp">'+maxT+'°<span class="low">/'+minT+'°</span></div>'+
+        '<div style="font-size:10px;color:var(--t3)">'+text+'</div>'+
+        rainHtml+'</div>';
+    });
+    html+='</div>';
+    container.innerHTML=html;
+  }).catch(()=>{
+    container.innerHTML='<div class="weather-loading">⚠️ 无法获取天气数据（可能无网络）。9月桂林通常32-34°C，阵雨较多，请出发前关注天气预报。</div>';
+  });
+}
+fetchWeather();
+
+// ===== Statistics Dashboard =====
+function renderStats(){
+  const donutEl=document.getElementById('stats-donut');
+  const donutCenter=document.getElementById('stats-donut-center');
+  const donutLegend=document.getElementById('stats-donut-legend');
+  const progressCircle=document.getElementById('stats-progress-circle');
+  const progressText=document.getElementById('stats-progress-text');
+  const progressDetail=document.getElementById('stats-progress-detail');
+  const catBars=document.getElementById('stats-cat-bars');
+  const topList=document.getElementById('stats-top-list');
+  if(!donutEl)return;
+
+  const catTotals={},catPaid={};
+  Object.keys(catConfig).forEach(c=>{catTotals[c]=0;catPaid[c]=0});
+  expenses.forEach(e=>{
+    const amt=parseFloat(e.amount)||0;
+    catTotals[e.cat]=(catTotals[e.cat]||0)+amt;
+    if(e.paid) catPaid[e.cat]=(catPaid[e.cat]||0)+amt;
+  });
+  const{total,paid,pending}=calcTotals();
+
+  // 1. Donut chart
+  const statsColors={flight:'#4B3FE3',hotel:'#4CAF50',ticket:'#FF9800',food:'#E91E63',transport:'#00BCD4',other:'#9E9E9E'};
+  let cumulative=0;
+  const segments=[];
+  Object.keys(catConfig).forEach(c=>{
+    const amt=catTotals[c];
+    if(amt>0){
+      const pct=amt/total*100;
+      const color=statsColors[c]||'#999';
+      segments.push({cat:c,pct,color,start:cumulative,end:cumulative+pct});
+      cumulative+=pct;
+    }
+  });
+  if(segments.length>0){
+    const gradStr=segments.map(s=>s.color+' '+s.start.toFixed(1)+'% '+s.end.toFixed(1)+'%').join(', ');
+    donutEl.style.background='conic-gradient('+gradStr+')';
+  }else{
+    donutEl.style.background='conic-gradient(var(--pbr) 0% 100%)';
+  }
+  donutCenter.innerHTML='<div class="amount">¥'+Math.round(total).toLocaleString()+'</div><div class="label">总预算</div>';
+  donutLegend.innerHTML=segments.map(s=>{
+    const cfg=catConfig[s.cat];
+    return '<div class="stats-legend-item"><div class="stats-legend-dot" style="background:'+s.color+'"></div>'+cfg.emoji+' '+cfg.name+' '+s.pct.toFixed(0)+'%</div>';
+  }).join('');
+
+  // 2. Progress ring
+  const paidPct=total>0?paid/total:0;
+  const circumference=2*Math.PI*52;
+  progressCircle.style.strokeDashoffset=circumference*(1-paidPct);
+  progressCircle.style.stroke=paidPct>=0.8?'#4CAF50':(paidPct>=0.3?'#FF9800':'var(--p)');
+  progressText.innerHTML='<div class="pct">'+Math.round(paidPct*100)+'%</div><div class="lbl">已支付</div>';
+  progressDetail.innerHTML=
+    '<div class="item paid"><div class="val">¥'+Math.round(paid).toLocaleString()+'</div><div class="lbl">已付</div></div>'+
+    '<div class="item pending"><div class="val">¥'+Math.round(pending).toLocaleString()+'</div><div class="lbl">待付</div></div>'+
+    '<div class="item"><div class="val">'+expenses.length+'</div><div class="lbl">费用项</div></div>';
+
+  // 3. Category comparison bars
+  const grandTotal=total||1;
+  catBars.innerHTML=Object.keys(catConfig).map(c=>{
+    const cfg=catConfig[c];
+    const t=catTotals[c]||0;
+    const p=catPaid[c]||0;
+    const pend=t-p;
+    if(t===0)return '';
+    const paidW=t>0?p/t*100:0;
+    const pendW=t>0?pend/t*100:0;
+    const overallW=t/grandTotal*100;
+    return '<div class="stats-cat-bar-row">'+
+      '<div class="stats-cat-bar-label">'+cfg.emoji+' '+cfg.name+'</div>'+
+      '<div class="stats-cat-bar-track" style="width:'+overallW+'%;max-width:100%">'+
+        '<div class="stats-cat-bar-paid" style="width:'+paidW+'%"></div>'+
+        '<div class="stats-cat-bar-pending" style="width:'+pendW+'%"></div>'+
+      '</div>'+
+      '<div class="stats-cat-bar-amount">¥'+Math.round(t).toLocaleString()+'</div>'+
+    '</div>';
+  }).join('');
+
+  // 4. Top 5 expenses
+  const sorted=[...expenses].sort((a,b)=>(parseFloat(b.amount)||0)-(parseFloat(a.amount)||0)).slice(0,5);
+  topList.innerHTML=sorted.map((e,i)=>{
+    const rankClass=i<3?'r'+(i+1):'';
+    return '<div class="stats-top-item">'+
+      '<div class="stats-top-rank '+rankClass+'">'+(i+1)+'</div>'+
+      '<div class="stats-top-name">'+escapeHtml(e.name)+'</div>'+
+      '<div class="stats-top-amount">¥'+Math.round(parseFloat(e.amount)||0).toLocaleString()+'</div>'+
+      '<span class="stats-top-status '+(e.paid?'paid':'pending')+'">'+(e.paid?'已付':'待付')+'</span>'+
+    '</div>';
+  }).join('');
+}
+renderStats();
+
+// ===== Notification Reminders =====
+const NOTIF_KEY='guilin_notif_shown';
+const notifBtn=document.getElementById('notif-toggle-btn');
+const notifStatus=document.getElementById('notif-status');
+let notifEnabled=localStorage.getItem('guilin_notif_enabled')==='true';
+
+function updateNotifUI(){
+  if(!('Notification' in window)){
+    notifBtn.textContent='不支持通知';
+    notifBtn.disabled=true;
+    notifStatus.style.display='block';
+    notifStatus.textContent='当前浏览器不支持通知功能';
+    return;
+  }
+  const perm=Notification.permission;
+  if(notifEnabled&&perm==='granted'){
+    notifBtn.textContent='✓ 已开启';
+    notifBtn.classList.add('active');
+    notifStatus.style.display='block';
+    notifStatus.textContent='已开启预订截止提醒，将在截止前3天/1天/当天推送通知';
+  }else if(notifEnabled&&perm==='denied'){
+    notifBtn.textContent='已拒绝';
+    notifBtn.classList.remove('active');
+    notifStatus.style.display='block';
+    notifStatus.textContent='通知权限已被拒绝，请在浏览器设置中允许通知后重试';
+    notifEnabled=false;
+    localStorage.setItem('guilin_notif_enabled','false');
+  }else{
+    notifBtn.textContent='开启提醒';
+    notifBtn.classList.remove('active');
+    notifStatus.style.display='none';
+  }
+}
+
+function getShownNotifs(){
+  try{return JSON.parse(localStorage.getItem(NOTIF_KEY)||'[]')}catch(e){return[]}
+}
+function saveShownNotifs(arr){
+  try{localStorage.setItem(NOTIF_KEY,JSON.stringify(arr))}catch(e){}
+}
+
+function checkDeadlinesForNotif(){
+  if(!notifEnabled||!('Notification' in window)||Notification.permission!=='granted')return;
+  const today=new Date();
+  today.setHours(0,0,0,0);
+  const shown=getShownNotifs();
+  const newShown=[...shown];
+  checklistData.booking.forEach(item=>{
+    if(item.checked||!item.deadline)return;
+    const dl=new Date(item.deadline);
+    dl.setHours(0,0,0,0);
+    const days=Math.round((dl-today)/(1000*60*60*24));
+    let threshold=null;
+    if(days===0)threshold='today';
+    else if(days===1)threshold='1day';
+    else if(days===3)threshold='3days';
+    if(threshold){
+      const key=item.id+'_'+threshold;
+      if(!shown.includes(key)){
+        const title=days===0?'⏰ 今天截止！':(days===1?'⏰ 明天截止！':'⏰ 3天后截止');
+        const body=item.text+'（截止日期：'+item.deadline+'）';
+        try{
+          new Notification(title,{body,icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌿</text></svg>',tag:key});
+          newShown.push(key);
+        }catch(e){}
+      }
+    }
+  });
+  if(newShown.length>shown.length)saveShownNotifs(newShown);
+}
+
+notifBtn.addEventListener('click',async()=>{
+  if(!('Notification' in window)){showToast('当前浏览器不支持通知');return}
+  if(notifEnabled&&Notification.permission==='granted'){
+    notifEnabled=false;
+    localStorage.setItem('guilin_notif_enabled','false');
+    showToast('已关闭通知提醒');
+    updateNotifUI();
+    return;
+  }
+  if(Notification.permission==='denied'){
+    showToast('请在浏览器设置中允许通知');
+    return;
+  }
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){
+    notifEnabled=true;
+    localStorage.setItem('guilin_notif_enabled','true');
+    showToast('✓ 通知提醒已开启');
+    updateNotifUI();
+    checkDeadlinesForNotif();
+  }else{
+    showToast('通知权限被拒绝');
+    updateNotifUI();
+  }
+});
+
+updateNotifUI();
+checkDeadlinesForNotif();
+setInterval(checkDeadlinesForNotif,30*60*1000);
+
+// ===== Offline Map Download =====
+function lon2tile(lon,z){return Math.floor((lon+180)/360*Math.pow(2,z))}
+function lat2tile(lat,z){return Math.floor((1-Math.log(Math.tan(lat*Math.PI/180)+1/Math.cos(lat*Math.PI/180))/Math.PI)/2*Math.pow(2,z))}
+
+const offlineBtn=document.getElementById('offline-map-btn');
+const offlineProgress=document.getElementById('offline-map-progress');
+let offlineDownloading=false;
+
+offlineBtn.addEventListener('click',async()=>{
+  if(offlineDownloading)return;
+  if(!('caches' in window)){
+    showToast('当前浏览器不支持离线缓存');
+    return;
+  }
+  offlineDownloading=true;
+  offlineBtn.disabled=true;
+  offlineBtn.textContent='正在下载...';
+  offlineProgress.style.display='block';
+
+  // POI bounding box with padding
+  const minLat=24.60,maxLat=25.40,minLng=110.00,maxLng=110.60;
+  const zoomLevels=[10,11,12,13];
+  const tileUrlBase='https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8';
+  
+  // Collect all tile URLs
+  const tileUrls=[];
+  zoomLevels.forEach(z=>{
+    const xMin=lon2tile(minLng,z),xMax=lon2tile(maxLng,z);
+    const yMin=lat2tile(maxLat,z),yMax=lat2tile(minLat,z); // y is inverted
+    for(let x=xMin;x<=xMax;x++){
+      for(let y=yMin;y<=yMax;y++){
+        tileUrls.push(tileUrlBase+'&x='+x+'&y='+y+'&z='+z);
+      }
+    }
+  });
+
+  const total=tileUrls.length;
+  let done=0,failed=0;
+  
+  function updateProgress(){
+    const pct=Math.round(done/total*100);
+    offlineProgress.innerHTML=
+      '<div>下载进度：'+done+' / '+total+'（'+pct+'%）'+(failed>0?' · 失败'+failed:'')+'</div>'+
+      '<div class="offline-map-progress-bar"><div class="offline-map-progress-fill" style="width:'+pct+'%"></div></div>';
+  }
+  updateProgress();
+
+  // Download in batches of 6 to avoid overwhelming the server
+  const batchSize=6;
+  const cache=await caches.open('guilin-static-v2');
+  
+  for(let i=0;i<tileUrls.length;i+=batchSize){
+    const batch=tileUrls.slice(i,i+batchSize);
+    await Promise.all(batch.map(async url=>{
+      try{
+        // Check if already cached
+        const cached=await cache.match(url);
+        if(!cached){
+          const resp=await fetch(url,{mode:'no-cors'});
+          if(resp.ok||resp.type==='opaque'){
+            await cache.put(url,resp);
+          }
+        }
+      }catch(e){failed++}
+      done++;
+    }));
+    updateProgress();
+  }
+
+  offlineDownloading=false;
+  offlineBtn.disabled=false;
+  offlineBtn.textContent='✓ 重新下载';
+  const successMsg=failed===0?'离线地图下载完成！':'下载完成（'+(total-failed)+'/'+total+'成功）';
+  offlineProgress.innerHTML='<div style="color:#4CAF50;font-weight:600">✓ '+successMsg+'</div>'+
+    '<div style="font-size:12px;color:var(--t3);margin-top:4px">已缓存'+zoomLevels.length+'个缩放级别的桂林/阳朔区域地图，无网络时可离线查看</div>';
+  showToast(successMsg);
+});
+
+// ===== PDF Export =====
+document.getElementById('export-pdf-btn').addEventListener('click',async function(){
+  const btn=this;
+  btn.textContent='正在生成PDF...';
+  btn.style.opacity='.6';
+  try{
+    // Build a temporary export container with all content
+    const exportDiv=document.createElement('div');
+    exportDiv.style.cssText='position:absolute;left:-9999px;top:0;width:750px;background:#fff;padding:30px;font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:#1a1a2e';
+    let html='<div style="text-align:center;margin-bottom:20px">'+
+      '<h1 style="font-size:24px;color:#4B3FE3;margin:0 0 6px">🌿 桂林旅行攻略</h1>'+
+      '<div style="font-size:13px;color:#666">2026年9月1日-6日 · 7天6晚 · 阿照+妈妈</div>'+
+      '<div style="font-size:11px;color:#999;margin-top:4px">生成日期：'+new Date().toLocaleDateString('zh-CN')+'</div>'+
+      '<hr style="border:none;border-top:2px solid #4B3FE3;margin:12px 0"></div>';
+    // Budget summary
+    const{total,paid,pending}=calcTotals();
+    html+='<div style="background:#F8F7FF;border-radius:8px;padding:14px;margin-bottom:20px">'+
+      '<div style="font-size:15px;font-weight:600;color:#4B3FE3;margin-bottom:8px">💰 预算总览</div>'+
+      '<div style="font-size:13px">总预算：<strong>'+Math.round(total).toLocaleString()+'元</strong>　|　'+
+      '已付：<strong style="color:#4CAF50">'+Math.round(paid).toLocaleString()+'元</strong>　|　'+
+      '待付：<strong style="color:#FF9800">'+Math.round(pending).toLocaleString()+'元</strong></div></div>';
+    // Itinerary
+    html+='<div style="font-size:16px;font-weight:600;color:#4B3FE3;margin-bottom:12px">📋 详细行程</div>';
+    Object.keys(dayData).forEach(d=>{
+      const day=dayData[d];
+      html+='<div style="margin-bottom:16px;padding:12px;background:#f9f9fb;border-radius:8px;border-left:4px solid #4B3FE3">'+
+        '<div style="font-size:14px;font-weight:600;color:#4B3FE3">'+day.title.replace(/<[^>]+>/g,'')+'</div>'+
+        '<div style="font-size:12px;color:#666;margin-bottom:6px">'+day.theme+'</div>';
+      day.items.forEach(item=>{
+        const cleanTitle=item.title.replace(/<[^>]+>/g,'');
+        const cleanDesc=(item.desc||'').replace(/<[^>]+>/g,'');
+        const costStr=item.cost?'  ['+item.cost+']':'';
+        html+='<div style="font-size:12px;margin:3px 0;padding-left:12px">'+
+          '<span style="color:#4B3FE3;font-weight:500">'+item.time+'</span> '+
+          '<span style="color:#1a1a2e">'+cleanTitle+'</span>'+
+          '<span style="color:#999">'+costStr+'</span></div>';
+        if(cleanDesc){
+          html+='<div style="font-size:11px;color:#666;padding-left:24px;margin:1px 0">'+cleanDesc+'</div>';
+        }
+      });
+      html+='</div>';
+    });
+    // Checklist
+    html+='<div style="font-size:16px;font-weight:600;color:#4B3FE3;margin-bottom:12px">🎫 预订清单</div>';
+    html+='<div style="margin-bottom:16px">';
+    checklistData.booking.forEach(item=>{
+      const check=item.checked?'✅':'⬜';
+      const cleanText=item.text.replace(/<[^>]+>/g,'');
+      html+='<div style="font-size:12px;margin:4px 0">'+check+' '+cleanText+
+        (item.meta?' <span style="color:#999;font-size:11px">('+item.meta+')</span>':'')+'</div>';
+    });
+    html+='</div>';
+    html+='<div style="font-size:16px;font-weight:600;color:#4B3FE3;margin-bottom:12px">🎒 出发清单</div>';
+    html+='<div style="margin-bottom:16px">';
+    checklistData.packing.forEach(item=>{
+      const check=item.checked?'✅':'⬜';
+      html+='<div style="font-size:12px;margin:3px 0;display:inline-block;width:48%">'+check+' '+item.text+'</div>';
+    });
+    html+='</div>';
+    // Footer
+    html+='<div style="text-align:center;font-size:11px;color:#999;margin-top:20px;border-top:1px solid #eee;padding-top:10px">'+
+      '桂林旅行攻略 V6.0 · 祝阿照和妈妈桂林之行愉快！🌿</div>';
+    exportDiv.innerHTML=html;
+    document.body.appendChild(exportDiv);
+    // Capture with html2canvas
+    const canvas=await html2canvas(exportDiv,{
+      scale:1.5,useCORS:true,backgroundColor:'#fff',
+      logging:false
+    });
+    document.body.removeChild(exportDiv);
+    // Convert canvas to PDF
+    const{jsPDF}=window.jspdf;
+    const pdf=new jsPDF('p','mm','a4');
+    const imgData=canvas.toDataURL('image/jpeg',0.92);
+    const imgW=210;
+    const imgH=canvas.height*imgW/canvas.width;
+    let heightLeft=imgH;
+    let position=0;
+    pdf.addImage(imgData,'JPEG',0,position,imgW,imgH);
+    heightLeft-=297;
+    while(heightLeft>0){
+      position-=297;
+      pdf.addPage();
+      pdf.addImage(imgData,'JPEG',0,position,imgW,imgH);
+      heightLeft-=297;
+    }
+    pdf.save('桂林旅行攻略_2026年9月.pdf');
+    showToast('PDF已导出');
+  }catch(e){
+    showToast('导出失败: '+(e.message||'未知错误'));
+    console.error('PDF export error:',e);
+  }finally{
+    btn.textContent='📄 导出行程PDF';
+    btn.style.opacity='1';
+  }
+});
+</script>
+</body>
+</html>

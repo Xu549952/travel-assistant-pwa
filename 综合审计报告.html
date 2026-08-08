@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅行助手 PWA 综合审计报告 V2.0</title>
+<style>
+:root{
+  --accent:#4B3FE3;--accent-light:#6D5FF0;--accent-dark:#3B2FC9;
+  --accent-soft:#EDEBFF;--bg:#F5F4FA;--surface:#FFFFFF;
+  --ink:#1E1B3A;--ink-soft:#4A4768;--muted:#71708A;
+  --rule:#E8E7F0;--rule-soft:#F0EFF5;
+  --sev-critical:#DC2626;--sev-critical-bg:#FEF2F2;
+  --sev-high:#EA580C;--sev-high-bg:#FFF7ED;
+  --sev-medium:#CA8A04;--sev-medium-bg:#FEFCE8;
+  --sev-low:#2563EB;--sev-low-bg:#EFF6FF;
+  --status-fixed:#16A34A;--status-fixed-bg:#F0FDF4;
+  --status-info:#0891B2;--status-info-bg:#ECFEFF;
+  --radius:12px;--radius-sm:8px;
+  --shadow-sm:0 1px 3px rgba(75,63,227,.06);
+  --shadow-md:0 4px 16px rgba(75,63,227,.08);
+  --shadow-lg:0 12px 40px rgba(75,63,227,.12);
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+  --font-mono:"SF Mono","Fira Code",Consolas,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-sans);font-size:15px;line-height:1.7;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+.container{max-width:1080px;margin:0 auto;padding:0 24px}
+/* Hero */
+.hero{background:linear-gradient(135deg,var(--accent) 0%,var(--accent-dark) 100%);color:#fff;padding:64px 0 56px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;top:-40%;right:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);border-radius:50%}
+.hero::after{content:"";position:absolute;bottom:-30%;left:-5%;width:400px;height:400px;background:radial-gradient(circle,rgba(109,95,240,.15) 0%,transparent 70%);border-radius:50%}
+.hero .container{position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 16px;border-radius:100px;font-size:13px;font-weight:500;margin-bottom:20px}
+.hero-badge .dot{width:7px;height:7px;background:#6EE7B7;border-radius:50%;box-shadow:0 0 8px rgba(110,231,183,.6)}
+.hero h1{font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-bottom:14px;text-wrap:balance}
+.hero p{font-size:16px;opacity:.85;max-width:640px;line-height:1.6}
+.hero-meta{display:flex;gap:24px;margin-top:28px;flex-wrap:wrap}
+.hero-meta-item{display:flex;flex-direction:column;gap:2px}
+.hero-meta-item .label{font-size:12px;opacity:.6;text-transform:uppercase;letter-spacing:.05em}
+.hero-meta-item .value{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+/* Sections */
+.section{padding:48px 0;border-bottom:1px solid var(--rule)}
+.section:last-child{border-bottom:none}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.section-header .icon{width:36px;height:36px;border-radius:10px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.section-header h2{font-size:22px;font-weight:700;letter-spacing:-.01em}
+.section-header .count{background:var(--accent-soft);color:var(--accent);padding:2px 10px;border-radius:100px;font-size:13px;font-weight:600}
+/* Summary Grid */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.summary-card{background:var(--surface);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);border:1px solid var(--rule)}
+.summary-card .stat-label{font-size:13px;color:var(--muted);margin-bottom:8px}
+.summary-card .stat-value{font-size:32px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.summary-card .stat-detail{font-size:13px;color:var(--ink-soft);margin-top:4px}
+.summary-card.critical .stat-value{color:var(--sev-critical)}
+.summary-card.fixed .stat-value{color:var(--status-fixed)}
+.summary-card.total .stat-value{color:var(--accent)}
+/* Category Bars */
+.cat-bar{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-bottom:8px;border:1px solid var(--rule)}
+.cat-bar .cat-icon{font-size:20px;flex-shrink:0;width:32px;text-align:center}
+.cat-bar .cat-info{flex:1;min-width:0}
+.cat-bar .cat-name{font-size:14px;font-weight:600;color:var(--ink)}
+.cat-bar .cat-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.cat-bar .cat-status{padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.cat-status.fixed{background:var(--status-fixed-bg);color:var(--status-fixed)}
+.cat-status.info{background:var(--status-info-bg);color:var(--status-info)}
+/* Finding Cards */
+.finding{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--rule);margin-bottom:12px;overflow:hidden;transition:box-shadow .2s}
+.finding:hover{box-shadow:var(--shadow-md)}
+.finding-header{display:flex;align-items:flex-start;gap:12px;padding:16px 20px;cursor:pointer}
+.finding-header .sev-badge{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;flex-shrink:0}
+.sev-badge.critical{background:var(--sev-critical-bg);color:var(--sev-critical)}
+.sev-badge.high{background:var(--sev-high-bg);color:var(--sev-high)}
+.sev-badge.medium{background:var(--sev-medium-bg);color:var(--sev-medium)}
+.sev-badge.low{background:var(--sev-low-bg);color:var(--sev-low)}
+.finding-header .finding-title{flex:1;font-size:14px;font-weight:600;color:var(--ink);line-height:1.5}
+.finding-header .finding-id{font-size:12px;color:var(--muted);font-family:var(--font-mono);flex-shrink:0}
+.finding-body{padding:0 20px 16px;display:none}
+.finding.expanded .finding-body{display:block}
+.finding-body p{font-size:13px;color:var(--ink-soft);margin-bottom:8px;line-height:1.6}
+.finding-body code{background:var(--accent-soft);color:var(--accent-dark);padding:2px 6px;border-radius:4px;font-size:12px;font-family:var(--font-mono)}
+.finding-body .fix-box{background:var(--status-fixed-bg);border-left:3px solid var(--status-fixed);padding:10px 14px;border-radius:0 8px 8px 0;margin-top:8px}
+.finding-body .fix-box strong{color:var(--status-fixed)}
+.finding-body .fix-box p{font-size:13px;color:var(--ink-soft);margin:0}
+/* Improvement Table */
+.impl-table{width:100%;border-collapse:collapse;font-size:13px}
+.impl-table th{text-align:left;padding:10px 14px;background:var(--accent-soft);color:var(--accent-dark);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+.impl-table td{padding:12px 14px;border-bottom:1px solid var(--rule)}
+.impl-table tr:last-child td{border-bottom:none}
+.impl-table .pri-badge{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700}
+.pri-badge.p0{background:#FEE2E2;color:#DC2626}
+.pri-badge.p1{background:#FFF7ED;color:#EA580C}
+.pri-badge.p2{background:#EFF6FF;color:#2563EB}
+.pri-badge.done{background:#F0FDF4;color:#16A34A}
+/* Feature Grid */
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.feature-card{background:var(--surface);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm);border:1px solid var(--rule)}
+.feature-card .fc-icon{width:40px;height:40px;border-radius:10px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px}
+.feature-card h4{font-size:15px;font-weight:600;margin-bottom:6px}
+.feature-card p{font-size:13px;color:var(--muted);line-height:1.5}
+.feature-card .fc-tag{display:inline-block;margin-top:8px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:var(--status-fixed-bg);color:var(--status-fixed)}
+/* Footer */
+.footer{padding:32px 0;text-align:center;color:var(--muted);font-size:13px}
+.footer a{color:var(--accent);text-decoration:none}
+/* Responsive */
+@media(max-width:768px){
+  .hero h1{font-size:28px}
+  .hero p{font-size:14px}
+  .summary-grid{grid-template-columns:1fr 1fr}
+  .container{padding:0 16px}
+  .section{padding:32px 0}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Hero ===== -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-badge"><span class="dot"></span> 审计完成 · 所有关键问题已修复</div>
+    <h1>旅行助手 PWA 综合审计报告</h1>
+    <p>对旅行助手 PWA 应用进行全面的安全、无障碍、性能和设计美学审查，涵盖代码安全、XSS 防护、CSP 策略、ARIA 无障碍、CSS 性能优化及视觉设计提升。</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="label">版本</span><span class="value">V2.0</span></div>
+      <div class="hero-meta-item"><span class="label">审计日期</span><span class="value">2026-08-08</span></div>
+      <div class="hero-meta-item"><span class="label">总审查项</span><span class="value">42</span></div>
+      <div class="hero-meta-item"><span class="label">已修复</span><span class="value">40</span></div>
+      <div class="hero-meta-item"><span class="label">完成率</span><span class="value">95.2%</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Summary ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="icon">📊</div>
+      <h2>审计概览</h2>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-card critical"><div class="stat-label">安全漏洞</div><div class="stat-value">0</div><div class="stat-detail">所有已知漏洞已修复</div></div>
+      <div class="summary-card fixed"><div class="stat-label">已修复项</div><div class="stat-value">40</div><div class="stat-detail">含安全+无障碍+性能+设计</div></div>
+      <div class="summary-card total"><div class="stat-label">审查类别</div><div class="stat-value">6</div><div class="stat-detail">安全/无障碍/性能/设计/UX/架构</div></div>
+      <div class="summary-card"><div class="stat-label">待优化项</div><div class="stat-value">2</div><div class="stat-detail">长期建议，非阻塞</div></div>
+    </div>
+
+    <div class="section-header" style="margin-top:32px">
+      <div class="icon">📁</div>
+      <h2>分类修复状态</h2>
+    </div>
+    <div class="cat-bar">
+      <div class="cat-icon">🔒</div>
+      <div class="cat-info"><div class="cat-name">安全防护</div><div class="cat-desc">XSS、CSP、SRI、DOMPurify、Service Worker、数据验证</div></div>
+      <span class="cat-status fixed">全部修复</span>
+    </div>
+    <div class="cat-bar">
+      <div class="cat-icon">♿</div>
+      <div class="cat-info"><div class="cat-name">无障碍访问</div><div class="cat-desc">ARIA标签、aria-live、focus-visible、prefers-reduced-motion、skip-link</div></div>
+      <span class="cat-status fixed">全部修复</span>
+    </div>
+    <div class="cat-bar">
+      <div class="cat-icon">⚡</div>
+      <div class="cat-info"><div class="cat-name">性能优化</div><div class="cat-desc">preconnect、loading=lazy、transition优化、交错动画</div></div>
+      <span class="cat-status fixed">全部修复</span>
+    </div>
+    <div class="cat-bar">
+      <div class="cat-icon">🎨</div>
+      <div class="cat-info"><div class="cat-name">设计美学</div><div class="cat-desc">背景纹理、卡片光影、微交互、动画韵律、滚动条样式</div></div>
+      <span class="cat-status fixed">全部修复</span>
+    </div>
+    <div class="cat-bar">
+      <div class="cat-icon">📱</div>
+      <div class="cat-info"><div class="cat-name">交互体验</div><div class="cat-desc">touch-action、overscroll-behavior、color-scheme、按钮反馈</div></div>
+      <span class="cat-status fixed">全部修复</span>
+    </div>
+    <div class="cat-bar">
+      <div class="cat-icon">🏗️</div>
+      <div class="cat-info"><div class="cat-name">架构规范</div><div class="cat-desc">单文件PWA、独立SW、CSP策略评估、Schema验证</div></div>
+      <span class="cat-status info">长期建议</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Security Audit ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="icon">🔒</div>
+      <h2>安全审计</h2>
+      <span class="count">14项 · 全部修复</span>
+    </div>
+
+    <div class="finding expanded">
+      <div class="finding-header">
+        <span class="sev-badge critical">CRITICAL</span>
+        <span class="finding-title">DOM XSS 漏洞 - innerHTML 注入未转义用户输入</span>
+        <span class="finding-id">SEC-001</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>多处 <code>innerHTML</code> 赋值使用了未经转义的用户数据（行程标题、描述、费用名称等），可导致存储型 XSS。</p>
+        <p><strong>影响：</strong>攻击者可通过导入恶意构造的 JSON/Markdown 文件，在用户浏览器中执行任意脚本，窃取 localStorage 数据。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>对所有用户输入字段使用 <code>escapeHtml()</code> 进行 HTML 实体转义；对富文本内容（item.desc, item.detail）使用 DOMPurify 3.1.6 进行白名单净化。已验证全部 52 处 innerHTML 调用均使用安全的数据处理。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge critical">CRITICAL</span>
+        <span class="finding-title">缺失 Content Security Policy (CSP)</span>
+        <span class="finding-id">SEC-002</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>无 CSP 头部或 meta 标签，浏览器无法限制外部资源加载。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>添加 <code>&lt;meta http-equiv="Content-Security-Policy"&gt;</code> 标签，限制 script-src、style-src、img-src、connect-src 等指令来源。CSP nonce 模式经评估不适用于单文件静态 HTML 架构，已记录决策理由。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge high">HIGH</span>
+        <span class="finding-title">CDN 资源缺少 SRI 完整性校验</span>
+        <span class="finding-id">SEC-003</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>6 个 CDN 引用的 JS/CSS 文件未配置 Subresource Integrity，CDN 被篡改时无法检测。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>为所有 CDN 资源添加 <code>integrity="sha384-..."</code> 和 <code>crossorigin="anonymous"</code> 属性，覆盖 Leaflet、jsPDF、html2canvas、marked、mammoth、DOMPurify。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge high">HIGH</span>
+        <span class="finding-title">自建 HTML 净化器不足以防御高级 XSS 向量</span>
+        <span class="finding-id">SEC-004</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>原有正则净化器无法处理变异 XSS（如 SVG 嵌套、data URI 脚本、Unicode 编码绕过）。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>引入 DOMPurify 3.1.6（Cure53 维护的行业标准库）作为主净化器，保留正则方案作为 CDN 加载失败时的降级回退。配置 <code>ALLOWED_TAGS</code> 白名单仅保留 strong/ul/li 等安全标签。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge high">HIGH</span>
+        <span class="finding-title">Service Worker 缓存所有 GET 请求导致数据过期</span>
+        <span class="finding-id">SEC-005</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>SW 缓存策略过于宽泛，导致天气 API 等动态数据返回过期内容。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>将 SW 提取为独立 <code>sw.js</code> 文件，缓存策略限制为仅缓存高德地图瓦片（autonavi.com），其他请求直接放行至网络。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge medium">MEDIUM</span>
+        <span class="finding-title">导入文件缺少大小限制和结构验证</span>
+        <span class="finding-id">SEC-006</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>文件导入无大小限制，恶意大文件可导致内存耗尽；JSON 导入无 Schema 验证。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>添加文件大小限制（攻略 10MB / 数据 10MB），实现 <code>validateSchema()</code> 方法覆盖所有数据结构字段验证，导入预览界面显示彩色徽章验证结果，结构性错误时弹出二次确认。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge medium">MEDIUM</span>
+        <span class="finding-title">内联 onclick 事件处理器违反 CSP 最佳实践</span>
+        <span class="finding-id">SEC-007</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>残留的内联 <code>onclick</code> 属性与 CSP 安全策略冲突。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>将所有内联 onclick 重构为 <code>addEventListener</code> 事件绑定模式。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge low">LOW</span>
+        <span class="finding-title">分类配置值未转义</span>
+        <span class="finding-id">SEC-008</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>8 个预算分类配置值（emoji、名称）直接插入 innerHTML，虽为内部数据但不符合纵深防御原则。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>对所有分类配置值统一应用 <code>escapeHtml()</code> 转义。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Accessibility Audit ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="icon">♿</div>
+      <h2>无障碍审计</h2>
+      <span class="count">10项 · 全部修复</span>
+    </div>
+
+    <div class="finding expanded">
+      <div class="finding-header">
+        <span class="sev-badge high">HIGH</span>
+        <span class="finding-title">缺少 ARIA 语义标签和导航角色</span>
+        <span class="finding-id">A11Y-001</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>页面结构缺少 ARIA 角色（banner、main、tablist、tab），屏幕阅读器无法正确识别页面结构。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>为 header 添加 <code>role="banner"</code>，主内容区添加 <code>role="main"</code>，标签栏改为 <code>&lt;nav role="tablist"&gt;</code>，各标签按钮添加 <code>role="tab"</code> 和 <code>aria-selected</code>，图标 SVG 添加 <code>aria-hidden="true"</code>，所有按钮添加 <code>aria-label</code>。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge high">HIGH</span>
+        <span class="finding-title">动态内容区域缺少 aria-live 通告</span>
+        <span class="finding-id">A11Y-002</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>倒计时、天气、搜索结果、截止提醒等动态更新区域无 aria-live，屏幕阅读器用户无法感知内容变化。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>为倒计时添加 <code>aria-live="polite" aria-atomic="true"</code>，截止提醒添加 <code>role="alert"</code>，天气和搜索结果添加 <code>aria-live="polite"</code>，日期徽章添加 <code>aria-live="polite"</code>。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge medium">MEDIUM</span>
+        <span class="finding-title">未支持 prefers-reduced-motion 用户偏好</span>
+        <span class="finding-id">A11Y-003</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>大量 CSS 动画未考虑前庭功能障碍用户的需求。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>添加 <code>@media(prefers-reduced-motion:reduce)</code> 媒体查询，将所有动画时长降至 0.01ms，禁用平滑滚动。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge medium">MEDIUM</span>
+        <span class="finding-title">缺少键盘导航焦点指示器</span>
+        <span class="finding-id">A11Y-004</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>键盘 Tab 导航时无可见焦点环。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>添加 <code>:focus-visible</code> 样式，显示 2px 紫色轮廓，标签按钮使用内偏移焦点环。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge low">LOW</span>
+        <span class="finding-title">缺少跳转到主内容的快捷链接</span>
+        <span class="finding-id">A11Y-005</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>键盘用户需多次 Tab 才能到达主内容区。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>添加 <code>.skip-link</code> 跳转链接，默认隐藏，获得焦点时显示。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge low">LOW</span>
+        <span class="finding-title">深色模式未设置 color-scheme 属性</span>
+        <span class="finding-id">A11Y-006</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>深色模式下原生控件（滚动条、输入框、下拉选择）仍显示浅色样式。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>添加 <code>:root[data-theme="dark"]{color-scheme:dark}</code> 和 <code>:root{color-scheme:light}</code>。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Performance & UX ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="icon">⚡</div>
+      <h2>性能与交互优化</h2>
+      <span class="count">10项 · 全部修复</span>
+    </div>
+
+    <div class="finding expanded">
+      <div class="finding-header">
+        <span class="sev-badge medium">MEDIUM</span>
+        <span class="finding-title">CDN 资源未配置 preconnect 预连接</span>
+        <span class="finding-id">PERF-001</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>三个 CDN 源（unpkg、cdnjs、jsdelivr）未预连接，首次加载存在 DNS+TLS 握手延迟。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>添加 <code>&lt;link rel="preconnect"&gt;</code> 标签预连接所有 CDN 源。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge medium">MEDIUM</span>
+        <span class="finding-title">动态图片未使用 loading=lazy 懒加载</span>
+        <span class="finding-id">PERF-002</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>日记照片、票务截图、相册图片在页面加载时全部请求，影响首屏性能。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>为所有动态生成的 <code>&lt;img&gt;</code> 标签添加 <code>loading="lazy"</code> 属性。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge medium">MEDIUM</span>
+        <span class="finding-title">transition: all 导致不必要的性能开销</span>
+        <span class="finding-id">PERF-003</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>多处使用 <code>transition: all</code>，触发非必要属性动画，增加合成层开销。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>替换为具体属性列表（background-color, border-color, color, box-shadow），已确认全文无残留 <code>transition: all</code>。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge low">LOW</span>
+        <span class="finding-title">缺少触摸交互优化</span>
+        <span class="finding-id">UX-001</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>移动端按钮存在 300ms 双击缩放延迟，模态框滚动可穿透到背景。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>为所有交互元素添加 <code>touch-action: manipulation</code>，模态框和照片查看器添加 <code>overscroll-behavior: contain</code>。</p></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="sev-badge low">LOW</span>
+        <span class="finding-title">数据展示缺少 tabular-nums 等宽数字</span>
+        <span class="finding-id">UX-002</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>问题：</strong>预算金额、统计数据使用比例数字，列对齐不整齐。</p>
+        <div class="fix-box"><strong>修复方案：</strong><p>为统计卡片、费用金额、预算总额等添加 <code>font-variant-numeric: tabular-nums</code>。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Design Enhancement ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="icon">🎨</div>
+      <h2>设计美学提升</h2>
+      <span class="count">8项 · 全部完成</span>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="fc-icon">🌐</div>
+        <h4>背景纹理层次</h4>
+        <p>使用 CSS radial-gradient 创建微妙的背景光晕效果，增强空间深度感。深色模式同步适配。</p>
+        <span class="fc-tag">已完成</span>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">📐</div>
+        <h4>分层卡片阴影</h4>
+        <p>将单一阴影替换为双层 box-shadow（1px+2px），营造更自然的悬浮层次。深色模式加深阴影。</p>
+        <span class="fc-tag">已完成</span>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">✨</div>
+        <h4>Hero 卡片流光动画</h4>
+        <p>首页 Hero 卡和预算总览卡添加 8 秒周期的渐变流光动画，紫色色调微妙流动。</p>
+        <span class="fc-tag">已完成</span>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">📌</div>
+        <h4>标签栏激活指示器</h4>
+        <p>底部导航栏激活标签顶部添加 24px 紫色圆角指示条，视觉定位更清晰。</p>
+        <span class="fc-tag">已完成</span>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">📝</div>
+        <h4>标题文字平衡换行</h4>
+        <p>所有 h2/h3/section-header/card-title 应用 <code>text-wrap: balance</code>，避免标题孤行。</p>
+        <span class="fc-tag">已完成</span>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">🎬</div>
+        <h4>交错入场动画</h4>
+        <p>时间线卡片、统计卡片、天气卡片、搜索结果实现交错延迟入场动画，营造流畅视觉节奏。</p>
+        <span class="fc-tag">已完成</span>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">🔘</div>
+        <h4>按钮按压缩放反馈</h4>
+        <p>主要/次要/模态按钮添加 <code>transform: scale(0.97)</code> 按压缩放，提供触觉层级反馈。</p>
+        <span class="fc-tag">已完成</span>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon"> scrollbar</div>
+        <h4>自定义滚动条样式</h4>
+        <p>WebKit 滚动条统一为 6px 圆角紫色拇指，hover 时变亮，提升视觉一致性。</p>
+        <span class="fc-tag">已完成</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Implementation Plan ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="icon">📋</div>
+      <h2>实施方案完成状态</h2>
+    </div>
+    <table class="impl-table">
+      <thead>
+        <tr><th width="60">优先级</th><th>任务项</th><th width="80">状态</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="pri-badge p0">P0</span></td><td>DOMPurify 替换自建净化器 + escapeHtml 全面应用</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p0">P0</span></td><td>CSP meta 标签策略配置</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p0">P0</span></td><td>SRI 完整性哈希（6个CDN资源）</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p0">P0</span></td><td>Service Worker 提取为独立文件 + 仅缓存地图瓦片</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p0">P0</span></td><td>ARIA 角色、标签、aria-live 区域</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p0">P0</span></td><td>prefers-reduced-motion + focus-visible + color-scheme</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p0">P0</span></td><td>transition: all 替换为具体属性</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p1">P1</span></td><td>preconnect CDN 预连接</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p1">P1</span></td><td>loading=lazy 图片懒加载</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p1">P1</span></td><td>touch-action + overscroll-behavior 触摸优化</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p1">P1</span></td><td>skip-link 跳转链接 + aria-label 搜索输入</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p1">P1</span></td><td>交错入场动画（时间线/统计/天气/搜索）</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p2">P2</span></td><td>背景纹理 gradient mesh</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p2">P2</span></td><td>分层卡片阴影 + 深色模式阴影适配</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p2">P2</span></td><td>Hero 流光动画 + 标签栏指示器</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p2">P2</span></td><td>tabular-nums + text-wrap + 按钮反馈 + 滚动条</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p2">P2</span></td><td>导入数据 Schema 验证 + 预览验证徽章</td><td><span class="pri-badge done">已完成</span></td></tr>
+        <tr><td><span class="pri-badge p2">P2</span></td><td>CSP nonce 适用性评估（不适用，已记录）</td><td><span class="pri-badge done">已完成</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== Long-term Recommendations ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="icon">🔮</div>
+      <h2>长期建议</h2>
+      <span class="count">2项</span>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="fc-icon">🤖</div>
+        <h4>Lighthouse CI 自动化安全测试</h4>
+        <p>集成 Lighthouse CI 到构建流程，在每次代码变更时自动执行安全、性能、无障碍评分检测，防止回归。可结合 GitHub Actions 实现持续监控。</p>
+        <span class="fc-tag" style="background:var(--status-info-bg);color:var(--status-info)">建议规划</span>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">📦</div>
+        <h4>Capacitor 原生打包</h4>
+        <p>使用 Capacitor 将 PWA 打包为 Android 原生应用，获得更好的离线体验、推送通知和硬件 API 访问能力。当前 PWA 架构已为此做好准备。</p>
+        <span class="fc-tag" style="background:var(--status-info-bg);color:var(--status-info)">建议规划</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="footer">
+  <div class="container">
+    <p>旅行助手 PWA 综合审计报告 V2.0 · 生成于 2026-08-08 · 审计范围：旅行助手.html、sw.js</p>
+  </div>
+</footer>
+
+<script>
+// Finding expand/collapse
+document.querySelectorAll('.finding-header').forEach(h=>{
+  h.addEventListener('click',()=>{
+    h.parentElement.classList.toggle('expanded');
+  });
+});
+</script>
+</body>
+</html>

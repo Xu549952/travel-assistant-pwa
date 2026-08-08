@@ -1,0 +1,236 @@
+{
+  "id": "trip_guilin_2026",
+  "title": "桂林7天6晚之旅",
+  "destination": "桂林",
+  "emoji": "🌿",
+  "startDate": "2026-08-31",
+  "endDate": "2026-09-06",
+  "travelers": "阿照（25岁·上海出发）+ 妈妈（近50岁·临沂出发）",
+  "highlights": "分批抵达 + 阳朔深度游 + 轻松舒适",
+  "weatherLocation": { "lat": 25.27, "lng": 110.29 },
+  "countdownDate": "2026-08-31",
+  "version": "1.0",
+  "createdAt": "2026-08-08T12:00:00.000Z",
+  "days": [
+    {
+      "day": 0,
+      "title": "Day 0 · 8月31日（周一）",
+      "theme": "妈妈先行抵达",
+      "date": "2026-08-31",
+      "items": [
+        { "time": "13:45-16:10", "title": "临沂→桂林航班", "desc": "妈妈独自从临沂飞桂林", "cost": "约600-700元", "badge": "", "badgeType": "", "detail": "<ul><li>参考航班：首都航空或其他</li><li>飞行时长约2小时25分钟</li></ul>" },
+        { "time": "16:30-17:30", "title": "机场大巴到市区", "desc": "乘<strong>景区联程线</strong>（25元/人），直达东西巷/象鼻山附近", "cost": "25元/人", "badge": "机场大巴", "badgeType": "", "detail": "<ul><li>如大巴排队过长可直接打车，约80-100元</li></ul>" },
+        { "time": "17:30-18:00", "title": "入住酒店", "desc": "<strong>天空花园酒店</strong>（两江四湖象鼻山景区店），放行李休整", "cost": "", "badge": "住宿", "badgeType": "", "detail": "" },
+        { "time": "18:00-19:30", "title": "逛东西巷 + 晚饭", "desc": "桂林米粉、崇善米粉", "cost": "", "badge": "觅食", "badgeType": "", "detail": "" },
+        { "time": "19:30-20:30", "title": "散步两江四湖", "desc": "日月双塔夜景，免费", "cost": "", "badge": "夜景", "badgeType": "free", "detail": "" },
+        { "time": "20:30", "title": "回酒店休息", "desc": "第一天早点休息", "cost": "", "badge": "", "badgeType": "", "detail": "" }
+      ]
+    },
+    {
+      "day": 1,
+      "title": "Day 1 · 9月1日（周二）",
+      "theme": "两人汇合，桂林市区",
+      "date": "2026-09-01",
+      "items": [
+        { "time": "07:00", "title": "阿照出发去浦东机场", "desc": "地铁2号线龙阳路→浦东机场，约50分钟", "cost": "", "badge": "", "badgeType": "", "detail": "<ul><li>10:00航班时间宽裕</li></ul>" },
+        { "time": "10:00-12:35", "title": "阿照飞抵桂林", "desc": "金鹏航空Y87505，浦东T2→两江T2", "cost": "596元（已付）", "badge": "已确认", "badgeType": "", "detail": "<ul><li>Y87505航班9月1日正常执飞</li></ul>" },
+        { "time": "12:35-13:15", "title": "到酒店汇合", "desc": "机场大巴/打车到酒店，与妈妈汇合", "cost": "", "badge": "", "badgeType": "", "detail": "" },
+        { "time": "14:00-15:00", "title": "午餐：椿记烧鹅", "desc": "中山中路店，人均80元", "cost": "约160元", "badge": "觅食", "badgeType": "", "detail": "" },
+        { "time": "15:00-17:00", "title": "🐘 象鼻山景区", "desc": "免费，需提前1天预约", "cost": "免费", "badge": "需预约", "badgeType": "must", "detail": "<ul><li>预约12:30-18:00时段</li><li>公众号「桂林市象山景区管理处」</li></ul>" },
+        { "time": "18:00-20:00", "title": "正阳路步行街", "desc": "逛街+晚餐", "cost": "", "badge": "觅食", "badgeType": "", "detail": "" }
+      ]
+    },
+    {
+      "day": 2,
+      "title": "Day 2 · 9月2日（周三）",
+      "theme": "漓江游船→阳朔",
+      "date": "2026-09-02",
+      "items": [
+        { "time": "07:30", "title": "酒店退房", "desc": "行李全部带走，船上放座位旁，注意防水", "cost": "", "badge": "退房", "badgeType": "", "detail": "" },
+        { "time": "08:00-08:40", "title": "打车到磨盘山码头", "desc": "距市区约25-28公里，40分钟", "cost": "约40-60元", "badge": "", "badgeType": "", "detail": "" },
+        { "time": "09:30-13:30", "title": "🚢 漓江游船", "desc": "4小时游船，船上可买餐", "cost": "215元/人（共430元）", "badge": "必预订", "badgeType": "must", "detail": "<ul><li>小程序「桂林漓江商城」</li><li>至少提前7天预订</li></ul>" },
+        { "time": "14:00-15:00", "title": "入住阳朔酒店", "desc": "<strong>树舍·酒店</strong>，放行李、休整", "cost": "", "badge": "住宿", "badgeType": "", "detail": "" },
+        { "time": "17:00-18:30", "title": "逛西街", "desc": "感受阳朔氛围", "cost": "", "badge": "逛街", "badgeType": "", "detail": "" },
+        { "time": "18:30-19:30", "title": "晚餐：谢大姐啤酒鱼", "desc": "人均60-80元", "cost": "约120-160元", "badge": "觅食", "badgeType": "", "detail": "" }
+      ]
+    },
+    {
+      "day": 3,
+      "title": "Day 3 · 9月3日（周四）",
+      "theme": "遇龙河竹筏 + 十里画廊",
+      "date": "2026-09-03",
+      "items": [
+        { "time": "08:30-10:00", "title": "🎋 遇龙河竹筏漂流", "desc": "金龙桥→旧县段，255元/筏/2人", "cost": "255元/筏", "badge": "必抢", "badgeType": "must", "detail": "<ul><li>小程序「遇龙河漂流」</li><li>提前5-7天关注放票</li><li>65岁以上禁乘</li></ul>" },
+        { "time": "14:00-17:00", "title": "🛵 十里画廊骑行", "desc": "租电动车，40元/天", "cost": "40元/天", "badge": "", "badgeType": "", "detail": "<ul><li>两人共骑一辆</li></ul>" },
+        { "time": "17:00-18:30", "title": "工农桥看日落", "desc": "遇龙河最美观景点", "cost": "", "badge": "日落", "badgeType": "", "detail": "" }
+      ]
+    },
+    {
+      "day": 4,
+      "title": "Day 4 · 9月4日（周五）",
+      "theme": "银子岩 + 兴坪古镇",
+      "date": "2026-09-04",
+      "items": [
+        { "time": "08:30-10:30", "title": "🏔️ 银子岩", "desc": "门票65元，游览1.5-2小时", "cost": "65元/人（共130元）", "badge": "", "badgeType": "", "detail": "<ul><li>洞内恒温18℃，带薄外套</li><li>线上购票58-60元更便宜</li></ul>" },
+        { "time": "14:30-16:30", "title": "兴坪古镇", "desc": "20元背景打卡，免费", "cost": "免费", "badge": "", "badgeType": "", "detail": "" },
+        { "time": "19:00-20:30", "title": "晚餐：阿甘酒家", "desc": "桂林本地菜", "cost": "约120-160元", "badge": "觅食", "badgeType": "", "detail": "" }
+      ]
+    },
+    {
+      "day": 5,
+      "title": "Day 5 · 9月5日（周六）",
+      "theme": "世外桃源 + 如意峰→返回桂林",
+      "date": "2026-09-05",
+      "items": [
+        { "time": "08:30-11:00", "title": "🌸 世外桃源景区", "desc": "门票60元/人，全程坐船游览", "cost": "60元/人（共120元）", "badge": "", "badgeType": "", "detail": "<ul><li>携程/美团提前1-3天购票</li></ul>" },
+        { "time": "14:30-17:00", "title": "🚡 如意峰索道景区", "desc": "含索道+云顶+索桥+玻璃栈道", "cost": "208元/人（共416元）", "badge": "", "badgeType": "", "detail": "<ul><li>线上208元，比现场省12元</li></ul>" },
+        { "time": "18:00-19:30", "title": "返回桂林市区", "desc": "大巴约90分钟", "cost": "大巴35元/人", "badge": "", "badgeType": "", "detail": "" },
+        { "time": "19:30-20:00", "title": "入住桂林酒店", "desc": "<strong>天空花园酒店</strong>（同前）", "cost": "", "badge": "住宿", "badgeType": "", "detail": "" }
+      ]
+    },
+    {
+      "day": 6,
+      "title": "Day 6 · 9月6日（周日）",
+      "theme": "上午收尾 + 下午各自返程",
+      "date": "2026-09-06",
+      "items": [
+        { "time": "09:00-10:30", "title": "东西巷收尾", "desc": "逛东西巷、买伴手礼", "cost": "", "badge": "购物", "badgeType": "", "detail": "" },
+        { "time": "11:00-11:40", "title": "打车前往两江机场", "desc": "约40分钟", "cost": "80-100元", "badge": "", "badgeType": "", "detail": "" },
+        { "time": "13:10", "title": "妈妈登机→哈尔滨", "desc": "桂林航空GT1087，经停济宁", "cost": "约1000-1200元", "badge": "返程", "badgeType": "must", "detail": "" },
+        { "time": "13:30", "title": "阿照登机→上海", "desc": "约2.5小时", "cost": "约500-600元", "badge": "返程", "badgeType": "must", "detail": "" }
+      ]
+    }
+  ],
+  "budget": {
+    "categories": {
+      "flight": { "name": "大交通", "emoji": "✈️", "color": "#4B3FE3" },
+      "hotel": { "name": "住宿", "emoji": "🏨", "color": "#4CAF50" },
+      "ticket": { "name": "门票活动", "emoji": "🎫", "color": "#FF9800" },
+      "food": { "name": "餐饮", "emoji": "🍜", "color": "#E91E63" },
+      "transport": { "name": "当地交通", "emoji": "🚕", "color": "#00BCD4" },
+      "other": { "name": "其他", "emoji": "🎁", "color": "#9C27B0" }
+    },
+    "expenses": [
+      { "id": "flight_az_go", "name": "阿照去程（上海→桂林）Y87505", "amount": 596, "paid": true, "cat": "flight", "custom": false },
+      { "id": "flight_az_back", "name": "阿照返程（桂林→上海）", "amount": 703, "paid": true, "cat": "flight", "custom": false },
+      { "id": "flight_mom_go", "name": "妈妈去程（临沂→桂林）", "amount": 700, "paid": false, "cat": "flight", "custom": false },
+      { "id": "flight_mom_back", "name": "妈妈返程（桂林→哈尔滨）GT1087", "amount": 1100, "paid": false, "cat": "flight", "custom": false },
+      { "id": "hotel_gl", "name": "桂林天空花园酒店（3晚）", "amount": 512, "paid": true, "cat": "hotel", "custom": false },
+      { "id": "hotel_ys", "name": "阳朔树舍·酒店（3晚）", "amount": 434, "paid": true, "cat": "hotel", "custom": false },
+      { "id": "lijiang", "name": "漓江三星游船（215×2）", "amount": 430, "paid": false, "cat": "ticket", "custom": false },
+      { "id": "yulonghe", "name": "遇龙河竹筏（255/筏）", "amount": 255, "paid": false, "cat": "ticket", "custom": false },
+      { "id": "yinziyan", "name": "银子岩（65×2）", "amount": 130, "paid": false, "cat": "ticket", "custom": false },
+      { "id": "shiwai", "name": "世外桃源（60×2）", "amount": 120, "paid": false, "cat": "ticket", "custom": false },
+      { "id": "ruyifeng", "name": "如意峰索道（208×2）", "amount": 416, "paid": false, "cat": "ticket", "custom": false },
+      { "id": "dianche", "name": "十里画廊电动车（40×2天）", "amount": 80, "paid": false, "cat": "ticket", "custom": false },
+      { "id": "food", "name": "餐饮（6天×350/天）", "amount": 2100, "paid": false, "cat": "food", "custom": false },
+      { "id": "taxi1", "name": "打车/网约车", "amount": 460, "paid": false, "cat": "transport", "custom": false },
+      { "id": "taxi2", "name": "阳朔往返景区打车", "amount": 250, "paid": false, "cat": "transport", "custom": false },
+      { "id": "bus_gl", "name": "阳朔→桂林大巴", "amount": 120, "paid": false, "cat": "transport", "custom": false },
+      { "id": "souvenir", "name": "伴手礼/水果/应急", "amount": 500, "paid": false, "cat": "other", "custom": false },
+      { "id": "insurance", "name": "旅行意外险（40×2）", "amount": 80, "paid": false, "cat": "other", "custom": false }
+    ]
+  },
+  "checklist": {
+    "booking": [
+      { "id": "b1", "text": "🚢 漓江三星游船（9/2）", "tag": "必须提前7天", "tagType": "must", "meta": "小程序「桂林漓江商城」· 215元/人", "deadline": "2026-08-25", "checked": false, "custom": false },
+      { "id": "b2", "text": "🎋 遇龙河竹筏（9/3）", "tag": "最难抢", "tagType": "must", "meta": "小程序「遇龙河漂流」· 255元/筏", "deadline": "2026-08-27", "checked": false, "custom": false },
+      { "id": "b3", "text": "🐘 象鼻山预约（9/1）", "tag": "需预约", "tagType": "must", "meta": "公众号「桂林市象山景区管理处」· 免费", "deadline": "2026-08-31", "checked": false, "custom": false },
+      { "id": "b4", "text": "🏔️ 银子岩（9/4）", "meta": "携程/美团 · 线上58-60元/人", "deadline": "2026-09-01", "checked": false, "custom": false },
+      { "id": "b5", "text": "🌸 世外桃源（9/5）", "meta": "携程/美团 · 60元/人", "deadline": "2026-09-02", "checked": false, "custom": false },
+      { "id": "b6", "text": "🚡 如意峰索道（9/5）", "meta": "携程/美团 · 线上208元/人", "deadline": "2026-09-02", "checked": false, "custom": false }
+    ],
+    "packing": [
+      { "id": "p1", "text": "身份证", "checked": false, "custom": false },
+      { "id": "p2", "text": "手机 + 充电宝", "checked": false, "custom": false },
+      { "id": "p3", "text": "少量现金", "checked": false, "custom": false },
+      { "id": "p4", "text": "短袖T恤 5件", "checked": false, "custom": false },
+      { "id": "p5", "text": "薄长裤 2条 + 薄外套 1件", "checked": false, "custom": false },
+      { "id": "p6", "text": "运动鞋 + 凉拖鞋", "checked": false, "custom": false },
+      { "id": "p7", "text": "遮阳帽 + 太阳镜", "checked": false, "custom": false },
+      { "id": "p8", "text": "防晒霜 SPF50+", "checked": false, "custom": false },
+      { "id": "p9", "text": "驱蚊液", "checked": false, "custom": false },
+      { "id": "p10", "text": "雨伞", "checked": false, "custom": false },
+      { "id": "p11", "text": "常用药 + 肠胃药 + 晕车药", "checked": false, "custom": false },
+      { "id": "p12", "text": "20元纸币（漓江拍照用）", "checked": false, "custom": false },
+      { "id": "p13", "text": "防水袋（竹筏用）", "checked": false, "custom": false }
+    ]
+  },
+  "hotels": [
+    {
+      "id": "hotel_gl",
+      "name": "天空花园酒店",
+      "subtitle": "桂林两江四湖象鼻山景区店",
+      "icon": "🏙️",
+      "nights": 3,
+      "info": "<strong>地址：</strong>秀峰区解放东路31号<br><strong>位置：</strong>紧邻东西巷，步行140米<br><strong>入住日期：</strong>8/31、9/1、9/5<br><strong>评分：</strong>携程4.8分",
+      "tags": ["出门即东西巷", "逛街觅食方便", "30间房"],
+      "price": "¥512（3晚）",
+      "paid": true,
+      "bannerColor": "linear-gradient(135deg,#4B3FE3,#6F6FFF)"
+    },
+    {
+      "id": "hotel_ys",
+      "name": "树舍·酒店",
+      "subtitle": "阳朔西街步行可达",
+      "icon": "🌿",
+      "nights": 3,
+      "info": "<strong>位置：</strong>西街步行可达，闹中取静<br><strong>入住日期：</strong>9/2、9/3、9/4<br><strong>特色：</strong>性价比之王 · 老板超贴心 · 现代简约",
+      "tags": ["闹中取静", "可借电动车", "老板服务好"],
+      "price": "¥434（3晚）",
+      "paid": true,
+      "bannerColor": "linear-gradient(135deg,#4CAF50,#66BB6A)"
+    }
+  ],
+  "emergency": [
+    { "name": "旅游投诉热线", "phone": "12301" },
+    { "name": "报警", "phone": "110" },
+    { "name": "急救", "phone": "120" },
+    { "name": "桂林两江机场", "phone": "0773-2845359" }
+  ],
+  "tips": [
+    {
+      "icon": "👴",
+      "title": "带长辈注意事项",
+      "items": ["节奏放慢：每天中午必须午休1小时", "备好常用药：肠胃药、晕车药、创可贴", "饮食注意：提前说少盐少辣", "随时补水：带保温杯"]
+    },
+    {
+      "icon": "📱",
+      "title": "实用小程序",
+      "items": ["漓江船票：「桂林漓江商城」小程序", "遇龙河竹筏：「遇龙河漂流」小程序", "象鼻山预约：「桂林市象山景区管理处」公众号"]
+    }
+  ],
+  "mapPOIs": [
+    { "name": "桂林两江国际机场", "cat": "transport", "lat": 25.2183, "lng": 110.0394, "desc": "到达/出发机场", "day": "0/1/6", "icon": "✈️" },
+    { "name": "天空花园酒店", "cat": "hotel", "lat": 25.2736, "lng": 110.2980, "desc": "桂林住宿 · 3晚 · 已付¥512", "day": "0/1/5", "icon": "🏨" },
+    { "name": "东西巷", "cat": "scenic", "lat": 25.2740, "lng": 110.2975, "desc": "桂林历史文化街区 · 免费", "day": "0/1/6", "icon": "🏪" },
+    { "name": "象鼻山景区", "cat": "scenic", "lat": 25.2620, "lng": 110.2990, "desc": "免费 · 需提前1天预约", "day": "1", "icon": "🐘" },
+    { "name": "两江四湖", "cat": "scenic", "lat": 25.2700, "lng": 110.2900, "desc": "日月双塔夜景 · 免费", "day": "0", "icon": "🌃" },
+    { "name": "磨盘山码头", "cat": "transport", "lat": 25.3550, "lng": 110.3080, "desc": "漓江游船出发点", "day": "2", "icon": "🚢" },
+    { "name": "阳朔码头", "cat": "transport", "lat": 24.7730, "lng": 110.4880, "desc": "漓江游船到达", "day": "2", "icon": "🚢" },
+    { "name": "树舍·酒店", "cat": "hotel", "lat": 24.7720, "lng": 110.4880, "desc": "阳朔住宿 · 3晚 · 已付¥434", "day": "2/3/4", "icon": "🏨" },
+    { "name": "阳朔西街", "cat": "scenic", "lat": 24.7725, "lng": 110.4885, "desc": "阳朔最热闹的步行街", "day": "2", "icon": "🏮" },
+    { "name": "遇龙河金龙桥码头", "cat": "scenic", "lat": 24.8220, "lng": 110.4120, "desc": "竹筏漂流出发 · 255元/筏", "day": "3", "icon": "🎋" },
+    { "name": "十里画廊", "cat": "scenic", "lat": 24.7600, "lng": 110.4200, "desc": "骑行路线 · 租电动车40元/天", "day": "3", "icon": "🛵" },
+    { "name": "工农桥", "cat": "scenic", "lat": 24.7480, "lng": 110.4300, "desc": "遇龙河最美日落观景点", "day": "3", "icon": "🌅" },
+    { "name": "银子岩", "cat": "scenic", "lat": 24.6600, "lng": 110.3950, "desc": "溶洞景区 · 门票65元", "day": "4", "icon": "🏔️" },
+    { "name": "兴坪古镇", "cat": "scenic", "lat": 24.9470, "lng": 110.5530, "desc": "20元背景打卡 · 免费", "day": "4", "icon": "🏘️" },
+    { "name": "世外桃源", "cat": "scenic", "lat": 24.8800, "lng": 110.3500, "desc": "坐船游览 · 门票60元/人", "day": "5", "icon": "🌸" },
+    { "name": "如意峰索道", "cat": "scenic", "lat": 24.8100, "lng": 110.4700, "desc": "索道+玻璃栈道 · 208元/人", "day": "5", "icon": "🚡" },
+    { "name": "椿记烧鹅", "cat": "food", "lat": 25.2650, "lng": 110.2950, "desc": "桂林名店 · 人均80元", "day": "1", "icon": "🍽️" },
+    { "name": "谢大姐啤酒鱼", "cat": "food", "lat": 24.7730, "lng": 110.4900, "desc": "阳朔必吃 · 人均60-80元", "day": "2", "icon": "🐟" },
+    { "name": "阿甘酒家", "cat": "food", "lat": 24.7720, "lng": 110.4870, "desc": "桂林本地菜", "day": "4", "icon": "🍲" }
+  ],
+  "dayRoutes": {
+    "0": ["桂林两江国际机场", "天空花园酒店", "东西巷", "两江四湖"],
+    "1": ["桂林两江国际机场", "天空花园酒店", "椿记烧鹅", "象鼻山景区", "东西巷"],
+    "2": ["天空花园酒店", "磨盘山码头", "阳朔码头", "树舍·酒店", "阳朔西街", "谢大姐啤酒鱼"],
+    "3": ["树舍·酒店", "遇龙河金龙桥码头", "十里画廊", "工农桥"],
+    "4": ["树舍·酒店", "银子岩", "兴坪古镇", "阿甘酒家"],
+    "5": ["树舍·酒店", "世外桃源", "如意峰索道", "天空花园酒店"],
+    "6": ["天空花园酒店", "东西巷", "桂林两江国际机场"]
+  },
+  "mapCenter": { "lat": 24.95, "lng": 110.35, "zoom": 10 },
+  "catColors": { "hotel": "#4B3FE3", "scenic": "#4CAF50", "transport": "#FF9800", "food": "#E91E63" },
+  "catIcons": { "hotel": "🏨", "scenic": "🏞️", "transport": "🚗", "food": "🍜" }
+}

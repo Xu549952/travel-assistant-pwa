@@ -1,0 +1,58 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  lighthouse-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Lighthouse CI
+        run: npx @lhci/cli autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: |
+            .lighthouseci/
+            lhci_reports/
+          retention-days: 30
+
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "## Lighthouse CI Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d ".lighthouseci" ]; then
+            echo "Reports generated successfully." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Category | Threshold | Status |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Performance | >= 85 | Required |" >> $GITHUB_STEP_SUMMARY
+            echo "| Accessibility | >= 90 | Required |" >> $GITHUB_STEP_SUMMARY
+            echo "| Best Practices | >= 80 | Warning |" >> $GITHUB_STEP_SUMMARY
+            echo "| SEO | >= 80 | Warning |" >> $GITHUB_STEP_SUMMARY
+            echo "| PWA | >= 70 | Warning |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No reports found." >> $GITHUB_STEP_SUMMARY
+          fi

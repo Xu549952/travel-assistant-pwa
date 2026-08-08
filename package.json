@@ -1,0 +1,21 @@
+{
+  "name": "travel-assistant-lhci",
+  "version": "1.0.0",
+  "description": "旅行助手 PWA - Lighthouse CI 自动化测试配置",
+  "private": true,
+  "scripts": {
+    "lhci": "lhci",
+    "test:lighthouse": "lhci autorun",
+    "test:lighthouse:mobile": "lhci autorun --collect.settings.preset=perf",
+    "serve": "http-server d:/项目1 -p 8080 --cors -c-1",
+    "serve:lhci": "npx http-server d:/项目1 -p 8080 --cors -c-1"
+  },
+  "devDependencies": {
+    "@lhci/cli": "^0.13.0",
+    "http-server": "^14.1.1",
+    "lighthouse": "^11.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

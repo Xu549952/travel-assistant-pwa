@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>桂林旅行攻略 · 2026年9月</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">正在加载攻略内容...</div>
+  <script>
+    window.$docsify = {
+      name: '🌿 桂林旅行攻略',
+      loadSidebar: true,
+      subMaxLevel: 3,
+      coverpage: true,
+      auto2top: true,
+      relativePath: true,
+      themeColor: '#4B3FE3',
+      alias: {
+        '/': '桂林旅行攻略_2026年9月_v4.md'
+      },
+      hook: {
+        beforeEach: function(content) {
+          // 自动去除 AIGC 元数据块（前两个 --- 之间的内容）
+          var lines = content.split('\n');
+          var count = 0;
+          var startIndex = 0;
+          for (var i = 0; i < lines.length; i++) {
+            if (lines[i].trim() === '---') {
+              count++;
+              if (count === 2) {
+                startIndex = i + 1;
+                break;
+              }
+            }
+          }
+          return startIndex > 0 ? lines.slice(startIndex).join('\n') : content;
+        }
+      },
+      search: {
+        placeholder: '🔍 搜索攻略内容...',
+        noData: '没有找到相关内容',
+        depth: 3,
+        hideOtherSidebarContent: false
+      },
+      markdown: {
+        breaks: true,
+        gfm: true
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/emoji.min.js"></script>
+</body>
+</html>

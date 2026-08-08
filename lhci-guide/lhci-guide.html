@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Lighthouse CI 操作指南 - 旅行助手 PWA</title>
+<style>
+:root {
+  --bg: #0f0f17;
+  --bg2: #1a1a2e;
+  --bg3: #16213e;
+  --ink: #e8e8e8;
+  --muted: #8888aa;
+  --rule: #2a2a4a;
+  --accent: #4B3FE3;
+  --accent2: #00d4aa;
+  --green: #4CAF50;
+  --orange: #FF9800;
+  --red: #f44336;
+  --blue: #2196F3;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  line-height: 1.7;
+  padding: 0;
+}
+.container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+h2 {
+  font-size: 1.4rem; margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem; border-bottom: 2px solid var(--accent);
+  color: var(--accent2);
+}
+h3 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: var(--ink); }
+p { margin-bottom: 0.75rem; color: var(--ink); }
+code {
+  background: var(--bg3); color: var(--accent2);
+  padding: 2px 6px; border-radius: 4px; font-size: 0.9em;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+}
+pre {
+  background: var(--bg2); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 1rem; overflow-x: auto;
+  margin: 0.75rem 0; font-size: 0.85rem; line-height: 1.5;
+}
+pre code { background: none; color: var(--ink); padding: 0; }
+.badge {
+  display: inline-block; padding: 2px 10px; border-radius: 12px;
+  font-size: 0.8rem; font-weight: 600; margin: 0 4px;
+}
+.badge-pass { background: rgba(76,175,80,0.2); color: var(--green); border: 1px solid var(--green); }
+.badge-fail { background: rgba(244,67,54,0.2); color: var(--red); border: 1px solid var(--red); }
+.badge-warn { background: rgba(255,152,0,0.2); color: var(--orange); border: 1px solid var(--orange); }
+.badge-info { background: rgba(33,150,243,0.2); color: var(--blue); border: 1px solid var(--blue); }
+.card {
+  background: var(--bg2); border: 1px solid var(--rule);
+  border-radius: 12px; padding: 1.5rem; margin: 1rem 0;
+}
+.card-accent { border-left: 4px solid var(--accent); }
+.card-green { border-left: 4px solid var(--green); }
+.card-orange { border-left: 4px solid var(--orange); }
+.card-red { border-left: 4px solid var(--red); }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+th, td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid var(--rule); }
+th { color: var(--accent2); font-weight: 600; font-size: 0.9rem; }
+td { font-size: 0.9rem; }
+.score-bar {
+  height: 28px; border-radius: 14px; background: var(--bg3);
+  position: relative; overflow: hidden; margin: 0.5rem 0;
+}
+.score-fill {
+  height: 100%; border-radius: 14px; display: flex;
+  align-items: center; justify-content: flex-end;
+  padding-right: 10px; font-size: 0.8rem; font-weight: 700;
+  color: white; transition: width 0.8s ease;
+}
+.score-threshold {
+  position: absolute; top: 0; bottom: 0; width: 2px;
+  background: var(--orange); z-index: 2;
+}
+.score-threshold::after {
+  content: attr(data-label); position: absolute;
+  top: -20px; left: 50%; transform: translateX(-50%);
+  font-size: 0.7rem; color: var(--orange); white-space: nowrap;
+}
+.step {
+  display: flex; gap: 1rem; margin: 1rem 0;
+  align-items: flex-start;
+}
+.step-num {
+  flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent); color: white; display: flex;
+  align-items: center; justify-content: center; font-weight: 700;
+}
+.step-content { flex: 1; }
+.tip {
+  background: rgba(0,212,170,0.08); border: 1px solid rgba(0,212,170,0.3);
+  border-radius: 8px; padding: 0.75rem 1rem; margin: 0.75rem 0;
+  font-size: 0.9rem; color: var(--accent2);
+}
+.warning {
+  background: rgba(255,152,0,0.08); border: 1px solid rgba(255,152,0,0.3);
+  border-radius: 8px; padding: 0.75rem 1rem; margin: 0.75rem 0;
+  font-size: 0.9rem; color: var(--orange);
+}
+.danger {
+  background: rgba(244,67,54,0.08); border: 1px solid rgba(244,67,54,0.3);
+  border-radius: 8px; padding: 0.75rem 1rem; margin: 0.75rem 0;
+  font-size: 0.9rem; color: var(--red);
+}
+.header-info {
+  background: var(--bg2); border-radius: 12px; padding: 1.5rem;
+  margin-bottom: 2rem; border: 1px solid var(--rule);
+}
+.header-info p { margin-bottom: 0.3rem; }
+.file-tree {
+  background: var(--bg2); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 1rem; font-family: monospace;
+  font-size: 0.85rem; line-height: 1.8; color: var(--muted);
+}
+.file-tree .dir { color: var(--accent2); font-weight: 600; }
+.file-tree .file { color: var(--ink); }
+.file-tree .new { color: var(--green); }
+hr { border: none; border-top: 1px solid var(--rule); margin: 2rem 0; }
+.toc { list-style: none; padding: 0; }
+.toc li { padding: 0.3rem 0; }
+.toc a { color: var(--accent2); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Lighthouse CI 自动化测试 - 操作指南</h1>
+<div class="header-info">
+  <p><strong>项目:</strong> 旅行助手 PWA (单文件 HTML 应用)</p>
+  <p><strong>测试目标:</strong> <code>d:\项目1\旅行助手.html</code></p>
+  <p><strong>环境:</strong> Node.js v22.16.0 / Git 2.55.0 / Microsoft Edge (Chromium)</p>
+  <p><strong>日期:</strong> 2026-08-08</p>
+</div>
+
+<h2>目录</h2>
+<ul class="toc">
+  <li><a href="#files">一、已创建的文件结构</a></li>
+  <li><a href="#env">二、环境检查结果</a></li>
+  <li><a href="#local">三、本地测试操作步骤</a></li>
+  <li><a href="#results">四、首次测试结果解读</a></li>
+  <li><a href="#github">五、GitHub Actions CI 配置</a></li>
+  <li><a href="#thresholds">六、评分阈值说明</a></li>
+  <li><a href="#troubleshoot">七、常见问题与排查</a></li>
+</ul>
+
+<h2 id="files">一、已创建的文件结构</h2>
+<div class="file-tree">
+<span class="dir">d:\项目1\</span>
+  <span class="new">.github/workflows/lighthouse-ci.yml</span>  <span style="color:var(--muted)"># GitHub Actions 工作流</span>
+  <span class="new">.gitignore</span>                          <span style="color:var(--muted)"># Git 忽略规则</span>
+  <span class="new">lighthouserc.json</span>                   <span style="color:var(--muted)"># LHCI 核心配置 (阈值/参数)</span>
+  <span class="new">package.json</span>                        <span style="color:var(--muted)"># npm 依赖声明</span>
+  <span class="new">lhci-local.ps1</span>                     <span style="color:var(--muted)"># 本地一键测试脚本</span>
+  <span class="new">lhci-guide/</span>                        <span style="color:var(--muted)"># 本指南目录</span>
+  <span class="file">旅行助手.html</span>                      <span style="color:var(--muted)"># 被测应用</span>
+  <span class="file">sw.js</span>                              <span style="color:var(--muted)"># Service Worker</span>
+  <span class="dir">node_modules/</span>                      <span style="color:var(--muted)"># 已安装的依赖 (不提交到 Git)</span>
+  <span class="dir">.lighthouseci/</span>                     <span style="color:var(--muted)"># 测试报告输出 (不提交到 Git)</span>
+</div>
+
+<h2 id="env">二、环境检查结果</h2>
+<table>
+  <tr><th>组件</th><th>状态</th><th>版本/路径</th></tr>
+  <tr><td>Node.js</td><td><span class="badge badge-pass">已安装</span></td><td>v22.16.0</td></tr>
+  <tr><td>npm</td><td><span class="badge badge-pass">已安装</span></td><td>v10.9.4</td></tr>
+  <tr><td>Git</td><td><span class="badge badge-pass">已安装</span></td><td>v2.55.0 (C:\Program Files\Git\cmd)</td></tr>
+  <tr><td>Google Chrome</td><td><span class="badge badge-fail">未安装</span></td><td>-</td></tr>
+  <tr><td>Microsoft Edge</td><td><span class="badge badge-pass">已安装</span></td><td>Chromium 内核，可替代 Chrome</td></tr>
+  <tr><td>@lhci/cli</td><td><span class="badge badge-pass">已安装</span></td><td>v0.13.0 (通过 npm install)</td></tr>
+  <tr><td>lighthouse</td><td><span class="badge badge-pass">已安装</span></td><td>v11.7.1</td></tr>
+  <tr><td>http-server</td><td><span class="badge badge-pass">已安装</span></td><td>v14.x</td></tr>
+  <tr><td>Git 仓库</td><td><span class="badge badge-pass">已初始化</span></td><td>master 分支，已有初始提交</td></tr>
+</table>
+
+<div class="tip">
+  <strong>说明:</strong> Lighthouse 需要 Chromium 内核浏览器来运行测试。你的系统没有 Chrome，但有 Edge（同样是 Chromium 内核），测试脚本会自动检测并使用 Edge。
+</div>
+
+<h2 id="local">三、本地测试操作步骤</h2>
+
+<h3>方法 A：使用一键脚本（推荐）</h3>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-content">
+    <p><strong>打开 PowerShell 终端</strong></p>
+    <p>按 <code>Win + X</code>，选择"Windows PowerShell"或"终端"。确保在项目目录下：</p>
+    <pre><code>cd d:\项目1</code></pre>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-content">
+    <p><strong>安装依赖（首次运行需要，后续可跳过）</strong></p>
+    <pre><code>npm install</code></pre>
+    <p>这一步会安装 <code>@lhci/cli</code>、<code>lighthouse</code> 和 <code>http-server</code>。已执行过，无需重复。</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-content">
+    <p><strong>运行完整测试</strong></p>
+    <pre><code>.\lhci-local.ps1 autorun</code></pre>
+    <p>脚本会自动：</p>
+    <p>1. 检测 Edge 浏览器路径并设置 <code>CHROME_PATH</code> 环境变量</p>
+    <p>2. 启动本地 HTTP 服务器 (端口 8080)</p>
+    <p>3. 运行 Lighthouse 测试 3 次（取中位数）</p>
+    <p>4. 执行阈值断言（Performance ≥ 85 为 error，Accessibility ≥ 90 为 error）</p>
+    <p>5. 生成 HTML 报告到 <code>.lighthouseci/</code> 目录</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-content">
+    <p><strong>查看测试报告</strong></p>
+    <p>测试完成后，在浏览器中打开生成的 HTML 报告：</p>
+    <pre><code># 方式 1：在 Edge 中直接打开
+start msedge "d:\项目1\.lighthouseci\lighthouse-report.html"
+
+# 方式 2：通过 LHCI 服务器查看历史报告
+.\lhci-local.ps1 status
+# 然后访问 http://localhost:9001</code></pre>
+  </div>
+</div>
+
+<h3>方法 B：手动分步操作</h3>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-content">
+    <p><strong>设置浏览器路径</strong></p>
+    <pre><code>$env:CHROME_PATH = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"</code></pre>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-content">
+    <p><strong>启动本地服务器（新终端窗口）</strong></p>
+    <pre><code>cd d:\项目1
+npx http-server . -p 8080 --cors -c-1</code></pre>
+    <p>看到 <code>Starting up http-server</code> 表示服务器已启动。保持此窗口不要关闭。</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-content">
+    <p><strong>运行 Lighthouse（另一个终端窗口）</strong></p>
+    <pre><code>cd d:\项目1
+npx lhci autorun</code></pre>
+    <p>或者直接用 lighthouse 命令（更灵活）：</p>
+    <pre><code># 仅测试 accessibility（快速，约 10 秒）
+npx lighthouse "http://localhost:8080/旅行助手.html" --only-categories=accessibility --preset=desktop --chrome-flags="--no-sandbox --headless" --max-wait-for-load=15000 --output=html --output-path=".lighthouseci/report.html"
+
+# 测试全部类别（较慢，约 1-2 分钟）
+npx lighthouse "http://localhost:8080/旅行助手.html" --preset=desktop --chrome-flags="--no-sandbox --headless" --max-wait-for-load=45000 --output=html --output-path=".lighthouseci/report.html"</code></pre>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-content">
+    <p><strong>执行阈值断言</strong></p>
+    <pre><code>npx lhci assert</code></pre>
+    <p>此命令会根据 <code>lighthouserc.json</code> 中的阈值检查测试结果。</p>
+  </div>
+</div>
+
+<h3>其他可用命令</h3>
+<table>
+  <tr><th>命令</th><th>用途</th></tr>
+  <tr><td><code>.\lhci-local.ps1 serve</code></td><td>仅启动服务器，手动在浏览器中查看页面</td></tr>
+  <tr><td><code>.\lhci-local.ps1 collect</code></td><td>仅收集 Lighthouse 数据，不执行断言</td></tr>
+  <tr><td><code>.\lhci-local.ps1 assert</code></td><td>仅执行断言（需先 collect）</td></tr>
+  <tr><td><code>.\lhci-local.ps1 status</code></td><td>启动 LHCI 报告查看服务器 (端口 9001)</td></tr>
+  <tr><td><code>.\lhci-local.ps1 help</code></td><td>查看帮助信息</td></tr>
+</table>
+
+<h2 id="results">四、首次测试结果解读</h2>
+
+<p>以下是通过直接运行 Lighthouse 获得的实际测试结果：</p>
+
+<div class="card card-accent">
+  <h3 style="margin-top:0">评分总览</h3>
+  <table>
+    <tr><th>类别</th><th>得分</th><th>阈值</th><th>状态</th></tr>
+    <tr>
+      <td>Performance (性能)</td>
+      <td><strong>59</strong>/100</td>
+      <td>≥ 85</td>
+      <td><span class="badge badge-fail">FAIL (error)</span></td>
+    </tr>
+    <tr>
+      <td>Accessibility (无障碍)</td>
+      <td><strong>100</strong>/100</td>
+      <td>≥ 90</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+    </tr>
+    <tr>
+      <td>Best Practices (最佳实践)</td>
+      <td><strong>93</strong>/100</td>
+      <td>≥ 80</td>
+      <td><span class="badge badge-pass">PASS (warn)</span></td>
+    </tr>
+    <tr>
+      <td>SEO (搜索引擎优化)</td>
+      <td><strong>89</strong>/100</td>
+      <td>≥ 80</td>
+      <td><span class="badge badge-pass">PASS (warn)</span></td>
+    </tr>
+    <tr>
+      <td>PWA (渐进式 Web 应用)</td>
+      <td><strong>29</strong>/100</td>
+      <td>≥ 70</td>
+      <td><span class="badge badge-warn">WARN</span></td>
+    </tr>
+  </table>
+</div>
+
+<h3>关键性能指标</h3>
+<table>
+  <tr><th>指标</th><th>值</th><th>说明</th></tr>
+  <tr><td>First Contentful Paint (FCP)</td><td>4.5s</td><td>首次内容绘制 - 页面首次显示内容的时间</td></tr>
+  <tr><td>Largest Contentful Paint (LCP)</td><td>4.5s</td><td>最大内容绘制 - 最大元素完成渲染的时间</td></tr>
+  <tr><td>Total Blocking Time (TBT)</td><td>0ms</td><td>总阻塞时间 - 主线程被阻塞的总时间</td></tr>
+  <tr><td>Cumulative Layout Shift (CLS)</td><td>0</td><td>累积布局偏移 - 页面视觉稳定性</td></tr>
+  <tr><td>Speed Index</td><td>4.5s</td><td>速度指数 - 页面内容填充速度</td></tr>
+</table>
+
+<div class="card card-red">
+  <h3 style="margin-top:0">Performance 59 分 - 问题分析</h3>
+  <p>性能得分低于 85 分阈值，主要原因是：</p>
+  <p><strong>1. CDN 资源加载缓慢 (FCP/LCP = 4.5s)</strong></p>
+  <p>页面加载了 6+ 个 CDN 脚本（Leaflet、jsPDF、html2canvas、marked、mammoth、DOMPurify），这些渲染阻塞资源导致首次绘制延迟。</p>
+  <p><strong>2. TBT = 0ms 和 CLS = 0 表现优秀</strong></p>
+  <p>说明页面 JavaScript 执行效率高，且没有布局偏移问题。</p>
+</div>
+
+<div class="card card-green">
+  <h3 style="margin-top:0">Accessibility 100 分 - 优秀</h3>
+  <p>无障碍评分满分，所有关键审计项均通过：</p>
+  <p>颜色对比度、文档标题、HTML lang 属性、meta viewport、标题层级、按钮命名、landmark 标记等。</p>
+</div>
+
+<div class="warning">
+  <strong>注意:</strong> 由于 Performance (59) < 阈值 (85)，LHCI autorun 会以非零退出码结束（CI 失败）。这是预期行为，提示需要优化性能。PWA (29) 仅为 warn 级别，不会导致 CI 失败。
+</div>
+
+<h2 id="github">五、GitHub Actions CI 配置</h2>
+
+<h3>步骤 1：在 GitHub 创建仓库</h3>
+<pre><code># 1. 登录 GitHub，点击 New repository
+# 2. 仓库名: travel-assistant (或自定义)
+# 3. 选择 Public 或 Private
+# 4. 不要勾选 "Add a README" (已有)
+# 5. 点击 Create repository</code></pre>
+
+<h3>步骤 2：将本地代码推送到 GitHub</h3>
+<pre><code># 设置 Git PATH (如需要)
+$env:PATH = 'C:\Program Files\Git\cmd;' + $env:PATH
+
+cd d:\项目1
+
+# 添加远程仓库 (替换为你的仓库地址)
+git remote add origin https://github.com/你的用户名/travel-assistant.git
+
+# 推送到 GitHub
+git push -u origin master</code></pre>
+
+<h3>步骤 3：验证 CI 运行</h3>
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-content">
+    <p>推送代码后，GitHub Actions 会自动触发 Lighthouse CI 工作流。</p>
+    <p>在 GitHub 仓库页面点击 <strong>Actions</strong> 标签页查看运行状态。</p>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-content">
+    <p>CI 运行完成后（约 3-5 分钟），可以下载测试报告：</p>
+    <p>在 Actions 运行详情页 → <strong>Artifacts</strong> 区域 → 下载 <code>lighthouse-reports</code></p>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-content">
+    <p>也可以在 Actions 页面手动触发测试：</p>
+    <p>选择 <code>Lighthouse CI</code> 工作流 → 点击 <strong>Run workflow</strong> 按钮</p>
+  </div>
+</div>
+
+<h3>步骤 4（可选）：安装 Lighthouse CI GitHub App</h3>
+<p>如需在 PR 中显示 Lighthouse 评分评论和状态检查：</p>
+<pre><code># 1. 访问 https://github.com/apps/lighthouse-ci
+# 2. 点击 Install，选择你的仓库
+# 3. 在仓库 Settings → Secrets → Actions 中添加:
+#    Name: LHCI_GITHUB_APP_TOKEN
+#    Value: (从 LHCI server 获取的 token)</code></pre>
+
+<h3>GitHub Actions 工作流说明</h3>
+<p>配置文件位于 <code>.github/workflows/lighthouse-ci.yml</code>，触发条件：</p>
+<table>
+  <tr><th>触发方式</th><th>说明</th></tr>
+  <tr><td>push 到 main/master</td><td>每次推送代码自动运行</td></tr>
+  <tr><td>Pull Request</td><td>提交 PR 时自动运行</td></tr>
+  <tr><td>workflow_dispatch</td><td>在 Actions 页面手动触发</td></tr>
+</table>
+
+<h2 id="thresholds">六、评分阈值说明</h2>
+
+<p>阈值配置在 <code>lighthouserc.json</code> 的 <code>assert.assertions</code> 中：</p>
+
+<table>
+  <tr><th>审计项</th><th>阈值</th><th>级别</th><th>含义</th></tr>
+  <tr><td>categories:performance</td><td>≥ 85</td><td><span class="badge badge-fail">error</span></td><td>不通过则 CI 失败</td></tr>
+  <tr><td>categories:accessibility</td><td>≥ 90</td><td><span class="badge badge-fail">error</span></td><td>不通过则 CI 失败</td></tr>
+  <tr><td>categories:best-practices</td><td>≥ 80</td><td><span class="badge badge-warn">warn</span></td><td>仅警告，CI 不失败</td></tr>
+  <tr><td>categories:seo</td><td>≥ 80</td><td><span class="badge badge-warn">warn</span></td><td>仅警告，CI 不失败</td></tr>
+  <tr><td>categories:pwa</td><td>≥ 70</td><td><span class="badge badge-warn">warn</span></td><td>仅警告，CI 不失败</td></tr>
+  <tr><td>csp-xss</td><td>= 1</td><td><span class="badge badge-warn">warn</span></td><td>CSP 安全检查</td></tr>
+  <tr><td>uses-text-compression</td><td>= 1</td><td><span class="badge badge-warn">warn</span></td><td>文本压缩检查</td></tr>
+  <tr><td>render-blocking-resources</td><td>≥ 0.9</td><td><span class="badge badge-warn">warn</span></td><td>渲染阻塞资源</td></tr>
+  <tr><td>unused-javascript</td><td>≥ 0.8</td><td><span class="badge badge-warn">warn</span></td><td>未使用的 JavaScript</td></tr>
+</table>
+
+<div class="tip">
+  <strong>如何调整阈值:</strong> 编辑 <code>lighthouserc.json</code>，修改 <code>minScore</code> 值（0-1 之间，0.85 = 85 分）。将 <code>"error"</code> 改为 <code>"warn"</code> 可降级为警告。
+</div>
+
+<h2 id="troubleshoot">七、常见问题与排查</h2>
+
+<h3>问题 1：测试运行很长时间不结束</h3>
+<div class="card card-orange">
+  <p><strong>原因:</strong> 旅行助手页面加载了多个 CDN 脚本（Leaflet、jsPDF 等），并持续调用天气 API 和地图瓦片，Lighthouse 需要等待页面达到"网络安静"状态。</p>
+  <p><strong>解决方案:</strong></p>
+  <p>1. 配置中已设置 <code>maxWaitForLoad: 45000</code>（45 秒上限），Lighthouse 会在超时后强制继续</p>
+  <p>2. 如需快速测试，可仅测试 accessibility 类别（约 10 秒完成）：</p>
+  <pre><code>npx lighthouse "http://localhost:8080/旅行助手.html" --only-categories=accessibility --preset=desktop --chrome-flags="--no-sandbox --headless" --max-wait-for-load=15000 --output=html --output-path=".lighthouseci/report.html"</code></pre>
+</div>
+
+<h3>问题 2：CHROME_INTERSTITIAL_ERROR</h3>
+<div class="card card-red">
+  <p><strong>原因:</strong> 本地 HTTP 服务器未运行或已停止，Edge 无法访问页面。</p>
+  <p><strong>解决方案:</strong></p>
+  <p>1. 确保服务器正在运行：</p>
+  <pre><code># 检查端口 8080
+Test-NetConnection -ComputerName localhost -Port 8080
+
+# 如果不可连接，重启服务器
+.\lhci-local.ps1 serve</code></pre>
+  <p>2. 使用 <code>.\lhci-local.ps1 autorun</code> 时，LHCI 会自动管理服务器启停</p>
+</div>
+
+<h3>问题 3：git 命令未找到</h3>
+<div class="card card-orange">
+  <p><strong>原因:</strong> Git 未添加到系统 PATH。</p>
+  <p><strong>解决方案:</strong></p>
+  <pre><code>$env:PATH = 'C:\Program Files\Git\cmd;' + $env:PATH</code></pre>
+  <p>或永久添加：在系统环境变量中添加 <code>C:\Program Files\Git\cmd</code></p>
+</div>
+
+<h3>问题 4：Performance 得分低（59/100）</h3>
+<div class="card card-accent">
+  <p><strong>主要瓶颈:</strong> 6 个 CDN 脚本导致 FCP/LCP = 4.5 秒。</p>
+  <p><strong>优化建议:</strong></p>
+  <p>1. <strong>延迟加载非关键脚本</strong> - 将 mammoth.js、jspdf、html2canvas 等改为按需加载</p>
+  <p>2. <strong>添加 resource hints</strong> - 对 CDN 域名使用 <code>dns-prefetch</code> 或 <code>preconnect</code></p>
+  <p>3. <strong>合并 CDN 脚本</strong> - 使用打包工具将多个脚本合并为一个</p>
+  <p>4. <strong>降低阈值</strong> - 如果暂时无法优化，可将 Performance 阈值从 85 降至 60：</p>
+  <pre><code>"categories:performance": ["error", { "minScore": 0.6 }]</code></pre>
+</div>
+
+<h3>问题 5：PWA 得分低（29/100）</h3>
+<div class="card card-accent">
+  <p><strong>原因:</strong> 单文件 HTML 架构的 PWA 支持受限。</p>
+  <p><strong>主要扣分项:</strong> manifest.json 通过 Blob URL 动态生成（部分审计项无法检测），Service Worker 注册路径问题。</p>
+  <p><strong>说明:</strong> PWA 仅为 <code>warn</code> 级别，不会导致 CI 失败。如需提升，需将 manifest.json 提取为独立文件。</p>
+</div>
+
+<hr>
+<div class="card card-green">
+  <h3 style="margin-top:0">快速命令速查</h3>
+  <pre><code># === 一键操作 ===
+.\lhci-local.ps1 autorun          # 完整测试 (collect + assert)
+.\lhci-local.ps1 serve            # 启动服务器
+.\lhci-local.ps1 help             # 查看帮助
+
+# === npm 命令 ===
+npm install                       # 安装依赖
+npm run test:lighthouse           # 运行测试
+
+# === Git 操作 ===
+$env:PATH = 'C:\Program Files\Git\cmd;' + $env:PATH
+git add -A
+git commit -m "更新代码"
+git push
+
+# === 手动 Lighthouse ===
+$env:CHROME_PATH = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+npx lighthouse "http://localhost:8080/旅行助手.html" --preset=desktop --chrome-flags="--no-sandbox --headless" --output=html --output-path=".lighthouseci/report.html"</code></pre>
+</div>
+
+</div>
+</body>
+</html>

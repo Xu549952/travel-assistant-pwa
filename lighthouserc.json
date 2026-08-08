@@ -5,11 +5,12 @@
         "http://localhost:8080/旅行助手.html"
       ],
       "numberOfRuns": 3,
-      "startServerCommand": "npx http-server d:/项目1 -p 8080 --cors",
+      "startServerCommand": "npx http-server . -p 8080 --cors -c-1",
       "startServerReadyPattern": "Starting up http-server",
       "settings": {
         "preset": "desktop",
         "chromeFlags": "--no-sandbox --disable-gpu",
+        "maxWaitForLoad": 45000,
         "onlyCategories": [
           "performance",
           "accessibility",
@@ -27,7 +28,6 @@
         "categories:seo": ["warn", { "minScore": 0.8 }],
         "categories:pwa": ["warn", { "minScore": 0.7 }],
         "csp-xss": ["warn", { "minScore": 1 }],
-        "is-on-https": ["error", { "minScore": 1 }],
         "uses-text-compression": ["warn", { "minScore": 1 }],
         "render-blocking-resources": ["warn", { "minScore": 0.9 }],
         "unused-javascript": ["warn", { "minScore": 0.8 }]

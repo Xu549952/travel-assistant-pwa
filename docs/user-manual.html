@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅行助手 - 用户使用手册</title>
+<style>
+:root {
+    --primary: #4B3FE3;
+    --primary-light: #6C63FF;
+    --primary-dark: #3A30B5;
+    --accent: #FF9800;
+    --success: #4CAF50;
+    --danger: #E91E63;
+    --bg: #f5f5f7;
+    --surface: #ffffff;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --radius: 12px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans CJK SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0;
+}
+.hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 60px 20px 50px;
+    text-align: center;
+}
+.hero h1 { font-size: 2.2rem; margin-bottom: 10px; font-weight: 700; }
+.hero p { font-size: 1.1rem; opacity: 0.9; }
+.hero .version {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 4px 16px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+.toc {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 30px;
+    margin-bottom: 30px;
+}
+.toc h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 12px; }
+.toc ol { padding-left: 20px; }
+.toc li { margin-bottom: 6px; }
+.toc a { color: var(--text); text-decoration: none; }
+.toc a:hover { color: var(--primary); }
+section {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 30px;
+    margin-bottom: 24px;
+}
+section h2 {
+    font-size: 1.4rem;
+    color: var(--primary);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+}
+section h3 {
+    font-size: 1.15rem;
+    color: var(--text);
+    margin: 20px 0 10px;
+}
+section p { margin-bottom: 12px; color: var(--text); }
+section ul { padding-left: 20px; margin-bottom: 12px; }
+section li { margin-bottom: 6px; }
+.info-box {
+    background: #EEF0FF;
+    border-left: 4px solid var(--primary);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+}
+.info-box strong { color: var(--primary); }
+.warn-box {
+    background: #FFF3E0;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+}
+.tip-box {
+    background: #E8F5E9;
+    border-left: 4px solid var(--success);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+}
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+}
+.feature-card {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+.feature-card .icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+.feature-card .name {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+.feature-card .desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+.steps {
+    counter-reset: step;
+    list-style: none;
+    padding-left: 0;
+}
+.steps li {
+    counter-increment: step;
+    padding: 10px 0 10px 45px;
+    position: relative;
+}
+.steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 30px;
+    height: 30px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+.tab-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+}
+.tab-table th, .tab-table td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+.tab-table th {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+}
+.tab-table tr:nth-child(even) td { background: #f9f9fb; }
+.color-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+}
+.color-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+}
+.color-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+}
+.faq-item {
+    margin-bottom: 16px;
+}
+.faq-item q {
+    font-weight: 600;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 6px;
+}
+.faq-item a { display: block; color: var(--muted); }
+footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+@media (max-width: 600px) {
+    .hero { padding: 40px 16px 30px; }
+    .hero h1 { font-size: 1.6rem; }
+    .container { padding: 20px 12px; }
+    section { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>旅行助手</h1>
+    <p>个人旅行规划工具 · 用户使用手册</p>
+    <span class="version">版本 1.0</span>
+</div>
+
+<div class="container">
+
+<div class="toc">
+    <h2>目录</h2>
+    <ol>
+        <li><a href="#overview">应用简介</a></li>
+        <li><a href="#install">安装与启动</a></li>
+        <li><a href="#navigation">界面导航</a></li>
+        <li><a href="#trip">行程管理</a></li>
+        <li><a href="#budget">预算追踪</a></li>
+        <li><a href="#checklist">清单功能</a></li>
+        <li><a href="#diary">旅行日记</a></li>
+        <li><a href="#map">离线地图</a></li>
+        <li><a href="#import">攻略导入</a></li>
+        <li><a href="#export">数据导出与备份</a></li>
+        <li><a href="#notifications">提醒通知</a></li>
+        <li><a href="#offline">离线使用</a></li>
+        <li><a href="#faq">常见问题</a></li>
+    </ol>
+</div>
+
+<section id="overview">
+    <h2>一、应用简介</h2>
+    <p>旅行助手是一款个人旅行规划工具，帮助您高效管理行程安排、追踪旅行预算、记录旅行日记。支持离线使用，特别适合旅行中网络不稳定的场景。</p>
+    
+    <h3>核心功能</h3>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="icon">📋</div>
+            <div class="name">行程管理</div>
+            <div class="desc">时间轴展示，冲突检测</div>
+        </div>
+        <div class="feature-card">
+            <div class="icon">💰</div>
+            <div class="name">预算追踪</div>
+            <div class="desc">分类统计，逐日分配</div>
+        </div>
+        <div class="feature-card">
+            <div class="icon">✅</div>
+            <div class="name">清单功能</div>
+            <div class="desc">预订提醒，打包清单</div>
+        </div>
+        <div class="feature-card">
+            <div class="icon">📖</div>
+            <div class="name">旅行日记</div>
+            <div class="desc">图文记录，照片附件</div>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🗺️</div>
+            <div class="name">离线地图</div>
+            <div class="desc">POI标记，瓦片缓存</div>
+        </div>
+        <div class="feature-card">
+            <div class="icon">📥</div>
+            <div class="name">攻略导入</div>
+            <div class="desc">MD/DOCX/TXT/JSON</div>
+        </div>
+    </div>
+</section>
+
+<section id="install">
+    <h2>二、安装与启动</h2>
+    
+    <h3>Android 安装</h3>
+    <ol class="steps">
+        <li>将 <code>app-release.apk</code> 传输到手机（USB/微信/云盘）</li>
+        <li>手机上点击 APK 文件，允许"安装未知应用"</li>
+        <li>点击"安装"，等待安装完成</li>
+        <li>在桌面找到"旅行助手"图标，点击启动</li>
+    </ol>
+
+    <div class="warn-box">
+        <strong>首次启动：</strong>系统会请求通知权限和位置权限，建议全部允许以获得完整功能体验。
+    </div>
+
+    <h3>Web 版本（浏览器使用）</h3>
+    <ol class="steps">
+        <li>访问 https://xu549952.github.io/travel-assistant-pwa/travel-assistant.html</li>
+        <li>浏览器菜单选择"添加到主屏幕"即可像原生应用一样使用</li>
+        <li>支持 Chrome、Edge、Safari 等主流浏览器</li>
+    </ol>
+</section>
+
+<section id="navigation">
+    <h2>三、界面导航</h2>
+    <p>应用底部有 6 个导航标签，点击切换不同功能模块：</p>
+    
+    <table class="tab-table">
+        <thead>
+            <tr>
+                <th>标签</th>
+                <th>功能</th>
+                <th>说明</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>首页</td>
+                <td>行程概览</td>
+                <td>出发倒计时、预订截止提醒、预算摘要</td>
+            </tr>
+            <tr>
+                <td>行程</td>
+                <td>每日安排</td>
+                <td>时间轴展示，活动详情，冲突警告</td>
+            </tr>
+            <tr>
+                <td>预算</td>
+                <td>费用管理</td>
+                <td>分类预算，逐日分配，收支统计</td>
+            </tr>
+            <tr>
+                <td>清单</td>
+                <td>待办事项</td>
+                <td>预订清单，出发清单，打包清单</td>
+            </tr>
+            <tr>
+                <td>日记</td>
+                <td>旅行记录</td>
+                <td>图文日记，照片附件</td>
+            </tr>
+            <tr>
+                <td>更多</td>
+                <td>设置与工具</td>
+                <td>导入导出、日历导出、备份、语音备忘</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="info-box">
+        <strong>顶部栏：</strong>显示当前行程名称、日期范围，点击搜索图标可搜索行程内容，月亮图标切换夜间模式。
+    </div>
+</section>
+
+<section id="trip">
+    <h2>四、行程管理</h2>
+    
+    <h3>查看行程</h3>
+    <p>点击底部"行程"标签，进入时间轴视图。每一天的活动按时间顺序排列，包含：</p>
+    <ul>
+        <li><strong>时间段</strong>：活动的开始和结束时间</li>
+        <li><strong>活动名称</strong>：如"漓江三星游船"、"入住酒店"</li>
+        <li><strong>分类标签</strong>：交通/住宿/餐饮/景点等</li>
+        <li><strong>详情描述</strong>：费用、备注、预订方式等</li>
+    </ul>
+
+    <div class="warn-box">
+        <strong>冲突警告：</strong>当两个活动时间重叠，或不同地点间转换时间不足 30 分钟时，会显示黄色冲突标记，请及时调整行程。
+    </div>
+
+    <h3>多行程切换</h3>
+    <p>在首页点击顶部栏的行程名称，可打开行程列表，切换或创建新行程。</p>
+</section>
+
+<section id="budget">
+    <h2>五、预算追踪</h2>
+    
+    <h3>预算分类</h3>
+    <p>点击"预算"标签，查看四类预算的分配情况：</p>
+    <ul>
+        <li><strong>门票活动</strong>：景点门票、体验项目</li>
+        <li><strong>餐饮</strong>：三餐、零食、饮品</li>
+        <li><strong>当地交通</strong>：出租车、公交、大巴</li>
+        <li><strong>其他</strong>：购物、纪念品等</li>
+    </ul>
+
+    <h3>逐日预算</h3>
+    <p>向下滑动查看逐日预算分配卡片，每张卡片显示当天的预算总额、已花费和剩余金额，以及充足度百分比。</p>
+
+    <div class="tip-box">
+        <strong>小贴士：</strong>点击预算分类可展开明细，记录每笔支出的金额和备注。
+    </div>
+</section>
+
+<section id="checklist">
+    <h2>六、清单功能</h2>
+    
+    <h3>预订清单</h3>
+    <p>点击"清单"标签，查看需要提前预订的项目。每个预订项包含：</p>
+    <ul>
+        <li>项目名称和日期</li>
+        <li>预订渠道（小程序/携程/美团等）</li>
+        <li>价格参考</li>
+        <li>截止提醒天数</li>
+        <li>勾选框（完成后打勾）</li>
+    </ul>
+
+    <h3>出发清单</h3>
+    <p>点击"智能生成打包清单"按钮，根据行程目的地和天数自动生成建议的打包清单，也可手动添加自定义项目。</p>
+
+    <div class="info-box">
+        <strong>进度跟踪：</strong>清单标题旁显示完成进度（如 0/6），方便了解整体准备情况。
+    </div>
+</section>
+
+<section id="diary">
+    <h2>七、旅行日记</h2>
+    
+    <h3>新建日记</h3>
+    <ol class="steps">
+        <li>点击"日记"标签进入日记列表</li>
+        <li>点击右下角"+"按钮新建日记</li>
+        <li>选择关联的行程日期</li>
+        <li>输入文字内容，可插入照片</li>
+        <li>点击保存完成日记记录</li>
+    </ol>
+
+    <h3>查看日记</h3>
+    <p>日记列表按日期倒序排列，点击任意条目查看完整内容。日记中的照片可点击放大查看。</p>
+</section>
+
+<section id="map">
+    <h2>八、离线地图</h2>
+    
+    <h3>地图标记</h3>
+    <p>在行程页面查看地图，各类 POI 使用不同颜色标记：</p>
+    
+    <div class="color-legend">
+        <div class="color-item">
+            <span class="color-dot" style="background: #4B3FE3;"></span>
+            <span>住宿</span>
+        </div>
+        <div class="color-item">
+            <span class="color-dot" style="background: #4CAF50;"></span>
+            <span>景点</span>
+        </div>
+        <div class="color-item">
+            <span class="color-dot" style="background: #FF9800;"></span>
+            <span>交通</span>
+        </div>
+        <div class="color-item">
+            <span class="color-dot" style="background: #E91E63;"></span>
+            <span>餐饮</span>
+        </div>
+    </div>
+
+    <h3>离线缓存</h3>
+    <p>在有网络时浏览过的地图区域会自动缓存。旅行中即使无网络，已缓存的地图仍可查看和定位。</p>
+
+    <div class="tip-box">
+        <strong>建议：</strong>出发前在有 WiFi 的环境下打开地图，浏览目的地周边区域，确保瓦片已缓存。
+    </div>
+</section>
+
+<section id="import">
+    <h2>九、攻略导入</h2>
+    
+    <h3>支持的格式</h3>
+    <ul>
+        <li><strong>Markdown (.md)</strong>：识别标题、时间、费用、清单</li>
+        <li><strong>Word (.docx)</strong>：自动转换为 HTML 后解析</li>
+        <li><strong>纯文本 (.txt)</strong>：按 Markdown 规则解析</li>
+        <li><strong>JSON (.json)</strong>：支持通用 Schema 和 V6.0 导出格式</li>
+    </ul>
+
+    <h3>导入步骤</h3>
+    <ol class="steps">
+        <li>点击"更多"标签，选择"导入攻略"</li>
+        <li>选择要导入的文件</li>
+        <li>系统自动解析并显示预览</li>
+        <li>检查预览结果（绿色=通过，橙色=警告，红色=错误）</li>
+        <li>如有需要可调整内容</li>
+        <li>确认无误后点击"导入"完成</li>
+    </ol>
+
+    <div class="warn-box">
+        <strong>文件限制：</strong>单文件最大 10MB（JSON 5MB），超出限制的文件无法导入。
+    </div>
+</section>
+
+<section id="export">
+    <h2>十、数据导出与备份</h2>
+    
+    <h3>本地导出</h3>
+    <p>在"更多"中选择"导出数据"，可将行程数据导出为 JSON 文件，保存到本地或分享给他人。</p>
+
+    <h3>日历导出</h3>
+    <p>选择"导出日历"，支持两种方式：</p>
+    <ul>
+        <li><strong>.ics 文件</strong>：下载日历文件，导入手机日历应用（含 1 小时提醒）</li>
+        <li><strong>Google Calendar</strong>：直接跳转 Google 日历创建事件</li>
+    </ul>
+
+    <h3>云备份（GitHub Gist）</h3>
+    <p>在"更多"中选择"云备份"，可将数据备份到 GitHub Gist。需要配置 GitHub Token（在设置中输入）。</p>
+
+    <div class="info-box">
+        <strong>数据安全：</strong>所有数据存储在本地（localStorage），不会上传到任何服务器。云备份为可选功能，仅您主动操作时才会执行。
+    </div>
+</section>
+
+<section id="notifications">
+    <h2>十一、提醒通知</h2>
+    
+    <h3>预订截止提醒</h3>
+    <p>对于有截止日期的预订项目，系统会在以下时间发送通知提醒：</p>
+    <ul>
+        <li><strong>截止前 3 天</strong>：首次提醒</li>
+        <li><strong>截止前 1 天</strong>：紧急提醒</li>
+        <li><strong>截止当天</strong>：最后提醒</li>
+    </ul>
+
+    <div class="info-box">
+        <strong>通知去重：</strong>同一提醒不会重复发送，使用标签机制确保每条提醒只通知一次。
+    </div>
+
+    <h3>通知权限</h3>
+    <p>如未收到通知，请检查：设置 → 应用管理 → 旅行助手 → 通知权限 → 确保已开启。</p>
+</section>
+
+<section id="offline">
+    <h2>十二、离线使用</h2>
+    
+    <p>旅行助手专为离线场景设计，以下功能在无网络时均可正常使用：</p>
+    
+    <ul>
+        <li>查看和管理行程</li>
+        <li>预算记录和统计</li>
+        <li>清单勾选和添加</li>
+        <li>日记编写和查看</li>
+        <li>已缓存的地图区域</li>
+        <li>行程提醒通知</li>
+    </ul>
+
+    <div class="warn-box">
+        <strong>需要网络的功能：</strong>天气查询、地图新区域加载、云备份、攻略文件在线下载。建议出发前在有 WiFi 时完成这些操作。
+    </div>
+
+    <div class="tip-box">
+        <strong>飞行模式测试：</strong>可在手机设置中开启飞行模式，验证离线功能是否正常。
+    </div>
+</section>
+
+<section id="faq">
+    <h2>十三、常见问题</h2>
+
+    <div class="faq-item">
+        <q>数据会丢失吗？</q>
+        <a>不会。所有数据存储在本地 localStorage 中，关闭应用或重启手机后数据仍在。但卸载应用会清除数据，建议定期使用"导出数据"功能备份。</a>
+    </div>
+
+    <div class="faq-item">
+        <q>换手机后数据怎么迁移？</q>
+        <a>在旧手机上"导出数据"生成 JSON 文件，将文件传到新手机，在新手机上"导入攻略"选择该文件即可。</a>
+    </div>
+
+    <div class="faq-item">
+        <q>为什么地图加载不出来？</q>
+        <a>地图需要网络连接加载瓦片。请检查网络连接，或确认该区域是否已缓存。建议出发前预览目的地地图。</a>
+    </div>
+
+    <div class="faq-item">
+        <q>通知没有收到？</q>
+        <a>请检查：1) 系统通知权限是否开启；2) 电池优化是否限制了后台运行；3) 系统的勿扰模式是否开启。</a>
+    </div>
+
+    <div class="faq-item">
+        <q>语音备忘功能怎么用？</q>
+        <a>在"更多"中选择"语音备忘"，首次使用需下载中文语音模型（约 50MB），下载完成后即可离线使用语音识别。</a>
+    </div>
+
+    <div class="faq-item">
+        <q>支持 iOS 吗？</q>
+        <a>目前仅提供 Android 版本。Web 版本可通过 Safari 浏览器使用，并"添加到主屏幕"获得类似原生应用的体验。</a>
+    </div>
+
+    <div class="faq-item">
+        <q>如何更新到新版本？</q>
+        <a>Android 版本：下载新 APK 覆盖安装即可，数据会保留。Web 版本：刷新浏览器即可自动更新。</a>
+    </div>
+</section>
+
+</div>
+
+<footer>
+    <p>旅行助手 v1.0 · 个人旅行规划工具</p>
+    <p>本手册最后更新：2026年8月</p>
+</footer>
+
+</body>
+</html>

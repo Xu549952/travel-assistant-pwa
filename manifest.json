@@ -2,7 +2,7 @@
   "name": "旅行助手",
   "short_name": "旅行助手",
   "description": "智能行程规划与管理 PWA，支持行程安排、预算管理、离线地图、AI推荐、日历导出等功能",
-  "start_url": "./",
+  "start_url": "./travel-assistant.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

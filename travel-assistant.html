@@ -6584,7 +6584,8 @@ function initPWA(){
   // PWA: manifest.json is now a static file referenced in <head> via <link rel="manifest">
   // This replaces the previous Blob URL approach which Chrome could not fetch
   // Service Worker - registered from independent sw.js file (cross-browser compatible)
-  // Security: SW caches map tiles (autonavi.com), manifest.json, and PWA icons only
+  // PWA: SW pre-caches app shell (HTML/CSS/JS/icons) for offline installability
+  // Security: Never caches API responses; on-demand libs loaded via network
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js').catch(()=>{console.log('SW registration skipped')});
   }

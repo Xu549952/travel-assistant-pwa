@@ -1,19 +1,30 @@
 // ============================================================
-// 旅行助手 - Service Worker
-// Security: Caches map tiles (autonavi.com) + PWA manifest/icons only
-// Never caches API responses or cross-origin scripts
+// 旅行助手 - Service Worker (v3)
+// PWA: Pre-caches app shell for offline installability
+// Security: Never caches API responses or cross-origin scripts
+// Strategy:
+//   - App shell (HTML/CSS/JS/icons): cache-first (pre-cached on install)
+//   - Map tiles (autonavi.com): stale-while-revalidate
+//   - API requests & everything else: network-only (passthrough)
 // ============================================================
 
-const CACHE = 'travel-assistant-v2';
+const CACHE = 'travel-assistant-v3';
+
+// App shell resources needed for offline loading
 const PRECACHE_URLS = [
+  './travel-assistant.html',
   './manifest.json',
+  './lib/dompurify-3.1.6.min.js',
+  './lib/leaflet-1.9.4.min.js',
+  './lib/leaflet-1.9.4.css',
+  './lib/marked.min.js',
   './lib/icon-192.png',
   './lib/icon-512.png',
   './lib/icon-512-maskable.png'
 ];
 
 self.addEventListener('install', e => {
-  // Pre-cache PWA manifest and icons for offline installability
+  // Pre-cache app shell for offline installability
   e.waitUntil(
     caches.open(CACHE).then(c => c.addAll(PRECACHE_URLS)).then(() => self.skipWaiting())
   );
@@ -33,7 +44,15 @@ self.addEventListener('fetch', e => {
 
   const url = e.request.url;
 
-  // Cache-first for PWA manifest and icons (pre-cached on install)
+  // Navigation requests: serve cached app shell when offline
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match('./travel-assistant.html'))
+    );
+    return;
+  }
+
+  // Cache-first for pre-cached app shell resources
   if (PRECACHE_URLS.some(u => url.endsWith(u.replace('./', '/')))) {
     e.respondWith(
       caches.match(e.request).then(cached => cached || fetch(e.request))
@@ -41,21 +60,22 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Only intercept map tile requests for caching; pass through everything else
-  if (!url.includes('autonavi.com')) {
+  // Stale-while-revalidate for map tiles only
+  if (url.includes('autonavi.com')) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        const fetchPromise = fetch(e.request).then(response => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return response;
+        }).catch(() => cached);
+        return cached || fetchPromise;
+      })
+    );
     return;
   }
 
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      const fetchPromise = fetch(e.request).then(response => {
-        if (response && response.status === 200) {
-          const clone = response.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return response;
-      }).catch(() => cached);
-      return cached || fetchPromise;
-    })
-  );
+  // All other requests: passthrough (API, on-demand libs, etc.)
 });

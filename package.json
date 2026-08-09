@@ -7,8 +7,8 @@
     "lhci": "lhci",
     "test:lighthouse": "lhci autorun",
     "test:lighthouse:mobile": "lhci autorun --collect.settings.preset=perf",
-    "serve": "http-server d:/项目1 -p 8080 --cors -c-1",
-    "serve:lhci": "npx http-server d:/项目1 -p 8080 --cors -c-1"
+    "serve": "http-server . -p 8080 --cors -c-1",
+    "serve:lhci": "npx http-server . -p 8080 --cors -c-1"
   },
   "devDependencies": {
     "@lhci/cli": "^0.13.0",

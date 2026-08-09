@@ -5,7 +5,7 @@
         "http://localhost:8080/travel-assistant.html"
       ],
       "numberOfRuns": 1,
-      "startServerCommand": "npx http-server . -p 8080 --cors -c-1 --gzip",
+      "startServerCommand": "npx http-server -p 8080 --cors -c-1 --gzip",
       "startServerReadyPattern": "Starting up http-server",
       "settings": {
         "preset": "desktop",

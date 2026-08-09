@@ -13,7 +13,8 @@
      (3) 46 inline style attributes make hash-based style-src impractical.
      Mitigation: unsafe-inline risk is offset by DOMPurify sanitization, SRI hashes, and restricted connect-src/img-src.
      Note: unsafe-inline required for single-file architecture; unsafe-eval needed by marked.js -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; manifest-src 'self' blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; media-src 'self' blob:; connect-src 'self' blob: https://api.open-meteo.com https://*.autonavi.com https://open.er-api.com https://api.deepseek.com https://dashscope.aliyuncs.com https://ark.cn-beijing.volces.com https://api.github.com https://ccoreilly.github.io https://cdn.jsdelivr.net https://tessdata.projectnaptha.com; worker-src 'self' blob:; font-src 'self' https: data:;">
+<!-- SEC-CAP-004: script-src tightened - all JS libraries localized to lib/, CDN removed -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; manifest-src 'self' blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; media-src 'self' blob:; connect-src 'self' blob: https://api.open-meteo.com https://*.autonavi.com https://open.er-api.com https://api.deepseek.com https://dashscope.aliyuncs.com https://ark.cn-beijing.volces.com https://api.github.com https://ccoreilly.github.io https://tessdata.projectnaptha.com; worker-src 'self' blob:; font-src 'self' https: data:;">
 <title>旅行助手</title>
 <meta name="description" content="旅行助手 - 智能行程规划与管理 PWA，支持行程安排、预算管理、离线地图、AI推荐、日历导出等功能">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234B3FE3'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white'%3E🧳%3C/text%3E%3C/svg%3E">
@@ -2192,11 +2193,24 @@ body{
   </div>
 </div>
 
+<!-- Capacitor: Cross-platform abstraction layers (notify.js, secure-store.js, file-export.js) -->
+<script src="./lib/notify.js"></script>
+<script src="./lib/secure-store.js"></script>
+<script src="./lib/file-export.js"></script>
+
 <script>
 // ============================================================
 // 旅行助手 - 通用旅行规划 PWA
 // 基于 V6.0 架构，数据驱动，多行程管理，多格式导入
+// Capacitor: Supports native Android via Capacitor bridge
 // ============================================================
+
+// ===== Capacitor Platform Detection =====
+// Detects if running inside Capacitor native WebView (Android)
+var IS_CAPACITOR = typeof window !== 'undefined' &&
+  typeof window.Capacitor !== 'undefined' &&
+  typeof window.Capacitor.isNativePlatform === 'function' &&
+  window.Capacitor.isNativePlatform();
 
 // ===== Utility =====
 function escapeHtml(str){if(str==null)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
@@ -2266,11 +2280,12 @@ function getWeekday(d){const wd=['周日','周一','周二','周三','周四','�
 // Uses Tesseract.js v5 for browser-based OCR — lazy loaded on demand via loadScript()
 // Saves ~67KB JS + ~2MB WASM/core from initial page load; only loaded when user scans a receipt
 // Recognizes Chinese (chi_sim) + English (eng) text from receipt photos
-// CDN: cdn.jsdelivr.net (script/worker/WASM core), tessdata.projectnaptha.com (trained data)
-var TESSERACT_CDN='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+// Capacitor: All Tesseract resources localized to lib/ for offline use
+// Language data (traineddata) remains on CDN — downloaded on-demand and cached by browser
+var TESSERACT_CDN='./lib/tesseract-5.x.min.js';
 var TESSERACT_SRI='sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F';
-var TESSERACT_WORKER_PATH='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js';
-var TESSERACT_CORE_PATH='https://cdn.jsdelivr.net/npm/tesseract.js-core@5/';
+var TESSERACT_WORKER_PATH='./lib/tesseract-worker.min.js';
+var TESSERACT_CORE_PATH='./lib/tesseract-core/';
 var TESSERACT_LANG_PATH='https://tessdata.projectnaptha.com/4.0.0';
 var _tesseractLoaded=false;
 
@@ -2770,9 +2785,11 @@ const AudioDB={
 // Reference: github.com/ccoreilly/vosk-browser
 const VoiceMemo={
   // Configuration
-  VOSK_CDN:'https://cdn.jsdelivr.net/npm/vosk-browser@0.0.5/dist/vosk.js',
-  // Security (SEC-002): SRI integrity hash for Vosk-Browser to prevent CDN tampering
-  VOSK_SRI:'sha384-awOQQGMk/kZXYmAnuMBviyeRMevpXAXw8RX26LU20MMFlmGj7tp41wmP9MevbIEj',
+  // Capacitor: Vosk library localized to lib/ for offline use
+  VOSK_CDN:'./lib/vosk-browser-0.0.7.min.js',
+  // SRI not needed for local files (same-origin)
+  VOSK_SRI:null,
+  // Model downloaded on first use (~40MB), kept on CDN for smaller APK size
   MODEL_URL:'https://ccoreilly.github.io/vosk-browser/models/vosk-model-small-cn-0.3.tar.gz',
 
   // State
@@ -3944,14 +3961,16 @@ const AIStore={
   KEY:'travel_ai_config',
   get(){
     try{
-      const raw=localStorage.getItem(this.KEY);
+      // SEC-CAP-002: API Key stored via SecureStore (Android Keystore in Capacitor)
+      const raw=window.SecureStore ? SecureStore.getSync(this.KEY) : localStorage.getItem(this.KEY);
       if(raw)return JSON.parse(raw);
     }catch(e){}
     return{provider:'deepseek',model:'deepseek-chat',apiKey:''};
   },
   save(config){
-    // Security: API Key only stored in localStorage, never sent anywhere except the LLM API
-    localStorage.setItem(this.KEY,JSON.stringify(config));
+    // Security: API Key only stored in SecureStore/localStorage, never sent anywhere except the LLM API
+    if(window.SecureStore){SecureStore.setSync(this.KEY,JSON.stringify(config))}
+    else{localStorage.setItem(this.KEY,JSON.stringify(config))}
   },
   isConfigured(){
     const c=this.get();
@@ -5940,21 +5959,24 @@ function rebuildSearchIndex(){
 }
 
 // ===== Notifications =====
+// Capacitor: Uses window.Notify abstraction (Web Notification API / @capacitor/local-notifications)
 let notifEnabled=false;
 function initNotifications(){
   const trip=getTrip();if(!trip)return;
   const btn=document.getElementById('notif-toggle-btn');
   const status=document.getElementById('notif-status');
-  if(!('Notification' in window)){btn.textContent='不支持';btn.disabled=true;return}
-  if(Notification.permission==='granted'){notifEnabled=true;btn.textContent='已开启';btn.classList.add('active');showNotifStatus()}
-  else if(Notification.permission==='denied'){btn.textContent='已被拒绝';btn.disabled=true}
+  if(!window.Notify){btn.textContent='不支持';btn.disabled=true;return}
+  if(!Notify.isCapacitor && !('Notification' in window)){btn.textContent='不支持';btn.disabled=true;return}
+  if(Notify.hasPermission()){notifEnabled=true;btn.textContent='已开启';btn.classList.add('active');showNotifStatus()}
+  else if(!Notify.isCapacitor && Notification.permission==='denied'){btn.textContent='已被拒绝';btn.disabled=true}
   btn.addEventListener('click',async()=>{
     if(notifEnabled){
       notifEnabled=false;btn.textContent='开启提醒';btn.classList.remove('active');status.style.display='none';
       showToast('已关闭提醒');
     }else{
-      const perm=await Notification.requestPermission();
-      if(perm==='granted'){
+      const granted=await Notify.requestPermission();
+      if(granted){
+        Notify._setPermission('granted');
         notifEnabled=true;btn.textContent='已开启';btn.classList.add('active');showNotifStatus();
         showToast('✓ 提醒已开启');
         checkDeadlines();
@@ -5993,7 +6015,7 @@ function checkDeadlines(){
         if(diff===0){title='⏰ 今天截止';body=item.text+' 今天截止！'}
         else if(diff===1){title='⏰ 明天截止';body=item.text+' 明天截止，请尽快处理'}
         else{title='⏰ 3天后截止';body=item.text+' 3天后截止，请提前准备'}
-        new Notification(title,{body,tag:key});
+        Notify.notify(key,title,body);
       }
     }
   });
@@ -6590,27 +6612,30 @@ function initPWA(){
   // Service Worker - registered from independent sw.js file (cross-browser compatible)
   // PWA: SW pre-caches app shell (HTML/CSS/JS/icons) for offline installability
   // Security: Never caches API responses; on-demand libs loaded via network
-  if('serviceWorker' in navigator){
+  // Capacitor: SW disabled in native WebView (uses Cache API directly instead)
+  if('serviceWorker' in navigator && !IS_CAPACITOR){
     navigator.serviceWorker.register('./sw.js').catch(()=>{console.log('SW registration skipped')});
   }
-  // Install prompt
-  window.addEventListener('beforeinstallprompt',e=>{
-    e.preventDefault();
-    deferredPrompt=e;
-    document.getElementById('pwa-install-banner').classList.add('show');
-  });
-  document.getElementById('pwa-install-btn').addEventListener('click',async()=>{
-    if(deferredPrompt){
-      deferredPrompt.prompt();
-      const{outcome}=await deferredPrompt.userChoice;
-      if(outcome==='accepted')showToast('✓ 已添加到桌面');
-      deferredPrompt=null;
+  // Install prompt - disabled in Capacitor (native app, no PWA install needed)
+  if(!IS_CAPACITOR){
+    window.addEventListener('beforeinstallprompt',e=>{
+      e.preventDefault();
+      deferredPrompt=e;
+      document.getElementById('pwa-install-banner').classList.add('show');
+    });
+    document.getElementById('pwa-install-btn').addEventListener('click',async()=>{
+      if(deferredPrompt){
+        deferredPrompt.prompt();
+        const{outcome}=await deferredPrompt.userChoice;
+        if(outcome==='accepted')showToast('✓ 已添加到桌面');
+        deferredPrompt=null;
+        document.getElementById('pwa-install-banner').classList.remove('show');
+      }
+    });
+    document.getElementById('pwa-close-btn').addEventListener('click',()=>{
       document.getElementById('pwa-install-banner').classList.remove('show');
-    }
-  });
-  document.getElementById('pwa-close-btn').addEventListener('click',()=>{
-    document.getElementById('pwa-install-banner').classList.remove('show');
-  });
+    });
+  }
 }
 
 // ===== Data Backup Manager =====
@@ -6633,20 +6658,28 @@ const BackupManager={
       currentTripId:TripStore.currentTripId
     };
     const jsonStr=JSON.stringify(data,null,2);
-    const blob=new Blob([jsonStr],{type:'application/json'});
-    const sizeMB=blob.size/1024/1024;
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    a.download='旅行助手备份_'+new Date().toISOString().slice(0,10)+'_'+new Date().toTimeString().slice(0,5).replace(':','')+'.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    const tripCount=TripStore.trips.length;
-    showToast(sizeMB>2?'已导出 '+tripCount+' 个行程（'+sizeMB.toFixed(1)+'MB，含照片）':'✓ 已导出 '+tripCount+' 个行程');
-    const status=document.getElementById('backup-local-status');
-    if(status)status.textContent='上次导出：'+new Date().toLocaleString('zh-CN')+' · '+tripCount+' 个行程';
+    const sizeKB=new Blob([jsonStr]).size/1024;
+    const sizeMB=sizeKB/1024;
+    const filename='旅行助手备份_'+new Date().toISOString().slice(0,10)+'_'+new Date().toTimeString().slice(0,5).replace(':','')+'.json';
+    if(window.FileExport){
+      FileExport.downloadText(filename,jsonStr,'application/json',function(){
+        const tripCount=TripStore.trips.length;
+        showToast(sizeMB>2?'已导出 '+tripCount+' 个行程（'+sizeMB.toFixed(1)+'MB，含照片）':'✓ 已导出 '+tripCount+' 个行程');
+        const status=document.getElementById('backup-local-status');
+        if(status)status.textContent='上次导出：'+new Date().toLocaleString('zh-CN')+' · '+tripCount+' 个行程';
+      });
+    }else{
+      const blob=new Blob([jsonStr],{type:'application/json'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;a.download=filename;
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      const tripCount=TripStore.trips.length;
+      showToast(sizeMB>2?'已导出 '+tripCount+' 个行程（'+sizeMB.toFixed(1)+'MB，含照片）':'✓ 已导出 '+tripCount+' 个行程');
+      const status=document.getElementById('backup-local-status');
+      if(status)status.textContent='上次导出：'+new Date().toLocaleString('zh-CN')+' · '+tripCount+' 个行程';
+    }
   },
 
   // --- Local Backup: Import from file ---
@@ -6809,8 +6842,9 @@ const BackupManager={
   },
 
   // --- Gist Cloud Backup ---
+  // SEC-CAP-002: Token stored via SecureStore (Android Keystore in Capacitor)
   getToken(){
-    return localStorage.getItem(this.TOKEN_KEY)||'';
+    return (window.SecureStore ? SecureStore.getSync(this.TOKEN_KEY) : localStorage.getItem(this.TOKEN_KEY))||'';
   },
   saveToken(token){
     token=token.trim();
@@ -6819,13 +6853,15 @@ const BackupManager={
       showToast('Token 格式异常（通常以 ghp_ 或 github_pat_ 开头）');
       // Allow to proceed anyway - some tokens may have different format
     }
-    localStorage.setItem(this.TOKEN_KEY,token);
+    if(window.SecureStore){SecureStore.setSync(this.TOKEN_KEY,token)}
+    else{localStorage.setItem(this.TOKEN_KEY,token)}
     showToast('✓ Token 已保存');
     this.updateGistStatus();
     return true;
   },
   clearToken(){
-    localStorage.removeItem(this.TOKEN_KEY);
+    if(window.SecureStore){SecureStore.removeSync(this.TOKEN_KEY)}
+    else{localStorage.removeItem(this.TOKEN_KEY)}
     localStorage.removeItem(this.GIST_ID_KEY);
     localStorage.removeItem(this.GIST_TIME_KEY);
     const input=document.getElementById('gist-token-input');
@@ -9814,7 +9850,7 @@ var CalendarExport={
     ics+='END:VCALENDAR';
     return ics;
   },
-  // Download ICS file
+  // Download ICS file (Capacitor: writes to Documents directory)
   downloadICS:function(){
     var trip=getTrip();
     if(!trip){showToast('请先选择行程');return}
@@ -9823,14 +9859,19 @@ var CalendarExport={
       showToast('当前行程暂无可导出的活动');
       return;
     }
-    var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
-    var url=URL.createObjectURL(blob);
-    var a=document.createElement('a');
-    a.href=url;
-    a.download=(trip.title||'行程')+'.ics';
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('日历文件已下载');
+    var filename=(trip.title||'行程')+'.ics';
+    if(window.FileExport){
+      FileExport.downloadText(filename,ics,'text/calendar;charset=utf-8',function(uri){
+        showToast(FileExport.isCapacitor?'日历文件已保存到文档目录':'日历文件已下载');
+      });
+    }else{
+      var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a');
+      a.href=url;a.download=filename;a.click();
+      URL.revokeObjectURL(url);
+      showToast('日历文件已下载');
+    }
   },
   // Format date for Google Calendar: YYYYMMDDTHHMMSSZ (UTC)
   formatGCDate:function(dateStr,timeStr){

@@ -14,11 +14,13 @@
     "serve:lhci": "npx http-server . -p 8080 --cors -c-1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.0",
     "@lhci/cli": "^0.13.0",
     "http-server": "^14.1.1",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
-    "lighthouse": "^11.0.0"
+    "lighthouse": "^11.0.0",
+    "typescript": "^7.0.2"
   },
   "jest": {
     "testEnvironment": "node",
@@ -30,6 +32,17 @@
     ]
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/geolocation": "^8.2.1",
+    "@capacitor/local-notifications": "^8.2.1",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3",
+    "capacitor-secure-storage-plugin": "^0.13.0"
   }
 }

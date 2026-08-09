@@ -30,3 +30,21 @@ Desktop.ini
 
 # Backups
 备份_*/
+
+# Trae generated share packages
+.trae-html-share-packages/
+
+# Capacitor / Android
+android/app/build/
+android/.gradle/
+android/local.properties
+android/captures/
+android/app/release/
+www/
+*.jks
+*.keystore
+travel-assistant.jks
+travel-assistant.keystore
+keystore.properties
+*.apk
+*.aab

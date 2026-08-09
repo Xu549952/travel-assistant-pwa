@@ -1,6 +1,7 @@
 // ============================================================
-// 旅行助手 - Service Worker (v3)
+// 旅行助手 - Service Worker (v4)
 // PWA: Pre-caches app shell for offline installability
+// Capacitor: SW disabled in native WebView (see IS_CAPACITOR guard in HTML)
 // Security: Never caches API responses or cross-origin scripts
 // Strategy:
 //   - App shell (HTML/CSS/JS/icons): cache-first (pre-cached on install)
@@ -8,16 +9,21 @@
 //   - API requests & everything else: network-only (passthrough)
 // ============================================================
 
-const CACHE = 'travel-assistant-v3';
+const CACHE = 'travel-assistant-v4';
 
 // App shell resources needed for offline loading
 const PRECACHE_URLS = [
+  './',
+  './index.html',
   './travel-assistant.html',
   './manifest.json',
   './lib/dompurify-3.1.6.min.js',
   './lib/leaflet-1.9.4.min.js',
   './lib/leaflet-1.9.4.css',
   './lib/marked.min.js',
+  './lib/notify.js',
+  './lib/secure-store.js',
+  './lib/file-export.js',
   './lib/icon-192.png',
   './lib/icon-512.png',
   './lib/icon-512-maskable.png'

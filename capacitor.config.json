@@ -1,0 +1,27 @@
+{
+  "appId": "com.zhonggu.travelassistant",
+  "appName": "旅行助手",
+  "webDir": "www",
+  "loggingBehavior": "none",
+  "android": {
+    "webContentsDebuggingEnabled": false,
+    "allowMixedContent": false,
+    "minWebViewVersion": 60
+  },
+  "server": {
+    "hostname": "localhost",
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1000,
+      "backgroundColor": "#4B3FE3",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#4B3FE3"
+    }
+  }
+}

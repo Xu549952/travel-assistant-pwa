@@ -2,7 +2,7 @@
   "ci": {
     "collect": {
       "url": [
-        "http://localhost:8080/%E6%97%85%E8%A1%8C%E5%8A%A9%E6%89%8B.html"
+        "http://localhost:8080/travel-assistant.html"
       ],
       "numberOfRuns": 1,
       "startServerCommand": "npx http-server . -p 8080 --cors -c-1 --gzip",

@@ -17,7 +17,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; manifest-src 'self' blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; media-src 'self' blob:; connect-src 'self' blob: https://api.open-meteo.com https://*.autonavi.com https://open.er-api.com https://api.deepseek.com https://dashscope.aliyuncs.com https://ark.cn-beijing.volces.com https://api.github.com https://ccoreilly.github.io https://tessdata.projectnaptha.com; worker-src 'self' blob:; font-src 'self' https: data:;">
 <title>旅行助手</title>
 <meta name="description" content="旅行助手 - 智能行程规划与管理 PWA，支持行程安排、预算管理、离线地图、AI推荐、日历导出等功能">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234B3FE3'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white'%3E🧳%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234B3FE3'/%3E%3Cstop offset='1' stop-color='%236F6FFF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Cpath d='M50 20C36 20 25 31 25 45C25 60 50 80 50 80C50 80 75 60 75 45C75 31 64 20 50 20Z' fill='white'/%3E%3Cpath d='M50 32L53 42L63 45L53 48L50 58L47 48L37 45L47 42Z' fill='%234B3FE3'/%3E%3C/svg%3E">
 <!-- PWA: Static manifest file (replaces dynamic Blob URL for Lighthouse installability) -->
 <link rel="manifest" href="manifest.json">
 <!-- PWA: Apple touch icon for iOS -->
@@ -208,10 +208,16 @@ body{
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px}
 .stat-card{background:var(--white);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);text-align:center}
 .stat-card .label{font-size:11px;color:var(--t3);margin-bottom:4px}
-.stat-card .value{font-size:18px;font-weight:700;color:var(--p)}
+.stat-card .value{font-size:18px;font-weight:700;color:var(--p);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .stat-card .unit{font-size:12px;color:var(--t2);font-weight:400}
 .stat-card.paid .value{color:var(--green)}
 .stat-card.pending .value{color:var(--orange)}
+/* Responsive: smaller stat values on narrow screens */
+@media(max-width:360px){
+  .stat-card .value{font-size:15px}
+  .budget-hero .total{font-size:26px}
+  .section-header{font-size:14px}
+}
 /* ===== Section Header ===== */
 .section-header{
   font-size:15px;font-weight:600;color:var(--t1);
@@ -236,8 +242,14 @@ body{
 .tl-item{position:relative;padding-left:52px;margin-bottom:12px}
 .tl-dot{position:absolute;left:20px;top:14px;width:20px;height:20px;border-radius:50%;background:var(--white);border:3px solid var(--p);z-index:1}
 .tl-dot.highlight{background:var(--p);border-color:var(--pl)}
-.tl-card{background:var(--white);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);cursor:pointer;transition:box-shadow .2s}
+.tl-card{background:var(--white);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);cursor:pointer;transition:box-shadow .2s;position:relative}
 .tl-card:active{box-shadow:var(--shadow-lg)}
+.tl-edit-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:none;background:var(--pb);color:var(--p);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;z-index:2}
+.tl-item.expanded .tl-edit-btn{opacity:1}
+@media(hover:hover){.tl-card:hover .tl-edit-btn{opacity:1}}
+.tl-edit-btn:active{background:var(--pbr)}
+.tl-add-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% - 32px);margin:8px 16px 12px;padding:12px;border:2px dashed var(--pbr);border-radius:var(--radius);background:transparent;color:var(--p);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.tl-add-btn:active{border-color:var(--p);background:var(--pb)}
 .tl-time{font-size:12px;font-weight:600;color:var(--p);margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 .tl-time .badge{background:var(--pb);color:var(--p);padding:2px 8px;border-radius:var(--radius-full);font-size:10px}
 .tl-time .badge.free{background:#E8F5E9;color:var(--green)}
@@ -287,9 +299,10 @@ body{
 .day-budget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .day-budget-label{font-size:13px;font-weight:600;color:var(--t1)}
 .day-budget-theme{font-size:11px;font-weight:400;color:var(--t3)}
-.day-budget-ratio{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--radius-full);background:#E8F5E9;color:var(--green)}
+.day-budget-ratio{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--radius-full);background:#E8F5E9;color:var(--green);white-space:nowrap}
 .day-budget-ratio.near{background:#FFF3E0;color:var(--orange)}
 .day-budget-ratio.over{background:#FFEBEE;color:#f44336}
+.day-budget-ratio.not-started{background:#F0F0F0;color:var(--t3)}
 .day-budget-inputs{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--t2);margin-bottom:8px}
 .day-budget-inputs label{display:flex;align-items:center;gap:4px;color:var(--t2)}
 .day-budget-input{width:70px;padding:4px 8px;border:1px solid var(--pbr);border-radius:var(--radius-sm);font-size:12px;background:var(--pb);color:var(--t1);font-family:inherit;outline:none;text-align:center}
@@ -306,9 +319,10 @@ body{
 .tl-day-budget{margin:0 16px 12px;padding:12px 14px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border-left:3px solid var(--p)}
 .tl-day-budget-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .tl-day-budget-label{font-size:13px;font-weight:600;color:var(--t1)}
-.tl-day-budget-ratio{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--radius-full);background:#E8F5E9;color:var(--green)}
+.tl-day-budget-ratio{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--radius-full);background:#E8F5E9;color:var(--green);white-space:nowrap}
 .tl-day-budget-ratio.near{background:#FFF3E0;color:var(--orange)}
 .tl-day-budget-ratio.over{background:#FFEBEE;color:#f44336}
+.tl-day-budget-ratio.not-started{background:#F0F0F0;color:var(--t3)}
 .tl-day-budget-amounts{display:flex;justify-content:space-between;font-size:12px;color:var(--t3);margin-bottom:6px}
 .tl-day-budget-amounts strong{color:var(--t1);font-variant-numeric:tabular-nums}
 .tl-day-budget-amounts .neg strong{color:#f44336}
@@ -493,7 +507,22 @@ body{
 .emergency-item .name{color:var(--t2)}
 .emergency-item .phone{color:var(--p);font-weight:600;font-family:monospace}
 /* ===== Map Page ===== */
-#map-container{margin:0;height:calc(100vh - 180px);border-radius:0;z-index:1}
+.map-section-wrapper{position:relative;margin:0;transition:all .3s ease}
+.map-section-wrapper.collapsed #map-container{height:0;min-height:0;overflow:hidden}
+.map-section-wrapper.collapsed .map-day-selector,
+.map-section-wrapper.collapsed .map-category-filter,
+.map-section-wrapper.collapsed .map-day-info{display:none!important}
+#map-container{margin:0;height:400px;min-height:300px;border-radius:0;z-index:1;transition:height .3s ease}
+.map-toggle-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;padding:10px 16px;background:var(--white);
+  border:none;border-bottom:1px solid var(--pbr);
+  font-size:13px;font-weight:600;color:var(--p);cursor:pointer;
+  position:sticky;top:0;z-index:10;transition:background .2s
+}
+.map-toggle-btn:active{background:var(--pb)}
+.map-toggle-btn .arrow{transition:transform .3s ease;display:inline-block}
+.map-section-wrapper.collapsed .map-toggle-btn .arrow{transform:rotate(180deg)}
 .map-legend{margin:0 16px 12px;padding:12px 14px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow)}
 .map-legend .ml-title{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:8px}
 .map-legend-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;color:var(--t2)}
@@ -660,10 +689,14 @@ body{
 .gist-link-badge.off{background:var(--pbr);color:var(--t3)}
 /* P1-2: Conflict detection */
 .tl-item.has-conflict .tl-card{border-left:3px solid var(--orange,#FF9800);padding-left:8px}
+.tl-item.has-notice .tl-card{border-left:3px solid #2196F3;padding-left:8px}
 .tl-conflict-badge{display:inline-flex;align-items:center;gap:3px;margin-left:6px;padding:1px 6px;border-radius:999px;background:rgba(255,152,0,.15);color:var(--orange,#FF9800);font-size:10px;font-weight:600;white-space:nowrap}
+.tl-conflict-badge.notice{background:rgba(33,150,243,.15);color:#2196F3}
 .tl-conflict-detail{display:none;margin-top:6px;padding:8px 10px;border-radius:var(--radius);background:rgba(255,152,0,.08);border-left:3px solid var(--orange,#FF9800);font-size:12px;color:var(--t2,#666);line-height:1.6}
+.tl-conflict-detail.notice{background:rgba(33,150,243,.08);border-left-color:#2196F3}
 .tl-item.expanded .tl-conflict-detail{display:block}
 .tl-conflict-banner{margin:0 16px 8px;padding:8px 12px;border-radius:var(--radius);background:rgba(255,152,0,.1);border:1px solid rgba(255,152,0,.2);font-size:12px;color:var(--orange,#FF9800);display:flex;align-items:center;gap:6px}
+.tl-conflict-banner.notice-only{background:rgba(33,150,243,.1);border-color:rgba(33,150,243,.2);color:#2196F3}
 /* P2-4: Trip comparison */
 .compare-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
 .compare-table th{background:var(--p,#4B3FE3);color:#fff;padding:8px 6px;text-align:center;font-weight:500;font-size:12px}
@@ -746,6 +779,7 @@ body{
 :root[data-theme="dark"] .tl-dot{border-color:var(--pl);background:#252538}
 :root[data-theme="dark"] .stats-donut::after{background:#252538}
 :root[data-theme="dark"] #map-container{background:#1a1a2e}
+:root[data-theme="dark"] .map-toggle-btn{background:#252538;color:var(--pl);border-bottom-color:#2d2d44}
 :root[data-theme="dark"] .leaflet-tile{filter:invert(.9) hue-rotate(180deg) brightness(.9) contrast(.9)}
 :root[data-theme="dark"] .leaflet-popup-content-wrapper{background:#252538;color:var(--t1);border:1px solid #2d2d44}
 :root[data-theme="dark"] .leaflet-popup-tip{background:#252538}
@@ -766,6 +800,10 @@ body{
 :root[data-theme="dark"] .tl-day-budget{background:#1a1a2e;border-left-color:var(--pl)}
 :root[data-theme="dark"] .daily-bar-track{border-bottom-color:#2d2d44}
 :root[data-theme="dark"] .day-budget-ratio,:root[data-theme="dark"] .tl-day-budget-ratio{opacity:.85}
+:root[data-theme="dark"] .tl-card{background:#1a1a2e}
+:root[data-theme="dark"] .tl-edit-btn{background:#252538;color:var(--pl)}
+:root[data-theme="dark"] .tl-add-btn{border-color:#2d2d44;color:var(--pl);background:transparent}
+:root[data-theme="dark"] .day-budget-ratio.not-started,:root[data-theme="dark"] .tl-day-budget-ratio.not-started{background:#252538;color:var(--t3)}
 .swipe-hint{text-align:center;font-size:11px;color:var(--t3);padding:4px 0 8px}
 .empty-space{height:20px}
 /* ===== Diary ===== */
@@ -1683,10 +1721,15 @@ body{
       <div id="offline-map-status">准备中...</div>
       <div class="offline-map-progress-bar"><div class="offline-map-progress-fill" id="offline-map-fill"></div></div>
     </div>
+    <div class="map-section-wrapper" id="map-section-wrapper">
+    <button class="map-toggle-btn" id="map-toggle-btn" type="button">
+      <span>🗺️ 行程地图</span><span class="arrow">▼</span>
+    </button>
     <div class="map-day-selector" id="map-day-selector"></div>
     <div class="map-category-filter" id="map-category-filter"></div>
     <div class="map-day-info" id="map-day-info" style="display:none"></div>
     <div id="map-container"></div>
+    </div>
     <div class="map-legend" id="map-legend"></div>
     <div class="divider"></div>
     <div class="section-header"><span>📍</span><span data-i18n="nearby_title">附近推荐</span></div>
@@ -1919,6 +1962,24 @@ body{
     <div class="modal-btns">
       <button class="modal-btn cancel" id="guide-viewer-close">关闭</button>
       <button class="modal-btn confirm" id="guide-viewer-delete" style="background:var(--danger,#e53935)">🗑️ 删除缓存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Timeline Item Edit Modal -->
+<div class="modal-overlay" id="tl-edit-overlay">
+  <div class="modal">
+    <h3>✏️ 编辑行程项</h3>
+    <div class="modal-field"><label>时间</label><input type="text" id="tl-edit-time" placeholder="如：09:00-11:00"></div>
+    <div class="modal-field"><label>活动名称</label><input type="text" id="tl-edit-title" placeholder="如：参观博物馆"></div>
+    <div class="modal-field"><label>地点/标签</label><input type="text" id="tl-edit-badge" placeholder="如：博物馆路1号"></div>
+    <div class="modal-field"><label>费用</label><input type="text" id="tl-edit-cost" placeholder="如：¥50"></div>
+    <div class="modal-field"><label>描述</label><textarea id="tl-edit-desc" rows="2" placeholder="简短描述"></textarea></div>
+    <div class="modal-field"><label>详情</label><textarea id="tl-edit-detail" rows="3" placeholder="详细说明（支持HTML）"></textarea></div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" id="tl-edit-delete" style="background:var(--red,#e53935);color:#fff">🗑️ 删除</button>
+      <button class="modal-btn cancel" id="tl-edit-cancel">取消</button>
+      <button class="modal-btn confirm" id="tl-edit-save">保存</button>
     </div>
   </div>
 </div>
@@ -4894,17 +4955,24 @@ function renderTimeline(day){
   const container=document.getElementById('timeline-container');
   // P1-2: Detect conflicts for this day
   const dayConflicts=ConflictDetector.getConflicts(trip,day);
-  const conflictItemMap={}; // item index → conflict messages
+  // Separate actual conflicts from notices
+  var actualConflicts=dayConflicts.filter(function(c){return c.type==='overlap'});
+  var notices=dayConflicts.filter(function(c){return c.type!=='overlap'});
+  const conflictItemMap={}; // item index → {messages, types}
   dayConflicts.forEach(function(c){
     c.items.forEach(function(idx){
-      if(!conflictItemMap[idx])conflictItemMap[idx]=[];
-      conflictItemMap[idx].push(c.message);
+      if(!conflictItemMap[idx])conflictItemMap[idx]={messages:[],hasConflict:false};
+      conflictItemMap[idx].messages.push(c.message);
+      if(c.type==='overlap')conflictItemMap[idx].hasConflict=true;
     });
   });
   let html='<div class="section-header"><span>📍</span>'+escapeHtml(data.title)+(data.theme?'<br><span style="font-size:13px;font-weight:400;color:var(--t2)">'+escapeHtml(data.theme)+'</span>':'')+'</div>';
-  // P1-2: Show conflict banner if conflicts exist
-  if(dayConflicts.length){
-    html+='<div class="tl-conflict-banner">⚠️ 检测到 '+dayConflicts.length+' 个潜在冲突，点击活动查看详情</div>';
+  // P1-2: Show conflict/notice banner
+  if(actualConflicts.length||notices.length){
+    var bannerParts=[];
+    if(actualConflicts.length)bannerParts.push('⚠️ '+actualConflicts.length+' 个时间冲突');
+    if(notices.length)bannerParts.push('💡 '+notices.length+' 个行程提示');
+    html+='<div class="tl-conflict-banner'+(actualConflicts.length?'':' notice-only')+'">'+bannerParts.join('，')+'，点击活动查看详情</div>';
   }
   // Per-day budget summary
   const dayBudget=getDayBudget(day);
@@ -4912,9 +4980,11 @@ function renderTimeline(day){
   if(dayBudget>0||daySpent>0){
     const ratio=dayBudget>0?daySpent/dayBudget:(daySpent>0?1:0);
     const pct=Math.min(ratio*100,100);
-    let barColor='var(--green)',ratioCls='',statusText='充足';
-    if(ratio>=1){barColor='#f44336';ratioCls='over';statusText='超支'}
+    let barColor='var(--green)',ratioCls='',statusText='未开始';
+    if(ratio===0){barColor='var(--t3)';ratioCls='not-started';statusText='未开始'}
+    else if(ratio>=1){barColor='#f44336';ratioCls='over';statusText='超支'}
     else if(ratio>=0.8){barColor='var(--orange)';ratioCls='near';statusText='临近'}
+    else{statusText='充足'}
     const remaining=dayBudget-daySpent;
     html+='<div class="tl-day-budget" data-pct="'+pct+'" data-color="'+barColor+'">';
     html+='<div class="tl-day-budget-top">';
@@ -4936,24 +5006,29 @@ function renderTimeline(day){
       const cls=item.badgeType==='free'?' free':(item.badgeType==='must'?' must':'');
       badges='<span class="badge'+cls+'">'+escapeHtml(item.badge)+'</span>';
     }
-    var hasConflict=conflictItemMap[i];
-    html+='<div class="tl-item'+(hasConflict?' has-conflict':'')+'" data-idx="'+i+'">';
+    var conflictInfo=conflictItemMap[i];
+    var hasConflict=conflictInfo;
+    var hasRealConflict=conflictInfo&&conflictInfo.hasConflict;
+    html+='<div class="tl-item'+(hasConflict?(hasRealConflict?' has-conflict':' has-notice':'')+'" data-idx="'+i+'">';
     html+='<div class="tl-dot'+(i===0?' highlight':'')+'"></div>';
     html+='<div class="tl-card">';
+    html+='<button class="tl-edit-btn" data-idx="'+i+'" type="button" aria-label="编辑">✏️</button>';
     html+='<div class="tl-time">'+escapeHtml(item.time||'')+badges;
-    if(hasConflict)html+='<span class="tl-conflict-badge">⚠️ 冲突</span>';
+    if(hasConflict)html+='<span class="tl-conflict-badge'+(hasRealConflict?'':' notice')+'">'+(hasRealConflict?'⚠️ 冲突':'💡 提示')+'</span>';
     html+='</div>';
     html+='<div class="tl-title">'+escapeHtml(item.title)+'</div>';
     html+='<div class="tl-desc">'+sanitizeHtml(item.desc)+'</div>';
     if(item.cost)html+='<span class="tl-cost">'+escapeHtml(item.cost)+'</span>';
     if(item.detail)html+='<div class="tl-detail">'+sanitizeHtml(item.detail)+'</div>';
-    // P1-2: Conflict detail
+    // P1-2: Conflict/notice detail
     if(hasConflict){
-      html+='<div class="tl-conflict-detail">'+hasConflict.map(function(m){return '<div>'+m+'</div>'}).join('')+'</div>';
+      html+='<div class="tl-conflict-detail'+(hasRealConflict?'':' notice')+'">'+hasConflict.messages.map(function(m){return '<div>'+m+'</div>'}).join('')+'</div>';
     }
     html+='</div></div>';
   });
   html+='</div>';
+  // Add new timeline item button
+  html+='<button class="tl-add-btn" id="tl-add-btn" type="button">➕ 添加行程项</button>';
   // Hotel info
   const dayHotels=trip.hotels.filter(h=>h.checkInDays&&h.checkInDays.includes(day));
   if(dayHotels.length){
@@ -4979,6 +5054,105 @@ function renderTimeline(day){
     if(detail||conflictDetail){
       card.addEventListener('click',()=>item.classList.toggle('expanded'));
     }
+  });
+  // Bind edit buttons
+  container.querySelectorAll('.tl-edit-btn').forEach(btn=>{
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      openTimelineEditModal(day,parseInt(btn.dataset.idx));
+    });
+  });
+  // Bind add button
+  var addBtn=container.querySelector('#tl-add-btn');
+  if(addBtn){
+    addBtn.addEventListener('click',function(){
+      openTimelineAddModal(day);
+    });
+  }
+}
+
+// Timeline item edit functionality
+var _tlEditDay=-1,_tlEditIdx=-1;
+function openTimelineEditModal(day,idx){
+  var trip=getTrip();if(!trip||!trip.days[day]||!trip.days[day].items[idx])return;
+  var item=trip.days[day].items[idx];
+  _tlEditDay=day;_tlEditIdx=idx;
+  document.querySelector('#tl-edit-overlay h3').textContent='✏️ 编辑行程项';
+  document.getElementById('tl-edit-delete').style.display='';
+  document.getElementById('tl-edit-time').value=item.time||'';
+  document.getElementById('tl-edit-title').value=item.title||'';
+  document.getElementById('tl-edit-badge').value=item.badge||'';
+  document.getElementById('tl-edit-cost').value=item.cost||'';
+  document.getElementById('tl-edit-desc').value=item.desc||'';
+  document.getElementById('tl-edit-detail').value=item.detail||'';
+  document.getElementById('tl-edit-overlay').classList.add('show');
+}
+function openTimelineAddModal(day){
+  _tlEditDay=day;_tlEditIdx=-1;
+  document.querySelector('#tl-edit-overlay h3').textContent='➕ 添加行程项';
+  document.getElementById('tl-edit-delete').style.display='none';
+  document.getElementById('tl-edit-time').value='';
+  document.getElementById('tl-edit-title').value='';
+  document.getElementById('tl-edit-badge').value='';
+  document.getElementById('tl-edit-cost').value='';
+  document.getElementById('tl-edit-desc').value='';
+  document.getElementById('tl-edit-detail').value='';
+  document.getElementById('tl-edit-overlay').classList.add('show');
+}
+function bindTimelineEditModal(){
+  var overlay=document.getElementById('tl-edit-overlay');
+  if(!overlay)return;
+  // Cancel
+  document.getElementById('tl-edit-cancel').addEventListener('click',function(){
+    overlay.classList.remove('show');
+  });
+  // Click outside to close
+  overlay.addEventListener('click',function(e){
+    if(e.target===overlay)overlay.classList.remove('show');
+  });
+  // Save
+  document.getElementById('tl-edit-save').addEventListener('click',function(){
+    if(_tlEditDay<0)return;
+    var trip=getTrip();if(!trip||!trip.days[_tlEditDay])return;
+    var title=document.getElementById('tl-edit-title').value.trim();
+    if(!title){showToast('请输入活动名称');return}
+    var item;
+    if(_tlEditIdx>=0){
+      // Edit existing
+      item=trip.days[_tlEditDay].items[_tlEditIdx];
+      if(!item)return;
+    }else{
+      // Add new
+      item={};
+      trip.days[_tlEditDay].items.push(item);
+    }
+    item.time=document.getElementById('tl-edit-time').value.trim();
+    item.title=title;
+    var badgeVal=document.getElementById('tl-edit-badge').value.trim();
+    if(badgeVal){item.badge=badgeVal;item.badgeType=item.badgeType||''}
+    else if('badge' in item)delete item.badge;
+    var costVal=document.getElementById('tl-edit-cost').value.trim();
+    if(costVal)item.cost=costVal;else if('cost' in item)delete item.cost;
+    item.desc=document.getElementById('tl-edit-desc').value.trim();
+    var detailVal=document.getElementById('tl-edit-detail').value.trim();
+    if(detailVal)item.detail=detailVal;else if('detail' in item)delete item.detail;
+    saveTripData();
+    renderTimeline(_tlEditDay);
+    rebuildSearchIndex();
+    overlay.classList.remove('show');
+    showToast(_tlEditIdx>=0?'✓ 已更新行程项':'✓ 已添加行程项');
+  });
+  // Delete
+  document.getElementById('tl-edit-delete').addEventListener('click',function(){
+    if(_tlEditDay<0||_tlEditIdx<0)return;
+    var trip=getTrip();if(!trip||!trip.days[_tlEditDay])return;
+    if(!confirm('确定删除此行程项？'))return;
+    trip.days[_tlEditDay].items.splice(_tlEditIdx,1);
+    saveTripData();
+    renderTimeline(_tlEditDay);
+    rebuildSearchIndex();
+    overlay.classList.remove('show');
+    showToast('✓ 已删除行程项');
   });
 }
 
@@ -5077,15 +5251,17 @@ function renderDayBudgets(){
     const ratio=budget>0?spent/budget:0;
     const pct=Math.min(ratio*100,100);
     let barColor='var(--green)';
-    let statusText='充足';
-    if(ratio>=1){barColor='var(--red)';statusText='超支'}
+    let statusText='未开始';
+    if(ratio===0){barColor='var(--t3)';statusText='未开始'}
+    else if(ratio>=1){barColor='var(--red)';statusText='超支'}
     else if(ratio>=0.8){barColor='var(--orange)';statusText='临近'}
+    else{statusText='充足'}
     totalBudget+=budget;totalSpent+=spent;
     const dayLabel=d.title||('Day '+(i+1));
     html+='<div class="day-budget-row">';
     html+='<div class="day-budget-header">';
     html+='<span class="day-budget-label">📅 '+escapeHtml(dayLabel)+(d.theme?' <span class="day-budget-theme">'+escapeHtml(d.theme)+'</span>':'')+'</span>';
-    html+='<span class="day-budget-ratio '+(ratio>=1?'over':ratio>=0.8?'near':'')+''+'">'+Math.round(ratio*100)+'% '+statusText+'</span>';
+    html+='<span class="day-budget-ratio '+(ratio>=1?'over':ratio>=0.8?'near':ratio===0?'not-started':'')+'">'+Math.round(ratio*100)+'% '+statusText+'</span>';
     html+='</div>';
     html+='<div class="day-budget-inputs">';
     html+='<label>预算 <input type="number" class="day-budget-input" data-day="'+i+'" value="'+(budget||'')+'" placeholder="0" min="0" step="1"></label>';
@@ -7547,8 +7723,23 @@ function bindEvents(){
   // Offline map
   document.getElementById('offline-map-btn').addEventListener('click',cacheOfflineMaps);
 
+  // Map collapsible toggle
+  var mapToggleBtn=document.getElementById('map-toggle-btn');
+  var mapWrapper=document.getElementById('map-section-wrapper');
+  if(mapToggleBtn&&mapWrapper){
+    mapToggleBtn.addEventListener('click',function(){
+      mapWrapper.classList.toggle('collapsed');
+      if(!mapWrapper.classList.contains('collapsed')&&map){
+        setTimeout(function(){map.invalidateSize()},350);
+      }
+    });
+  }
+
   // Nearby recommendations
   NearbyModule.bind();
+
+  // Timeline edit modal
+  bindTimelineEditModal();
 
   // ===== P1 Event Listeners =====
 
@@ -9734,13 +9925,33 @@ var ConflictDetector={
     for(var i=0;i<timedItems.length-1;i++){
       var a=timedItems[i];
       var b=timedItems[i+1];
+      var isMealA=self.isMealActivity(a.item);
+      var isMealB=self.isMealActivity(b.item);
       // Check time overlap
       if(a.end>b.start){
-        conflicts.push({
-          type:'overlap',
-          items:[a.idx,b.idx],
-          message:'⚠️ 时间冲突：「'+escapeHtml(a.item.title||'')+'」('+(a.item.time||'')+') 与「'+escapeHtml(b.item.title||'')+'」('+(b.item.time||'')+') 时间重叠'
-        });
+        var overlapMin=a.end-b.start;
+        if(isMealA||isMealB){
+          // Meal overlap - treat as a notice, not a conflict
+          conflicts.push({
+            type:'meal_notice',
+            items:[a.idx,b.idx],
+            message:'🍽️ 用餐安排：「'+escapeHtml(a.item.title||'')+'」与「'+escapeHtml(b.item.title||'')+'」时间有重叠，旅行中用餐时段穿插属正常安排'
+          });
+        }else if(overlapMin<=30){
+          // Small overlap - treat as a compact schedule notice
+          conflicts.push({
+            type:'compact_notice',
+            items:[a.idx,b.idx],
+            message:'⏰ 时间紧凑：「'+escapeHtml(a.item.title||'')+'」('+(a.item.time||'')+') 与「'+escapeHtml(b.item.title||'')+'」('+(b.item.time||'')+') 有 '+overlapMin+' 分钟重叠，建议适当调整'
+          });
+        }else{
+          // Significant overlap - actual conflict
+          conflicts.push({
+            type:'overlap',
+            items:[a.idx,b.idx],
+            message:'⚠️ 时间冲突：「'+escapeHtml(a.item.title||'')+'」('+(a.item.time||'')+') 与「'+escapeHtml(b.item.title||'')+'」('+(b.item.time||'')+') 时间重叠 '+overlapMin+' 分钟'
+          });
+        }
       }else if(b.start-a.end<30){
         // Check insufficient gap (< 30 min) with different locations
         var locA=a.item.badge||'';
@@ -9748,14 +9959,20 @@ var ConflictDetector={
         if(locA&&locB&&locA!==locB){
           var gap=b.start-a.end;
           conflicts.push({
-            type:'gap',
+            type:'transport_notice',
             items:[a.idx,b.idx],
-            message:'⏱️ 交通时间不足：「'+escapeHtml(a.item.title||'')+'」结束到「'+escapeHtml(b.item.title||'')+'」开始仅 '+gap+' 分钟，地点不同可能需要更多交通时间'
+            message:'💡 交通提示：「'+escapeHtml(a.item.title||'')+'」结束后到「'+escapeHtml(b.item.title||'')+'」仅 '+gap+' 分钟，两地不同请注意预留交通时间'
           });
         }
       }
     }
     return conflicts;
+  },
+  // Check if an item is a meal/dining activity
+  isMealActivity:function(item){
+    if(!item)return false;
+    var text=(item.title||'')+(item.desc||'')+(item.badge||'');
+    return /餐|饭|吃|早[上午]?|午[餐饭]?|晚[上餐饭]?|美食|用[歺餐]|lunch|dinner|breakfast/i.test(text);
   },
   // Get conflicts for a specific day index
   getConflicts:function(trip,dayIdx){

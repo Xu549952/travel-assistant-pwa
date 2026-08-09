@@ -23,17 +23,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Debug - List files and config
-        run: |
-          echo "=== Current directory ==="
-          pwd
-          echo "=== Files in root ==="
-          ls -la *.html *.json 2>/dev/null
-          echo "=== lighthouserc.json content ==="
-          cat lighthouserc.json
-          echo "=== package.json scripts ==="
-          cat package.json | grep -A5 '"scripts"'
-
       - name: Run Lighthouse CI
         run: npx @lhci/cli autorun
         env:
@@ -52,16 +41,25 @@ jobs:
         run: |
           echo "## Lighthouse CI Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ -d ".lighthouseci" ]; then
-            echo "Reports generated successfully." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "| Category | Threshold | Status |" >> $GITHUB_STEP_SUMMARY
-            echo "|----------|-----------|--------|" >> $GITHUB_STEP_SUMMARY
-            echo "| Performance | >= 85 | Required |" >> $GITHUB_STEP_SUMMARY
-            echo "| Accessibility | >= 90 | Required |" >> $GITHUB_STEP_SUMMARY
-            echo "| Best Practices | >= 80 | Warning |" >> $GITHUB_STEP_SUMMARY
-            echo "| SEO | >= 80 | Warning |" >> $GITHUB_STEP_SUMMARY
-            echo "| PWA | >= 70 | Warning |" >> $GITHUB_STEP_SUMMARY
+          if [ -d ".lighthouseci" ] && ls .lighthouseci/lighthouse-report-*.json 1> /dev/null 2>&1; then
+            REPORT=$(ls .lighthouseci/lighthouse-report-*.json | head -1)
+            PERF=$(jq -r '.categories.performance.score' "$REPORT")
+            A11Y=$(jq -r '.categories.accessibility.score' "$REPORT")
+            BP=$(jq -r '.categories["best-practices"].score' "$REPORT")
+            SEO=$(jq -r '.categories.seo.score' "$REPORT")
+            PWA=$(jq -r '.categories.pwa.score' "$REPORT")
+            PERF_PCT=$(awk "BEGIN{printf \"%d\", $PERF*100}")
+            A11Y_PCT=$(awk "BEGIN{printf \"%d\", $A11Y*100}")
+            BP_PCT=$(awk "BEGIN{printf \"%d\", $BP*100}")
+            SEO_PCT=$(awk "BEGIN{printf \"%d\", $SEO*100}")
+            PWA_PCT=$(awk "BEGIN{printf \"%d\", $PWA*100}")
+            echo "| Category | Score | Threshold |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|-------|-----------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Performance | ${PERF_PCT} | >= 85 (error) |" >> $GITHUB_STEP_SUMMARY
+            echo "| Accessibility | ${A11Y_PCT} | >= 90 (error) |" >> $GITHUB_STEP_SUMMARY
+            echo "| Best Practices | ${BP_PCT} | >= 80 (warn) |" >> $GITHUB_STEP_SUMMARY
+            echo "| SEO | ${SEO_PCT} | >= 80 (warn) |" >> $GITHUB_STEP_SUMMARY
+            echo "| PWA | ${PWA_PCT} | >= 70 (warn) |" >> $GITHUB_STEP_SUMMARY
           else
             echo "No reports found." >> $GITHUB_STEP_SUMMARY
           fi

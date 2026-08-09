@@ -1,0 +1,34 @@
+{
+  "name": "旅行助手",
+  "short_name": "旅行助手",
+  "description": "智能行程规划与管理 PWA，支持行程安排、预算管理、离线地图、AI推荐、日历导出等功能",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F8F7FF",
+  "theme_color": "#4B3FE3",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "categories": ["travel", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "lib/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "lib/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "lib/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

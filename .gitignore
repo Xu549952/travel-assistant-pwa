@@ -4,6 +4,12 @@ node_modules/
 # Lighthouse CI
 .lighthouseci/
 lhci_reports/
+lhci_output.txt
+lhci_pwa.log
+lhci-local.ps1
+
+# Build artifacts
+*.gz
 
 # OS files
 Thumbs.db
@@ -21,3 +27,6 @@ Desktop.ini
 *.tmp
 *.bak
 *.log
+
+# Backups
+备份_*/

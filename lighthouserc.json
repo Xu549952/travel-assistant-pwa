@@ -5,7 +5,7 @@
         "http://localhost:8080/旅行助手.html"
       ],
       "numberOfRuns": 3,
-      "startServerCommand": "npx http-server . -p 8080 --cors -c-1",
+      "startServerCommand": "node -e \"const f=require('fs'),z=require('zlib');f.writeFileSync('旅行助手.html.gz',z.gzipSync(f.readFileSync('旅行助手.html'),{level:9}))\" && npx http-server . -p 8080 --cors -c-1 --gzip",
       "startServerReadyPattern": "Starting up http-server",
       "settings": {
         "preset": "desktop",

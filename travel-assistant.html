@@ -5872,9 +5872,10 @@ const NearbyModule={
     if(isMobile){
       window.location.href=geoUrl;
       // Fallback after delay if geo: didn't work
-      setTimeout(()=>{window.open(amapUrl,'_blank')},1500);
+      // Security (SEC-011): Add noopener to prevent reverse tabnabbing
+      setTimeout(()=>{window.open(amapUrl,'_blank','noopener')},1500);
     }else{
-      window.open(amapUrl,'_blank');
+      window.open(amapUrl,'_blank','noopener');
     }
   },
 
@@ -6137,7 +6138,8 @@ function renderDiary(){
     if(e.photos&&e.photos.length){
       html+='<div class="diary-photos">';
       e.photos.forEach((p,i)=>{
-        html+='<img class="diary-photo-thumb" src="'+p+'" data-src="'+p+'" alt="日记照片" loading="lazy">';
+        // Security (SEC-008): Escape photo URL to prevent XSS via shared trip diary photos
+        html+='<img class="diary-photo-thumb" src="'+escapeHtml(p)+'" data-src="'+escapeHtml(p)+'" alt="日记照片" loading="lazy">';
       });
       html+='</div>';
     }
@@ -6210,7 +6212,8 @@ function openDiaryModal(editId){
 function updateDiaryPhotoPreview(){
   const c=document.getElementById('diary-modal-photo-preview');
   c.innerHTML=diaryEditPhotos.map((p,i)=>
-    '<img src="'+p+'" style="width:60px;height:60px;object-fit:cover;border-radius:6px;cursor:pointer" data-del-photo="'+i+'">'
+    // Security (SEC-010): Escape photo URL to prevent XSS when editing shared trip diary photos
+    '<img src="'+escapeHtml(p)+'" style="width:60px;height:60px;object-fit:cover;border-radius:6px;cursor:pointer" data-del-photo="'+i+'">'
   ).join('');
   c.querySelectorAll('[data-del-photo]').forEach(img=>{
     img.addEventListener('click',()=>{
@@ -6408,7 +6411,8 @@ function renderTickets(){
       html+='<div class="ticket-details"><span class="ticket-detail-chip">🔑 '+escapeHtml(t.number)+'</span></div>';
     }
     if(t.photo){
-      html+='<img class="ticket-photo" src="'+t.photo+'" data-src="'+t.photo+'" alt="票务截图" loading="lazy">';
+      // Security (SEC-009): Escape ticket photo URL to prevent XSS via shared trip ticket photos
+      html+='<img class="ticket-photo" src="'+escapeHtml(t.photo)+'" data-src="'+escapeHtml(t.photo)+'" alt="票务截图" loading="lazy">';
     }
     if(t.notes){
       html+='<div class="ticket-notes">📝 '+escapeHtml(t.notes)+'</div>';

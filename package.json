@@ -5,6 +5,9 @@
   "private": true,
   "scripts": {
     "lhci": "lhci",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "test:lighthouse": "lhci autorun",
     "test:lighthouse:mobile": "lhci autorun --collect.settings.preset=perf",
     "serve": "http-server . -p 8080 --cors -c-1",
@@ -13,7 +16,18 @@
   "devDependencies": {
     "@lhci/cli": "^0.13.0",
     "http-server": "^14.1.1",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
     "lighthouse": "^11.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "lib/**/*.js"
+    ]
   },
   "engines": {
     "node": ">=18.0.0"
